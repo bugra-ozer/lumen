@@ -1,9 +1,8 @@
-from logging import exception
-
 import pandas as pd
 import pathlib as pl
 import json
 import logging
+from logging import exception
 from datetime import datetime, timezone, timedelta
 from persister import state_store
 from ui import cli as ui
@@ -134,23 +133,30 @@ class DataPipeline():
                 self.tsv_configs.append(value)
         return self
 
-    @staticmethod
-    def _is_data_stale():
+    def _is_data_stale(self):
         """Check if base data is stale or not."""
         if pl.Path.exists((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE)):  # check config file
             base_data_exp = json.load(open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE)))
-            return datetime.now(timezone.utc) - datetime.fromisoformat(base_data_exp[cons.BASE_DATA_EXP_JSON]) > timedelta(weeks=2)  # return boolean
+            return datetime.now(timezone.utc)-datetime.fromisoformat(base_data_exp[cons.BASE_DATA_EXP_JSON]) > timedelta(weeks=2)  # return boolean
         else:
-            return True
+            self._create_base_data_exp() # noqa
 
     @staticmethod
     def _update_base_data_exp():
         """Update base data expiry date."""
         if pl.Path.exists((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE)):  # check config file
             base_data_exp = json.load(open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE), mode='r'))
-            update=datetime.now().isoformat()
-            base_data_exp[cons.BASE_DATA_EXP_JSON]=update
+            update = datetime.now(timezone.utc).isoformat()
+            base_data_exp[cons.BASE_DATA_EXP_JSON] = update
             json.dump(base_data_exp, open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE), 'w'))
+
+    #TRYING TO CREATE TODO BASE_DATA_EXP with correct json structure.
+    @staticmethod
+    def _create_base_data_exp():
+        base_data_exp = dict()
+        a_year_ago = (datetime.now(timezone.utc) - timedelta(weeks=5)).isoformat()
+        base_data_exp[cons.BASE_DATA_EXP_JSON] = a_year_ago
+        json.dump(base_data_exp, open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE), 'w'))
 
     def build_data(self):
         """Read if processed file exists, else run operations to initiate one."""
@@ -361,7 +367,6 @@ class MovieService():
 
     def recommend(self, filter_tools:list[list[str]]):
         """
-
         :param filter_tools:
         :return: list of picked movies
         """
@@ -374,7 +379,6 @@ class MovieService():
 
     def _pick_top(self, pool:pd.DataFrame, m:int, n:int):
         """
-
         :param pool: Main subpool of movies
         :param m: subpool from pool
         :param n: amount of movies picked at random from subpool m
@@ -416,11 +420,6 @@ class AppManager():
 
 if __name__ == '__main__':
     AppManager()
-    
-    '''
-    NOTE:  
-    
-    '''
 
     
 

@@ -70,6 +70,7 @@ def refresh():
 @app.route("/recommendations", methods=['POST'])
 def service():
     text = request.get_json(force=True)
+    if text.get('filter_tools') is None: return jsonify({'status': 'error', 'message': 'Filter tools not found, fix request body'}), 400
     filter_tools = text['filter_tools']
     response=app_service.recommend(filter_tools)
     response=jsonify(response)
