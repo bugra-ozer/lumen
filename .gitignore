@@ -20,5 +20,6 @@ log/
 *.swp
 *.swo
 request_test.py
+hit_endpoints.py
 *.env
 *.venv

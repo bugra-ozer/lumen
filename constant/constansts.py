@@ -32,7 +32,7 @@ CONFIG_DIR = 'config'
 BASE_DATA_EXP_JSON='last_update'
 
 #API cons
-PUBLIC_PATHS='/login', '/refresh'
+PUBLIC_PATHS='/login', '/refresh', '/health'
 
 #Bayes cons
 M_POOL=25

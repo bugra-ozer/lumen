@@ -15,7 +15,7 @@ load_dotenv()
 secret_key=os.environ.get("SECRET_KEY")
 app=Flask(__name__)
 app_service=MovieService()
-USERS={"admin": b'$2b$12$Gy9z3lihHck5fCP4dAJMB.JzryhwuExZgHJ49GgynNW5t88hEuOLa'} # noqa
+USERS={"admin": b'$2b$12$Gy9z3lihHck5fCP4dAJMB.JzryhwuExZgHJ49GgynNW5t88hEuOLa', "robert55": b'$2b$12$AnnHZBLv63cVShZhl2OMjuUJX5fYKX4e23/LB8iWTV7aJzAHj5bxG'} # noqa
 REF_TOKENS={}
 PUBLIC_PATHS=cons.PUBLIC_PATHS
 
@@ -81,4 +81,4 @@ def health():
     return jsonify({'status': 'ok'})
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)
