@@ -1,7 +1,5 @@
-# 🎬 Movie Agent
-
+![Lumen](asset/lumen_logo.svg)
 > A Python-powered movie recommendation engine with a Bayesian scoring algorithm, REST API, and JWT authentication.
-
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-REST%20API-000000?style=flat&logo=flask)
 ![JWT](https://img.shields.io/badge/Auth-JWT-000000?style=flat&logo=jsonwebtokens)
@@ -12,7 +10,9 @@
 
 ## What is it?
 
-Movie Agent pulls from the IMDB public dataset and scores every movie using a **Bayesian averaging algorithm** — the same approach used by IMDB's own Top 250 list. It corrects for vote count bias, so a 9.0 from 50 votes doesn't outrank an 8.5 from 50,000.
+Lumen gives tailored movie recommendations, cutting through thousands of titles to surface what's worth your time tonight.
+
+Lumen pulls from the IMDB public dataset and scores every movie using a **Bayesian averaging algorithm** — the same approach used by IMDB's own Top 250 list. It corrects for vote count bias, so a 9.0 from 50 votes doesn't outrank an 8.5 from 50,000.
 
 Recommendations are served through a **Flask REST API** with JWT-based authentication, and filtered by genre, rating, or release year per request. A CLI interface is also available for local use.
 
@@ -23,7 +23,7 @@ Recommendations are served through a **Flask REST API** with JWT-based authentic
 ```
 AppManager                        ← Orchestrates CLI vs API entry points
   └── MovieService                ← Core business logic, interface-agnostic
-        ├── MovieAgent            ← DataFrame container
+        ├── Container            ← DataFrame container
         │     └── DataPipeline    ← Load, merge, cache IMDB TSV/Parquet data
         │           └── DataLoader
         ├── MovieScorer           ← Bayesian scoring (scorer/bayesian_algorithm.py)
@@ -56,7 +56,7 @@ AppManager                        ← Orchestrates CLI vs API entry points
 
 ## ETL Pipeline
 
-IMDB distributes its dataset as gzip-compressed TSV files. On first run, Movie Agent:
+IMDB distributes its dataset as gzip-compressed TSV files. On first run, Lumen:
 
 1. **Streams** the compressed files from IMDB using `requests` — no full download into memory
 2. **Decompresses** on the fly with `gzip`
@@ -105,8 +105,8 @@ Where `v` = vote count, `m` = minimum votes threshold, `R` = movie average, `C` 
 ## Folder Structure
 
 ```
-movie-agent/
-├── main.py               ← Core classes (MovieAgent, MovieService, AppManager...)
+Container/
+├── main.py               ← Core classes (Container, MovieService, AppManager...)
 ├── scorer/
 │   └── bayesian_algorithm.py
 ├── persist/
@@ -131,7 +131,7 @@ movie-agent/
 ```bash
 # Clone the repo
 git clone https://github.com/bugra-ozer/movie-agent
-cd movie-agent
+cd lumen
 
 # Install dependencies
 pip install -r requirements.txt

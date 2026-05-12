@@ -14,7 +14,7 @@ from constant import constansts as cons
 log_handler.LogHandler()
 logger=logging.getLogger(__name__)
 
-class MovieAgent():
+class Container():
     """Container class for managing the state of the dataframe"""
 
     def __init__(self):
@@ -235,10 +235,10 @@ class DataLoader():
 
 class MovieFilter():
     """Class that internally selects and stores selected movies after user filter is applied.\n
-    Carries MovieAgent dataframe and MovieAgentBuilder raw_data internally"""
+    Carries Container dataframe and Dataframe internally"""
 
     def __init__(self, df:pd.DataFrame, filter_tools:list[list[str]], sort_column=cons.ADJUSTED_SCORE_COLUMN):
-        """Requires movieAgentBuilder object to initialize
+        """Requires Dataframe object to initialize
         filter_tools: column_name, operatr, value to be filtered"""
         self.df=df.copy()
         self.sort_column = None
@@ -358,7 +358,7 @@ class MovieService():
         self.picks=None
         self.state_store = state_store.StateStore()  #For caching
         self.state_store.load_all_files()
-        self.agent = MovieAgent()
+        self.agent = Container()
         self.agent.build_agent()
         self.previous_ids = set(self.state_store.data.get(cons.PREVIOUS_DATA_KEY, pd.DataFrame()).get(cons.IMDB_ID_COLUMN, []))
         self.bayes=bayes.MovieScorer(self.agent.data)
