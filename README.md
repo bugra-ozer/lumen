@@ -130,7 +130,7 @@ lumen/
 
 ```bash
 # Clone the repo
-git clone https://github.com/bugra-ozer/movie-agent
+git clone https://github.com/bugra-ozer/lumen
 cd lumen
 
 # Install dependencies
