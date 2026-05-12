@@ -1,5 +1,6 @@
 ![Lumen](asset/lumen_logo.svg)
 > A Python-powered movie recommendation engine with a Bayesian scoring algorithm, REST API, and JWT authentication.
+
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-REST%20API-000000?style=flat&logo=flask)
 ![JWT](https://img.shields.io/badge/Auth-JWT-000000?style=flat&logo=jsonwebtokens)
