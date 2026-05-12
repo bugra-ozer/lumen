@@ -14,7 +14,7 @@ Lumen gives tailored movie recommendations, cutting through thousands of titles 
 
 Lumen pulls from the IMDB public dataset and scores every movie using a **Bayesian averaging algorithm** — the same approach used by IMDB's own Top 250 list. It corrects for vote count bias, so a 9.0 from 50 votes doesn't outrank an 8.5 from 50,000.
 
-Recommendations are served through a **Flask REST API** with JWT-based authentication, and filtered by genre, rating, or release year per request. A CLI interface is also available for local use.
+Recommendations are served through a **Flask REST API** with JWT-based authentication, and filtered by genre or rating per request. A CLI interface is also available for local use.
 
 ---
 
