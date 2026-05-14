@@ -1,0 +1,10 @@
+pyarrow
+pandas
+pathlib
+requests
+tqdm
+json
+gzip
+logging
+flask
+PyJWT
