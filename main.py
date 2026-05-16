@@ -252,7 +252,7 @@ class MovieFilter():
         filter_tools: Filter params: column_name, operator, value such as: Average Rating, >, 7
         """
         #Check if column_name, operatr, value valid in dataframe
-        candidates=self.apply_filters(filter_tools)
+        candidates=self.apply_each_filter(filter_tools)
         self.configure_sort(sort_column, False)
         result=self.sort_candidates(candidates)
         return result
@@ -274,18 +274,18 @@ class MovieFilter():
             return False
         return column_name, operatr, value
 
-    def apply_filters(self, filter_tools:list[list[str]]):
+    def apply_each_filter(self, filter_tools:list[list[str]]):
         """Unpacks filter tools and applies each filter in it manually."""
         candidates=self.df
         for filters in filter_tools:
             column_name, operatr, value=self._parse_filter_tools(filters)
-            candidates=self._apply_filter(candidates, column_name, operatr, value)
+            candidates=self._apply_one_filter(candidates, column_name, operatr, value)
         return candidates
 
-    def _apply_filter(self, candidates, column_name:str, operatr:str, value:str):
+    def _apply_one_filter(self, candidates, column_name:str, operatr:str, value:str):
         """Apply appropriate value as filter to column_name."""
         value=self._convert_value(candidates, column_name, value)
-        condition=self._build_filter_condition(candidates, column_name, operatr, value)
+        condition=self._build_filter(candidates, column_name, operatr, value)
         candidates=candidates[condition]
         return candidates
 
@@ -303,21 +303,20 @@ class MovieFilter():
                     raise ValueError
         return new_value
 
-    def _build_filter_condition(self, candidates, column_name:str, operator:str, value:str):
-        """Build pandas condition based on column, operator, and value\n
-        contains: Movies tend to have more than one genre. To avoid fixed listing, you can set this setting to true to for instance: your horror movie search includes movies that have horror and action etc."""
+    def _build_filter(self, candidates, column_name:str, operator:str, value:str):
+        """Build pandas condition based on column, operator, and value\n"""
         if pd.api.types.is_numeric_dtype(candidates[column_name]):
             try:
-                condition=self._build_numeric_condition(candidates, column_name, operator, value)
+                condition=self._apply_numeric_filter(candidates, column_name, operator, value)
             except ValueError:
                 raise ValueError(f'Filter operation failed. One of the following is invalid: {column_name},{operator},{value}')
         elif value is not None:
-            condition=self._build_string_condition(candidates, column_name, value)
+            condition=self._apply_string_filter(candidates, column_name, value)
         else: raise ValueError(f'Operation failed. One of the following is invalid: {column_name},{operator},{value}')
         return condition
 
     @staticmethod
-    def _build_numeric_condition(candidates, column_name:str, operator:str, value:str):
+    def _apply_numeric_filter(candidates, column_name:str, operator:str, value:str):
         """Build quantitative filter"""
         condition = candidates[column_name]
         if operator == ">":
@@ -334,7 +333,7 @@ class MovieFilter():
             return ValueError
 
     @staticmethod
-    def _build_string_condition(candidates, column_name:str, value):
+    def _apply_string_filter(candidates, column_name:str, value):
         """Helper function that checks data for broader string matches, not exact for qualitative filter"""
         condition=candidates[column_name].str.lower().str.contains(value)
         return condition
