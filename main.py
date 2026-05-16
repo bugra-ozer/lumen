@@ -24,7 +24,7 @@ class Container():
         usecols=cons.COLUMNS_TO_KEEP_LEGACY
         self.data_pipeline=DataPipeline(usecols=usecols)
 
-    def build_agent(self):
+    def build_container(self):
         """Orchestrates the flow of code for easy readability."""
         self.data=self.data_pipeline.main()
         self.raw_data=self.data #set raw dataframe before clearing main dataframe
@@ -78,7 +78,7 @@ class Container():
         return self
 
 class DataPipeline():
-    """Orchestrator class owns DataLoader for external pandas dataframe operations."""
+    """Orchestrator class owns loader class for external pandas dataframe operations."""
 
     def __init__(self, usecols=None, json_cfg:tuple=("main.json", "dataset.json")):
         self.config_dir='config'
@@ -340,7 +340,7 @@ class DataFilter():
         return condition
     
     def configure_sort(self, column:str, ascend=True):
-        """Set sort properties of MoviePicker object based on column parameter."""
+        """Set sort properties based on column parameter."""
         self.sort_ascending=ascend
         self.sort_column=column
 
@@ -353,16 +353,16 @@ class DataFilter():
         return sorted_candidates
 
 class AppService():
-    """Movie recommendation service that runs end to end."""
+    """Recommendation service that runs end to end."""
 
     def __init__(self):
         self.picks=None
         self.state_store = state_store.StateStore()  #For caching
         self.state_store.load_all_files()
-        self.agent = Container()
-        self.agent.build_agent()
+        self.container = Container()
+        self.container.build_container()
         self.previous_ids = set(self.state_store.data.get(cons.PREVIOUS_DATA_KEY, pd.DataFrame()).get(cons.IMDB_ID_COLUMN, []))
-        self.bayes=bayes.MovieScorer(self.agent.data)
+        self.bayes=bayes.MovieScorer(self.container.data)
         self.bayes.score()
         self.data=self.bayes.data
 
@@ -407,8 +407,8 @@ class AppManager():
     
     def __init__(self):
         try:
-            self.movie_service=AppService()
-            self.cli=ui.UserInterface()
+            self.app_service=AppService()
+            self.cli=ui.CommandLineInterface()
             self._main()
         except Exception as e: # noqa
             logger.exception(f'Unhandled exception.')
@@ -417,7 +417,7 @@ class AppManager():
         """Start cli and app service."""
         self.cli.start()
         self.filter_tools:list[list[str]]=self.cli.all_filter_tools
-        self.movie_service.recommend(self.filter_tools)
+        self.app_service.recommend(self.filter_tools)
 
 if __name__ == '__main__':
     AppManager()

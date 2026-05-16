@@ -12,7 +12,7 @@ class SearchTypes(enum.Enum):
     GENRE = 'genre'
     BOTH = 'both'
 
-class UserInterface():
+class CommandLineInterface():
     """Class that provides interface for user-based actions."""
 
     def __init__(self): #type: ignore
@@ -121,5 +121,5 @@ class UserInterface():
 
 if __name__ == "__main__":
     """"""
-    ui=UserInterface()
+    ui=CommandLineInterface()
     ui.start()
