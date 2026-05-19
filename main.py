@@ -237,7 +237,7 @@ class DataLoader():
 class DataFilter():
     """Internally selects and stores selected movies after user filter is applied."""
 
-    def __init__(self, df:pd.DataFrame, filter_tools:list[list[str]], sort_column=cons.ADJUSTED_SCORE_COLUMN):
+    def __init__(self, df:pd.DataFrame, filter_tools:dict[str,dict], sort_column=cons.ADJUSTED_SCORE_COLUMN):
         """Requires Dataframe object to initialize
         filter_tools: column_name, operatr, value to be filtered"""
         self.df=df.copy()
@@ -247,37 +247,35 @@ class DataFilter():
         self.filter_tools=filter_tools
         self.result=self.get_movies(self.filter_tools, sort_column=sort_column)
 
-    def get_movies(self, filter_tools:list[list[str]], sort_column=cons.ADJUSTED_SCORE_COLUMN):
+    def get_movies(self, filter_tools:dict[str,dict], sort_column=cons.ADJUSTED_SCORE_COLUMN):
         """Retrieve list of movies with user filter applied.
-        filter_tools: Filter params: column_name, operator, value such as: Average Rating, >, 7
+        filter_tools: Filter params: column_name, operator, value
         """
         candidates=self.apply_each_filter(filter_tools)
-        self.configure_sort(sort_column, False)
-        result=self.sort_candidates(candidates)
+        self._configure_sort(sort_column, False)
+        result=self._sort_candidates(candidates)
         return result
     
     @staticmethod
-    def _parse_filter_tools(filter_tools:list[str]):
+    def _parse_filter_tools(filter_tools:dict[str, dict]):
         """Based on the argument length, assign variables to apply filters.
         This is needed for allowing user to type in titles and genres without explicit operations."""
         operatr=None
-        if len(filter_tools)==3:
-            column_name, operatr, value=filter_tools
-        elif len(filter_tools)==2:
-            value=filter_tools[1]
-            column_name=filter_tools[0]
-        elif len(filter_tools)==1:
-            value=filter_tools[0]
-            column_name=None
-        else:
-            return False
-        return column_name, operatr, value
+        for column, val_type in filter_tools.items():
+                if column == cons.GENRE_COLUMN:
+                    value=val_type[cons.FILTER_VALUE]
+                    yield column, operatr, value
+                elif column == cons.AVERAGE_RATING_COLUMN:
+                    value=val_type[cons.FILTER_VALUE]
+                    operatr=val_type[cons.FILTER_OPERATOR]
+                    yield column, operatr, value
+                else:
+                    raise ValueError
 
-    def apply_each_filter(self, filter_tools:list[list[str]]):
+    def apply_each_filter(self, filter_tools:dict[str,dict]):
         """Unpacks filter tools and applies each filter in it manually."""
         candidates=self.df
-        for filters in filter_tools:
-            column_name, operatr, value=self._parse_filter_tools(filters)
+        for column_name, operatr, value in self._parse_filter_tools(filter_tools):
             candidates=self._apply_one_filter(candidates, column_name, operatr, value)
         return candidates
 
@@ -337,12 +335,12 @@ class DataFilter():
         condition=candidates[column_name].str.lower().str.contains(value)
         return condition
     
-    def configure_sort(self, column:str, ascend=True):
+    def _configure_sort(self, column:str, ascend=True):
         """Set sort properties based on column parameter."""
         self.sort_ascending=ascend
         self.sort_column=column
 
-    def sort_candidates(self, candidates:pd.DataFrame):
+    def _sort_candidates(self, candidates:pd.DataFrame):
         """Apply sorting properties with respect to candidates parameter."""
         if self.sort_column is not None:
             sorted_candidates=candidates.sort_values(self.sort_column, ascending=self.sort_ascending)
@@ -374,6 +372,7 @@ class AppService():
         self.state_store.concat_file({cons.PREVIOUS_DATA_KEY: pd.DataFrame(self.picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]])})
         self.state_store.save_all_files()
         self.picks=self.picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
+        print(self.picks.to_string())
         return self.picks.to_dict(orient='records')
 
     def _pick_top(self, pool:pd.DataFrame, m:int, n:int):

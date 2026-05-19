@@ -44,3 +44,4 @@ def test_merge():
     all_columns.update(merge_to.columns, merge_from.columns)
     for column in all_columns:
         assert column in list(merge)
+

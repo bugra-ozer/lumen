@@ -16,7 +16,7 @@ class CommandLineInterface():
     """Class that provides interface for user-based actions."""
 
     def __init__(self): #type: ignore
-        self.all_filter_tools:list[list[str]]=[]
+        self.all_filter_tools:dict[str, dict]={}
 
     def start(self):
         """Prompt user for actions"""
@@ -59,7 +59,7 @@ class CommandLineInterface():
             try:
                 search = float(search)
                 if 1 <= search <= 10:
-                    self.all_filter_tools.append([constants.AVERAGE_RATING_COLUMN,'>', search])
+                    self.all_filter_tools[constants.AVERAGE_RATING_COLUMN]={constants.FILTER_OPERATOR: '>', constants.FILTER_VALUE: search}
                 else:
                     raise ValueError
             except ValueError:
@@ -75,7 +75,7 @@ class CommandLineInterface():
             input(constants.INFO_PRESS_ANY)
         else:
             if self._is_input_help(search):self.display_help()
-            self.all_filter_tools.append([constants.GENRE_COLUMN,search])
+            self.all_filter_tools[constants.GENRE_COLUMN]={constants.FILTER_VALUE: search}
 
     @staticmethod
     def _is_exit(user_input:str):

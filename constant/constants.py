@@ -1,4 +1,7 @@
 #Pandas operation constants
+FILTER_VALUE='value'
+FILTER_OPERATOR='operator'
+FILTER_COLUMN='column'
 IMDB_ID_COLUMN = 'IMDBid'
 IMDB_ID_COLUMN_LEGACY = 'tconst'
 GENRE_COLUMN = 'Genre'
