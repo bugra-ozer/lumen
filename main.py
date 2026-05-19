@@ -98,7 +98,7 @@ class DataPipeline():
             raise Exception(cons.ERROR_LOAD_BASE_DATA)
         elif not self.tsv_configs:
             raise Exception(cons.ERROR_LOAD_TSV_PATH)
-        if not pl.Path(self.base_data_path).exists(): #check for base_data, if it exists skip all download dataset operation.
+        if not pl.Path(self.base_data_path).exists() or self._is_data_stale(): #check for base_data, if it exists skip all download dataset operation.
             if any(tsv for tsv in [*self.tsv_configs] if not pl.Path(tsv[cons.PATH_COLUMN]).exists()): #if file paths are empty orchestrate http request for dataset download.
                 self.dataset_downloader.main()
         return self.build_data()
@@ -161,7 +161,7 @@ class DataPipeline():
     def build_data(self):
         """Read if processed file exists, else run operations to initiate one."""
         data_frames=[]
-        if pl.Path.exists(self.base_data_path) and not self._is_data_stale():
+        if pl.Path.exists(self.base_data_path):
             logger.info(cons.INFO_LOAD_BASE_DATA)
             data=self.data_loader.read_file(str(self.base_data_path), 'parquet')
         else:
