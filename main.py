@@ -245,6 +245,7 @@ class DataFilter():
         self.sort_ascending = True
         self.genres=self.df[cons.GENRE_COLUMN].str.lower().str.split(',').explode().unique()
         self.filter_tools=filter_tools
+        if not self._is_ready_structure(): raise ValueError(cons.ERROR_WRONG_FILTER_OR_DF)
         self.result=self.get_movies(self.filter_tools, sort_column=sort_column)
 
     def get_movies(self, filter_tools:dict[str,dict], sort_column=cons.ADJUSTED_SCORE_COLUMN):
@@ -348,6 +349,11 @@ class DataFilter():
             sorted_candidates=candidates
         return sorted_candidates
 
+    def _is_ready_structure(self):
+        if self._is_valid_dataframe() and self._is_valid_filter_tools:
+            return True
+        return False
+
     def _is_valid_filter_tools(self):
         if not isinstance(self.filter_tools, dict):
             return False
@@ -355,6 +361,13 @@ class DataFilter():
             for key, inner_dict in self.filter_tools.items():
                 if not isinstance(inner_dict, dict):
                     return False
+        return True
+
+    def _is_valid_dataframe(self):
+        if not isinstance(self.df, pd.DataFrame):
+            return False
+        elif self.df.columns not in cons.COLUMNS_TO_KEEP:
+            return False
         return True
 
 class AppService():

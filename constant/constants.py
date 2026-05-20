@@ -31,6 +31,7 @@ COLUMN_RENAME_DICT={'tconst': 'IMDBid','averageRating': 'Average Rating',
 ERROR_APPLY_CON='Failed to apply condition to the file.'
 ERROR_LOAD_BASE_DATA='Failed to load base data'
 ERROR_LOAD_TSV_PATH='Failed to load tsv paths'
+ERROR_WRONG_FILTER_OR_DF='Failed to load filter_tools or DataFrame'
 
 #CLI
 INFO_PRESS_ANY='Press any key to continue...'
