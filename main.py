@@ -355,7 +355,9 @@ class DataFilter():
         return False
 
     def _is_valid_filter_tools(self):
-        if not isinstance(self.filter_tools, dict):
+        print(type(self.filter_tools), self.filter_tools)
+        if self.filter_tools == {} or self.filter_tools is None: return True
+        elif not isinstance(self.filter_tools, dict):
             return False
         else:
             for key, inner_dict in self.filter_tools.items():
@@ -366,8 +368,9 @@ class DataFilter():
     def _is_valid_dataframe(self):
         if not isinstance(self.df, pd.DataFrame):
             return False
-        elif self.df.columns not in cons.COLUMNS_TO_KEEP:
-            return False
+        for col in self.df.columns:
+            if col not in cons.COLUMNS_TO_KEEP:
+                return False
         return True
 
 class AppService():
