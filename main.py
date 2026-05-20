@@ -348,6 +348,15 @@ class DataFilter():
             sorted_candidates=candidates
         return sorted_candidates
 
+    def _is_valid_filter_tools(self):
+        if not isinstance(self.filter_tools, dict):
+            return False
+        else:
+            for key, inner_dict in self.filter_tools.items():
+                if not isinstance(inner_dict, dict):
+                    return False
+        return True
+
 class AppService():
     """Recommendation service that runs end to end."""
 
@@ -362,7 +371,7 @@ class AppService():
         self.bayes.score()
         self.data=self.bayes.data
 
-    def recommend(self, filter_tools:list[list[str]]):
+    def recommend(self, filter_tools:dict[str, dict]):
         """
         :param filter_tools: nested list of filters or empty list(s)
         :return: list of picked movies
@@ -412,7 +421,7 @@ class AppManager():
     def _main(self):
         """Start cli and app service."""
         self.cli.start()
-        self.filter_tools:list[list[str]]=self.cli.all_filter_tools
+        self.filter_tools:dict[str,dict]=self.cli.all_filter_tools
         self.app_service.recommend(self.filter_tools)
 
 if __name__ == '__main__':
