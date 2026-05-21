@@ -55,6 +55,8 @@ class CommandLineInterface():
         """Prompt user for search help and return input"""
         search = input(messages.RATING_SEARCH)
         if self._is_exit(search):pass
+        elif not isinstance(search, float):
+            print(messages.INVALID_INPUT)
         else:
             try:
                 search = float(search)
@@ -80,7 +82,7 @@ class CommandLineInterface():
     @staticmethod
     def _is_exit(user_input:str):
         """Check if user is given exit command to interface, if so return true."""
-        exit_list=['quit', 'exit', 'leave']
+        exit_list=['quit', 'exit', 'leave', 'done', 'dn', 'ok']
         if user_input.strip().lower() in exit_list:
             flag=True
         else:
