@@ -55,7 +55,7 @@ class CommandLineInterface():
         """Prompt user for search help and return input"""
         search = input(messages.RATING_SEARCH)
         if self._is_exit(search):pass
-        elif not isinstance(search, float):
+        elif not self._is_input_float or not 0.0 <= float(search) <= 10.0:
             print(messages.INVALID_INPUT)
         else:
             try:
@@ -88,6 +88,13 @@ class CommandLineInterface():
         else:
             flag=False
         return flag
+
+    @staticmethod
+    def _is_input_float(search):
+        try:
+            float(search)
+            return True
+        except ValueError: return False
         
     @staticmethod
     def _is_input_help(user_input:str):
