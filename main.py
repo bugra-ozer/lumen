@@ -368,8 +368,8 @@ class DataFilter():
     def _is_valid_dataframe(self):
         if not isinstance(self.df, pd.DataFrame):
             return False
-        for col in self.df.columns:
-            if col not in cons.COLUMNS_TO_KEEP:
+        for col in cons.COLUMNS_TO_KEEP:
+            if col not in self.df.columns:
                 return False
         return True
 
