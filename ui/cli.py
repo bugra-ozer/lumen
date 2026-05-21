@@ -75,15 +75,23 @@ class CommandLineInterface():
 
     def _genre_search(self):
         """Prompt user for search help and return input"""
-        search = input(messages.GENRE_SEARCH).lower().strip()
-        if self._is_exit(search):pass
-        elif 'genre' in search:
-            print(messages.GENRE_INFO)
-            input(constants.INFO_PRESS_ANY)
-        elif self._is_input_help(search):self.display_help()
-        elif not self._is_input_genre(search):print(messages.INVALID_INPUT)
-        else:
-            self.all_filter_tools[constants.GENRE_COLUMN]={constants.FILTER_VALUE: search}
+        keep=True
+        while keep:
+            search = input(messages.GENRE_SEARCH).lower().strip()
+            if self._is_exit(search):
+                keep=False
+            elif 'genre' in search:
+                print(messages.GENRE_INFO)
+                input(constants.INFO_PRESS_ANY)
+                keep=False
+            elif self._is_input_help(search):
+                self.display_help()
+                keep=False
+            elif not self._is_input_genre(search):
+                print(messages.INVALID_INPUT)
+            else:
+                self.all_filter_tools[constants.GENRE_COLUMN] = {constants.FILTER_VALUE: search}
+                keep=False
 
     @staticmethod
     def _is_exit(user_input:str):
