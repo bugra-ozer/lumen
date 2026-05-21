@@ -23,7 +23,7 @@ class CommandLineInterface():
         flag=True
         filter_tools=None
         while flag:
-            user_input=self._return_input()
+            user_input=self._return_input().lower().strip()
             if self._is_exit(user_input): break
             elif self._is_input_help(user_input): self.display_help()
             else:
@@ -35,7 +35,7 @@ class CommandLineInterface():
         """Prompt user for search options and guide the user for search."""
         flag=True
         while flag:
-            user_input = input(messages.MAIN_OPTIONS)
+            user_input = input(messages.MAIN_OPTIONS).lower().strip()
             if self._is_exit(user_input):
                 break
             try:
@@ -53,30 +53,36 @@ class CommandLineInterface():
 
     def _rating_search(self):
         """Prompt user for search help and return input"""
-        search = input(messages.RATING_SEARCH)
-        if self._is_exit(search):pass
-        elif not self._is_input_float or not 0.0 <= float(search) <= 10.0:
-            print(messages.INVALID_INPUT)
-        else:
-            try:
-                search = float(search)
-                if 1 <= search <= 10:
-                    self.all_filter_tools[constants.AVERAGE_RATING_COLUMN]={constants.FILTER_OPERATOR: '>', constants.FILTER_VALUE: search}
-                else:
-                    raise ValueError
-            except ValueError:
+        keep=True
+        while keep:
+            search = input(messages.RATING_SEARCH).lower().strip()
+            if self._is_exit(search):
+                keep=False
+            elif not self._is_input_float(search) or not 0.0 <= float(search) <= 10.0:
                 print(messages.INVALID_INPUT)
-                raise ValueError
+            else:
+                try:
+                    search = float(search)
+                    if 1 <= search <= 10:
+                        self.all_filter_tools[constants.AVERAGE_RATING_COLUMN] = {constants.FILTER_OPERATOR: '>',
+                                                                                  constants.FILTER_VALUE: search}
+                        keep = False
+                    else:
+                        raise ValueError
+                except ValueError:
+                    print(messages.INVALID_INPUT)
+                    raise ValueError
 
     def _genre_search(self):
         """Prompt user for search help and return input"""
-        search = input(messages.GENRE_SEARCH)
+        search = input(messages.GENRE_SEARCH).lower().strip()
         if self._is_exit(search):pass
         elif 'genre' in search:
             print(messages.GENRE_INFO)
             input(constants.INFO_PRESS_ANY)
+        elif self._is_input_help(search):self.display_help()
+        elif not self._is_input_genre(search):print(messages.INVALID_INPUT)
         else:
-            if self._is_input_help(search):self.display_help()
             self.all_filter_tools[constants.GENRE_COLUMN]={constants.FILTER_VALUE: search}
 
     @staticmethod
@@ -90,11 +96,17 @@ class CommandLineInterface():
         return flag
 
     @staticmethod
-    def _is_input_float(search):
+    def _is_input_float(user_input):
         try:
-            float(search)
+            float(user_input)
             return True
         except ValueError: return False
+
+    @staticmethod
+    def _is_input_genre(user_input):
+        if user_input.lower().strip() in constants.GENRE_LIST:
+            return True
+        return False
         
     @staticmethod
     def _is_input_help(user_input:str):

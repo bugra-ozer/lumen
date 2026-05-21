@@ -20,6 +20,7 @@ PATH_COLUMN='path'
 DECAY_FACTOR_COLUMN = 'Decay Factor'
 ADJUSTED_SCORE_COLUMN = 'Adjusted Score'
 DATE_COLUMN = 'Date'
+GENRE_LIST=["action", "adventure", "animation", "biography", "comedy", "crime", "documentary", "drama", "family", "fantasy", "film-noir", "game-show", "history", "horror", "music", "musical", "mystery", "news", "reality-tv", "romance", "sci-fi", "short", "sport", "talk-show", "thriller", "war", "western"]
 COLUMNS_TO_KEEP='IMDBid', 'Average Rating', 'Number of Votes', 'Primary Title', 'Published', 'Genre'
 COLUMNS_TO_KEEP_LEGACY='tconst', 'averageRating', 'numVotes', 'primaryTitle', 'startYear', 'genres'
 COLUMN_RENAME_DICT={'tconst': 'IMDBid','averageRating': 'Average Rating',
