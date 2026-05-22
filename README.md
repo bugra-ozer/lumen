@@ -3,9 +3,11 @@
 
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-REST%20API-000000?style=flat&logo=flask)
+[![.github/workflows/ci.yml](https://github.com/bugra-ozer/lumen/actions/workflows/ci.yml/badge.svg)](https://github.com/bugra-ozer/lumen/actions/workflows/ci.yml)
 ![JWT](https://img.shields.io/badge/Auth-JWT-000000?style=flat&logo=jsonwebtokens)
-![Pandas](https://img.shields.io/badge/Data-Pandas%20%2B%20Parquet-150458?style=flat&logo=pandas)
-![IMDB](https://img.shields.io/badge/Data-IMDB%20Dataset-F5C518?style=flat&logo=imdb)
+![Pandas](https://img.shields.io/badge/Pandas-pandas?style=flat&logo=pandas&label=ETL&color=%23231f52)
+![IMDB](https://img.shields.io/badge/Data-IMDB%20Dataset-d4a80b?style=flat&logo=imdb)
+![Last](https://img.shields.io/github/last-commit/bugra-ozer/lumen/master)
 
 ---
 
