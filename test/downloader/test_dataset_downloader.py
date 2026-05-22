@@ -13,11 +13,11 @@ def test_download_write_chunks_b(mock_get, mock_open):
     """Test 8192 byte chunks are written correctly."""
     unit = downloader.DatasetDownloader()
     mock_file = io.BytesIO()
-    url = cons_dev.mock_url #constant
+    url = cons_dev.MOCK_RANDOM_URL #constant
     mock_response=MagicMock()
     mock_response.status_code=200
-    mock_response.headers=cons_dev.mock_content_length #size of file
-    mock_response.iter_content.return_value=cons_dev.mock_data_response_bytes #mock bytes equal to size of file
+    mock_response.headers=cons_dev.MOCK_CONTENT_LENGTH #size of file
+    mock_response.iter_content.return_value=cons_dev.MOCK_DATA_RESPONSE_BYTES #mock bytes equal to size of file
     mock_get.return_value=mock_response
     mock_open.return_value.__enter__.return_value=mock_file
     unit._download_file(url, mock_file)
@@ -34,7 +34,7 @@ def test_decompress_downloaded(mock_gzip, mock_open):
     mock_source.exists.return_value = True #source look-up
     mock_source.stat.return_value.st_size = 100 #for tqdm
     compressed_data = MagicMock()
-    compressed_data.read.side_effect = cons_dev.mock_data_comp_bytes #bytes for iter function, when returned byte sentinel, function ends
+    compressed_data.read.side_effect = cons_dev.MOCK_DATA_COMP_BYTES #bytes for iter function, when returned byte sentinel, function ends
     compressed_data.fileobj.tell.return_value=100 #for tqdm
     mock_gzip.return_value.__enter__.return_value=compressed_data
     dest_file = io.BytesIO()

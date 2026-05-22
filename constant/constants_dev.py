@@ -1,10 +1,11 @@
 #CI
 
-mock_url='127.0.0.1:8000'
-mock_path='giber/'
-mock_content_length={'Content-Length':'32768'} #dict
-mock_data_comp_bytes=[b'compressed', b'']
-mock_data_response_bytes=([b'a' * 8192, b'b' * 8192, b'c' * 8192, b'd' * 8192])
-dummy_dataframe_columns_one=['IMDBid', 'Title']
-dummy_dataframe_columns_two=['IMDBid', 'Genre']
-dummy_dataframe_data=[['4924', 'Shawshank Redemption'], ['2134', 'Rebellion']]
+MOCK_RANDOM_URL= '127.0.0.1:8000'
+MOCK_RANDOM_PATH= 'giber/'
+MOCK_CONTENT_LENGTH={'Content-Length': '32768'} #dict
+MOCK_DATA_COMP_BYTES=[b'compressed', b'']
+MOCK_DATA_RESPONSE_BYTES=([b'a' * 8192, b'b' * 8192, b'c' * 8192, b'd' * 8192])
+DUMMY_DATAFRAME_COLUMNS_ONE=['IMDBid', 'Title']
+DUMMY_DATAFRAME_COLUMNS_TWO=['IMDBid', 'Genre']
+DUMMY_DATAFRAME_DATA=[['4924', 'Shawshank Redemption'], ['2134', 'Rebellion']]
+MOCK_DATAFRAME_DATA=['tt1675434', '8.5', '1027907', 'The Intouchables', '2011', 'Comedy,Drama'],['tt7286456', '8.3', '1694585', 'Joker', '2019', 'Crime,Drama,Thriller']

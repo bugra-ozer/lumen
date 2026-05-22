@@ -355,7 +355,6 @@ class DataFilter():
         return False
 
     def _is_valid_filter_tools(self):
-        print(type(self.filter_tools), self.filter_tools)
         if self.filter_tools == {} or self.filter_tools is None: return True
         elif not isinstance(self.filter_tools, dict):
             return False
