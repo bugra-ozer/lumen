@@ -415,7 +415,7 @@ class AppService():
         return False
 
 class AppManager():
-    """Main orchestrator that assembles prereq for service."""
+    """Main orchestrator that assembles pre-requirements for service."""
     
     def __init__(self):
         try:

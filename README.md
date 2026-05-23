@@ -7,7 +7,6 @@
 ![JWT](https://img.shields.io/badge/Auth-JWT-000000?style=flat&logo=jsonwebtokens)
 ![Pandas](https://img.shields.io/badge/Pandas-pandas?style=flat&logo=pandas&label=ETL&color=%23231f52)
 ![IMDB](https://img.shields.io/badge/Data-IMDB%20Dataset-d4a80b?style=flat&logo=imdb)
-![Last](https://img.shields.io/github/last-commit/bugra-ozer/lumen/master)
 
 ---
 
