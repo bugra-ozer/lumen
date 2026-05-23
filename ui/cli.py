@@ -3,6 +3,7 @@ import string
 import asyncio
 import logging
 import enum
+from validator import validator
 from constant import constants, messages
 
 logger = logging.getLogger(__name__)
@@ -58,7 +59,7 @@ class CommandLineInterface():
             search = input(messages.RATING_SEARCH).lower().strip()
             if self._is_exit(search):
                 keep=False
-            elif not self._is_input_float(search) or not 0.0 <= float(search) <= 10.0:
+            elif not validator.is_input_float(search) or not 0.0 <= float(search) <= 10.0:
                 print(messages.INVALID_INPUT)
             else:
                 try:
@@ -87,7 +88,7 @@ class CommandLineInterface():
             elif self._is_input_help(search):
                 self.display_help()
                 keep=False
-            elif not self._is_input_genre(search):
+            elif not validator.is_input_genre(search):
                 print(messages.INVALID_INPUT)
             else:
                 self.all_filter_tools[constants.GENRE_COLUMN] = {constants.FILTER_VALUE: search}
@@ -102,19 +103,6 @@ class CommandLineInterface():
         else:
             flag=False
         return flag
-
-    @staticmethod
-    def _is_input_float(user_input):
-        try:
-            float(user_input)
-            return True
-        except ValueError: return False
-
-    @staticmethod
-    def _is_input_genre(user_input):
-        if user_input.lower().strip() in constants.GENRE_LIST:
-            return True
-        return False
         
     @staticmethod
     def _is_input_help(user_input:str):
