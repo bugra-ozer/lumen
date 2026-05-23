@@ -2,6 +2,7 @@ import pandas as pd
 import pathlib as pl
 import json
 import logging
+import functools
 from validator import validator
 from logging import exception
 from datetime import datetime, timezone, timedelta
@@ -310,8 +311,6 @@ class DataFilter():
             except ValueError:
                 raise ValueError(f'Filter operation failed. One of the following is invalid: {column_name},{operator},{value}')
         elif value is not None:
-            print('fell to string filter with',column_name, value)
-            input()
             condition=self._apply_string_filter(candidates, column_name, value)
         else: raise ValueError(f'Operation failed. One of the following is invalid: {column_name},{operator},{value}')
         return condition
@@ -336,7 +335,8 @@ class DataFilter():
     @staticmethod
     def _apply_string_filter(candidates, column_name:str, value):
         """Helper function that checks data for broader string matches, not exact for qualitative filter"""
-        condition=candidates[column_name].str.lower().str.contains(value)
+        boolean_mask=[candidates[column_name].str.lower().str.contains(genre) for genre in value]
+        condition=functools.reduce(lambda x,y: x&y, boolean_mask)
         return condition
     
     def _configure_sort(self, column:str, ascend=True):

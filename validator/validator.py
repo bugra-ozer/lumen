@@ -7,6 +7,11 @@ def is_input_float(user_input):
         return True
     except ValueError: return False
 
+def is_list_genre(genres:list):
+    if all(is_input_genre(genre) for genre in genres):
+        return True
+    return False
+
 def is_input_genre(user_input):
     if user_input.lower().strip() in constants.GENRE_LIST:
         return True

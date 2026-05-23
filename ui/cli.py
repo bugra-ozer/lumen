@@ -79,6 +79,7 @@ class CommandLineInterface():
         keep=True
         while keep:
             search = input(messages.GENRE_SEARCH).lower().strip()
+            genres=[genre.strip() for genre in search.split(',')]
             if self._is_exit(search):
                 keep=False
             elif 'genre' in search:
@@ -88,11 +89,10 @@ class CommandLineInterface():
             elif self._is_input_help(search):
                 self.display_help()
                 keep=False
-            elif not validator.is_input_genre(search):
+            elif not validator.is_list_genre(genres):
                 print(messages.INVALID_INPUT)
             else:
-                self.all_filter_tools[constants.GENRE_COLUMN] = {constants.FILTER_VALUE: search}
-                print(self.all_filter_tools)
+                self.all_filter_tools[constants.GENRE_COLUMN] = {constants.FILTER_VALUE: genres}
                 keep=False
 
     @staticmethod
