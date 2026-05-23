@@ -92,6 +92,7 @@ class CommandLineInterface():
                 print(messages.INVALID_INPUT)
             else:
                 self.all_filter_tools[constants.GENRE_COLUMN] = {constants.FILTER_VALUE: search}
+                print(self.all_filter_tools)
                 keep=False
 
     @staticmethod

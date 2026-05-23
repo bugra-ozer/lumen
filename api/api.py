@@ -1,3 +1,4 @@
+from validator import validator
 from os import access
 from flask import request, Flask, jsonify
 from main import AppService
@@ -70,9 +71,9 @@ def refresh():
 @app.route("/recommendations", methods=['POST'])
 def service():
     text = request.get_json(force=True)
-    if not isinstance(text.get('filter_tools'), list): return jsonify({'status': cons.ERROR, 'message': cons.FILTER_TOOLS_NOT_SURE}), 400
-    if text.get('filter_tools') == []: pass # noqa
-    for inner_list in text.get('filter_tools'): # checking filter tools structure for validity
+    if not isinstance(text.get('filter_tools'), dict): return jsonify({'status': cons.ERROR, 'message': cons.FILTER_TOOLS_NOT_SURE}), 400
+    if text.get('filter_tools') == {}: pass # noqa
+    for inner_list in text.get('filter_tools').items(): # checking filter tools structure for validity
         if isinstance(inner_list, list):
             if not all(([isinstance(inner_str, str) for inner_str in inner_list])):
                 return jsonify({'status': cons.ERROR, 'message': cons.FILTER_TOOLS_INVALID})

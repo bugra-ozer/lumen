@@ -2,6 +2,7 @@ import pandas as pd
 import pathlib as pl
 import json
 import logging
+from validator import validator
 from logging import exception
 from datetime import datetime, timezone, timedelta
 from persister import state_store
@@ -245,7 +246,7 @@ class DataFilter():
         self.sort_ascending = True
         self.genres=self.df[cons.GENRE_COLUMN].str.lower().str.split(',').explode().unique()
         self.filter_tools=filter_tools
-        if not self._is_ready_structure(): raise ValueError(cons.ERROR_WRONG_FILTER_OR_DF)
+        if not validator.is_ready_structure(self.df, self.filter_tools): raise ValueError(cons.ERROR_WRONG_FILTER_OR_DF)
         self.result=self.get_movies(self.filter_tools, sort_column=sort_column)
 
     def get_movies(self, filter_tools:dict[str,dict], sort_column=cons.ADJUSTED_SCORE_COLUMN):
@@ -350,7 +351,7 @@ class DataFilter():
         return sorted_candidates
 
     def _is_ready_structure(self):
-        if self._is_valid_dataframe() and self._is_valid_filter_tools:
+        if self._is_valid_dataframe() and self._is_valid_filter_tools():
             return True
         return False
 
