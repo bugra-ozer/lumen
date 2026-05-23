@@ -350,29 +350,6 @@ class DataFilter():
             sorted_candidates=candidates
         return sorted_candidates
 
-    def _is_ready_structure(self):
-        if self._is_valid_dataframe() and self._is_valid_filter_tools():
-            return True
-        return False
-
-    def _is_valid_filter_tools(self):
-        if self.filter_tools == {} or self.filter_tools is None: return True
-        elif not isinstance(self.filter_tools, dict):
-            return False
-        else:
-            for key, inner_dict in self.filter_tools.items():
-                if not isinstance(inner_dict, dict):
-                    return False
-        return True
-
-    def _is_valid_dataframe(self):
-        if not isinstance(self.df, pd.DataFrame):
-            return False
-        for col in cons.COLUMNS_TO_KEEP:
-            if col not in self.df.columns:
-                return False
-        return True
-
 class AppService():
     """Recommendation service that runs end to end."""
 
@@ -392,7 +369,7 @@ class AppService():
         :param filter_tools: nested list of filters or empty list(s)
         :return: list of picked movies
         """
-        candidates = DataFilter(self.data, filter_tools).result
+        candidates=self.decide_candidates(filter_tools)
         self.picks=self._pick_top(candidates, cons.M_POOL, cons.N_POP)
         self.state_store.concat_file({cons.PREVIOUS_DATA_KEY: pd.DataFrame(self.picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]])})
         self.state_store.save_all_files()
@@ -416,12 +393,26 @@ class AppService():
             subpool=pool.head(m)
             return subpool.sample(n)
 
+    def decide_candidates(self, filter_tools):
+        """Decides if candidates are same as df, or reduced."""
+        if self._is_filter_empty(filter_tools):
+            candidates=self.data
+        else:
+            candidates = DataFilter(self.data, filter_tools).result
+        return candidates
+
     @staticmethod
     def _drop_previous(data, import_data:pd.DataFrame, column:str):
         """Drops previously selected movies from import_data."""
         invert_mask=~import_data[column].isin(data)
         import_data=import_data[invert_mask]
         return import_data
+
+    @staticmethod
+    def _is_filter_empty(filter_tools):
+        if filter_tools is None or filter_tools == {}:
+            return True
+        return False
 
 class AppManager():
     """Main orchestrator that assembles prereq for service."""
