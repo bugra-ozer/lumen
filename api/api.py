@@ -71,14 +71,9 @@ def refresh():
 @app.route("/recommendations", methods=['POST'])
 def service():
     text = request.get_json(force=True)
-    if not isinstance(text.get('filter_tools'), dict): return jsonify({'status': cons.ERROR, 'message': cons.FILTER_TOOLS_NOT_SURE}), 400
-    if text.get('filter_tools') == {}: pass # noqa
-    for inner_list in text.get('filter_tools').items(): # checking filter tools structure for validity
-        if isinstance(inner_list, list):
-            if not all(([isinstance(inner_str, str) for inner_str in inner_list])):
-                return jsonify({'status': cons.ERROR, 'message': cons.FILTER_TOOLS_INVALID})
-            else:return jsonify({'status': cons.ERROR, 'message': cons.FILTER_TOOLS_INVALID})
-    filter_tools = text['filter_tools']
+    filter_tools = text.get('filter_tools')
+    if not validator.is_valid_filter_tools(filter_tools):
+        return jsonify({'status': cons.ERROR, 'message': cons.FILTER_TOOLS_INVALID})
     response=app_service.recommend(filter_tools)
     response=jsonify(response)
     return response

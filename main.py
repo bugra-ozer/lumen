@@ -302,7 +302,7 @@ class DataFilter():
                     raise ValueError
         return new_value
 
-    def _build_filter(self, candidates, column_name:str, operator:str, value:str):
+    def _build_filter(self, candidates, column_name:str, operator:str, value):
         """Build pandas condition based on column, operator, and value"""
         if pd.api.types.is_numeric_dtype(candidates[column_name]):
             try:
@@ -310,6 +310,8 @@ class DataFilter():
             except ValueError:
                 raise ValueError(f'Filter operation failed. One of the following is invalid: {column_name},{operator},{value}')
         elif value is not None:
+            print('fell to string filter with',column_name, value)
+            input()
             condition=self._apply_string_filter(candidates, column_name, value)
         else: raise ValueError(f'Operation failed. One of the following is invalid: {column_name},{operator},{value}')
         return condition
