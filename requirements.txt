@@ -5,3 +5,5 @@ requests
 tqdm
 flask
 PyJWT
+bcrypt
+python-dotenv

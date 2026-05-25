@@ -375,7 +375,7 @@ class AppService():
         self.picks=self._pick_top(candidates, cons.M_POOL, cons.N_POP)
         self.state_store.concat_file({cons.PREVIOUS_DATA_KEY: pd.DataFrame(self.picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]])})
         self.state_store.save_all_files()
-        self.picks=self.picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
+        self.picks=self.picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN]) # noqa
         print(self.picks.to_string())
         return self.picks.to_dict(orient='records')
 

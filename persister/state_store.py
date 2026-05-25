@@ -63,12 +63,12 @@ class StateStore():
     def _load_file(self, file:str):
         """Load file from internal config path."""
         try:
-            file=pd.read_parquet(str(self.config_dict[file][cons.PATH_KEY]))
+            main_file=pd.read_parquet(str(self.config_dict[file][cons.PATH_KEY]))
         except FileNotFoundError:
             return False
         except ValueError:
             return False
-        return file
+        return main_file
 
     def _load_config(self):
         """Load configuration file for file operations."""

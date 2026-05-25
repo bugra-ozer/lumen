@@ -28,7 +28,7 @@ class DatasetDownloader():
     def _download_file(self, url, destination, stream=True):
         """Make http request and write to destination."""
         self.response=requests.get(url, stream=stream)
-        total=(float(self.response.headers.get('Content-Length')))
+        total=(float(self.response.headers.get('Content-Length'))) # noqa
         if self.response.status_code == 200:
             pl.Path.mkdir(destination.parent, parents=True, exist_ok=True)
             bar:tqdm=tqdm(total=total, unit='B', unit_scale=True, bar_format='\033[37m{l_bar}\033[32m{bar}\033[37m{r_bar}',ncols=120, desc=f'downloading dataset as {self.file}')
