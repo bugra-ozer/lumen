@@ -13,6 +13,7 @@ def test_download_write_chunks_b(mock_get, mock_open):
     """Test 8192 byte chunks are written correctly."""
     unit = downloader.DatasetDownloader()
     mock_file = io.BytesIO()
+    destination = MagicMock()
     url = cons_dev.MOCK_RANDOM_URL #constant
     mock_response=MagicMock()
     mock_response.status_code=200
@@ -20,7 +21,7 @@ def test_download_write_chunks_b(mock_get, mock_open):
     mock_response.iter_content.return_value=cons_dev.MOCK_DATA_RESPONSE_BYTES #mock bytes equal to size of file
     mock_get.return_value=mock_response
     mock_open.return_value.__enter__.return_value=mock_file
-    unit._download_file(url, mock_file)
+    unit._download_file(url, destination)
     assert mock_file.getvalue() == b''.join(mock_response.iter_content.return_value)
 
 @patch('downloader.downloader.open')
