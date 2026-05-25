@@ -30,6 +30,7 @@ class DatasetDownloader():
         self.response=requests.get(url, stream=stream)
         total=(float(self.response.headers.get('Content-Length')))
         if self.response.status_code == 200:
+            pl.Path.mkdir(destination.parent, parents=True, exist_ok=True)
             bar:tqdm=tqdm(total=total, unit='B', unit_scale=True, bar_format='\033[37m{l_bar}\033[32m{bar}\033[37m{r_bar}',ncols=120, desc=f'downloading dataset as {self.file}')
             with open(destination, "wb") as f:
                 for chunk in self.response.iter_content(chunk_size=8192):

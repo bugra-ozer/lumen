@@ -163,7 +163,7 @@ class DataPipeline():
     def build_data(self):
         """Read if processed file exists, else run operations to initiate one."""
         data_frames=[]
-        if pl.Path.exists(self.base_data_path):
+        if pl.Path.exists(pl.Path(self.base_data_path)):
             logger.info(cons.INFO_LOAD_BASE_DATA)
             data=self.data_loader.read_file(str(self.base_data_path), 'parquet')
         else:
@@ -200,14 +200,14 @@ class DataLoader():
         return result
 
     @staticmethod
-    def read_file(path:str, file_type:str, usecols=None):
+    def read_file(paths:str, file_type:str, usecols=None):
         """Read TSV file from given path
 
         Args:
-            path: read from
+            paths: read from
             file_type: parquet, tsv or csv
             usecols: columns to retain, configured in .json"""
-        path = pl.Path(path)
+        path = pl.Path(paths)
         if file_type.strip().lower() == 'tsv':
             try:
                 file = pd.read_csv(path, delimiter='\t', encoding='latin-1', on_bad_lines='skip', na_values='\\N', usecols=usecols)  # Read file
@@ -282,7 +282,7 @@ class DataFilter():
             candidates=self._apply_one_filter(candidates, column_name, operatr, value)
         return candidates
 
-    def _apply_one_filter(self, candidates, column_name:str, operatr:str, value:str):
+    def _apply_one_filter(self, candidates, column_name:str, operatr:str, value):
         """Apply appropriate value as filter to column_name."""
         value=self._convert_value(candidates, column_name, value)
         condition=self._build_filter(candidates, column_name, operatr, value)
