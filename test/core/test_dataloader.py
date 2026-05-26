@@ -1,7 +1,4 @@
-import io
-import pytest
-import pandas as pd
-import pathlib as pl
+import io, pytest, pandas as pd, pathlib as pl
 from unittest.mock import MagicMock
 from constant import constants_dev as cons_dev
 from unittest import mock

@@ -240,8 +240,6 @@ class DataFilter():
     """Internally selects and stores selected movies after user filter is applied."""
 
     def __init__(self, df:pd.DataFrame, filter_tools:dict[str,dict], sort_column=cons.ADJUSTED_SCORE_COLUMN):
-        """Requires Dataframe object to initialize
-        filter_tools: column_name, operatr, value to be filtered"""
         self.df=df.copy()
         self.sort_column = None
         self.sort_ascending = True

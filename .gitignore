@@ -23,6 +23,3 @@ hit_endpoints.py
 try_request.py
 *.env
 *.venv
-
-# Test
-test_datafilter.py
