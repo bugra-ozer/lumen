@@ -9,6 +9,20 @@ patch=mock.patch
 def test_happy_path():
     all_columns=cons.COLUMNS_TO_KEEP+(cons.ADJUSTED_SCORE_COLUMN,)
     fake_df=pd.DataFrame(columns=all_columns, data=[["tt0014358",7.2,6236,"The Pilgrim",1923,"Action, Horror",5]])
-    fake_filter_tools={'Genre': {'value': ['action', 'horror']}}
+    fake_filter_tools=cons_dev.DUMMY_FILTER_TOOLS
     unit=main.DataFilter(fake_df, fake_filter_tools)
     assert validator.is_ready_structure(fake_df, fake_filter_tools) and len(unit.result)>=1
+
+def test_sad_df_path():
+    fake_df=pd.DataFrame(columns=[cons.PATH_COLUMN,cons.DATE_COLUMN], data=[[cons_dev.DUMMY_PATH,cons_dev.DUMMY_DATE]])
+    fake_filter_tools=cons_dev.DUMMY_FILTER_TOOLS
+    with pytest.raises(KeyError):
+        main.DataFilter(fake_df, fake_filter_tools)
+
+def test_sad_filter_path():
+    all_columns = cons.COLUMNS_TO_KEEP + (cons.ADJUSTED_SCORE_COLUMN,)
+    fake_df = pd.DataFrame(columns=all_columns,
+                           data=[["tt0014358", 7.2, 6236, "The Pilgrim", 1923, "Action, Horror", 5]])
+    fake_filter_tools = cons_dev.DUMMY_SAD_FILTER_TOOLS
+    with pytest.raises(ValueError):
+        main.DataFilter(fake_df, fake_filter_tools)
