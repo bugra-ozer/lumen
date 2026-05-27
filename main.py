@@ -9,14 +9,14 @@ from datetime import datetime, timezone, timedelta
 from persister import state_store
 from ui import cli as ui
 from downloader import downloader as client
-from scorer import bayesian_algorithm as bayes
+from scorer import bayesian_algorithm as scorer
 from log import log_handler
 from constant import constants as cons
 
 log_handler.LogHandler()
 logger=logging.getLogger(__name__)
 
-class Container():
+class DataContainer():
     """Container class for retaining and managing the state of the dataframe."""
 
     def __init__(self):
@@ -357,10 +357,10 @@ class AppService():
         self.picks=None
         self.state_store = state_store.StateStore()  #For caching
         self.state_store.load_all_files()
-        self.container = Container()
+        self.container = DataContainer()
         self.container.build_container()
         self.previous_ids = set(self.state_store.data.get(cons.PREVIOUS_DATA_KEY, pd.DataFrame()).get(cons.IMDB_ID_COLUMN, []))
-        self.bayes=bayes.MovieScorer(self.container.data)
+        self.bayes=scorer.BayesianScorer(self.container.data)
         self.bayes.score()
         self.data=self.bayes.data
 

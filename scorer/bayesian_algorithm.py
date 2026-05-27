@@ -6,7 +6,7 @@ from constant import constants as cons
 
 logger=logging.getLogger(__name__)
 
-class MovieScorer():
+class BayesianScorer():
     """Algorithmic class that takes transformed data, outputs the top n results based on bayesian score."""
     def __init__(self, candidates:pd.DataFrame):
         self.raw_data=candidates.copy()
