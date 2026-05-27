@@ -24,12 +24,12 @@ Recommendations are served through a **Flask REST API** with JWT-based authentic
 
 ```
 AppManager                        ← Orchestrates CLI vs API entry points
-  └── MovieService                ← Core business logic, interface-agnostic
-        ├── Container            ← DataFrame container
+  └── AppService                ← Core business logic, interface-agnostic
+        ├── DataContainer            ← DataFrame container
         │     └── DataPipeline    ← Load, merge, cache IMDB TSV/Parquet data
         │           └── DataLoader
-        ├── MovieScorer           ← Bayesian scoring (scorer/bayesian_algorithm.py)
-        ├── MovieFilter           ← Filter and rank candidate DataFrame
+        ├── BayesianScorer           ← Bayesian scoring (scorer/bayesian_algorithm.py)
+        ├── DataFilter           ← Filter and rank candidate DataFrame
         └── StateStore            ← Persist recommendation history (Parquet)
 ```
 
@@ -108,7 +108,7 @@ Where `v` = vote count, `m` = minimum votes threshold, `R` = movie average, `C` 
 
 ```
 lumen/
-├── main.py               ← Core classes (Container, MovieService, AppManager...)
+├── main.py               ← Core classes (DataContainer, AppService, AppManager...)
 ├── scorer/
 │   └── bayesian_algorithm.py
 ├── persist/
@@ -132,7 +132,7 @@ lumen/
 
 ```bash
 # Clone the repo
-git clone https://github.com/bugra-ozer/movie-agent
+git clone https://github.com/bugra-ozer/lumen
 cd lumen
 
 # Install dependencies
