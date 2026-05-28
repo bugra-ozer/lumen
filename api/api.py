@@ -6,10 +6,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from datetime import datetime, timezone, timedelta
 from constant import constants as cons
-import secrets
-import bcrypt
-import jwt
-import os
+from constant import constants_dev as cons_dev
+import secrets, bcrypt, jwt, os
 
 os.chdir(Path(__file__).parent.parent)
 load_dotenv()
@@ -41,17 +39,18 @@ def login():
     text=request.get_json(force=True)
     userid=text.get('id')
     pw=text.get("pw")
+    pw=pw.encode('UTF-8')
     if userid not in USERS:
-        return jsonify({'status': cons.ERROR, 'message': cons.USER_NOT_FOUND}), 401
+        bcrypt.checkpw(pw, b"$2b$12$6Ik6AsvGpf9U3xm8aLhf8eB/fL1.EcgMauA58Mzfz5PbXLhNFmqWC") # noqa
+        return jsonify({'status': cons.ERROR, 'message': cons.INVALID_CREDENTIALS}), 401
     else:
-        pw=pw.encode('UTF-8')
         if bcrypt.checkpw(pw, USERS[userid]):
             ref_token=secrets.token_hex(32)
             REF_TOKENS[ref_token]=userid, datetime.now(timezone.utc)+timedelta(days=30)
             access_token=jwt.encode(payload={'id': userid, 'exp': datetime.now(timezone.utc)+timedelta(minutes=15)}, key=secret_key, algorithm='HS256')
             return jsonify({'access_token': access_token, 'refresh_token': ref_token, 'id': userid}), 200
         else:
-            return jsonify({'status': cons.ERROR, 'message': cons.PW_INCORRECT}), 401
+            return jsonify({'status': cons.ERROR, 'message': cons.INVALID_CREDENTIALS}), 401
 
 @app.route("/refresh", methods=['POST'])
 def refresh():

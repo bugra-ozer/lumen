@@ -58,9 +58,8 @@ TOKEN_EXPIRED='Token has expired'
 TOKEN_INVALID='Token is invalid'
 TOKEN_MISSING='Token is missing'
 OK=('ok')
-PW_INCORRECT='Password is incorrect'
 AUTHORIZATION='Authorization'
-USER_NOT_FOUND='User not found'
+INVALID_CREDENTIALS='Invalid credentials'
 
 #Bayes cons
 M_POOL=25
