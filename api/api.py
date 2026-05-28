@@ -14,7 +14,7 @@ load_dotenv()
 secret_key=os.environ.get("SECRET_KEY")
 app=Flask(__name__)
 app_service=AppService()
-USERS={"admin": b'$2b$12$Gy9z3lihHck5fCP4dAJMB.JzryhwuExZgHJ49GgynNW5t88hEuOLa', "robert55": b'$2b$12$AnnHZBLv63cVShZhl2OMjuUJX5fYKX4e23/LB8iWTV7aJzAHj5bxG'} # noqa
+USERS=cons_dev.USERS
 REF_TOKENS={}
 PUBLIC_PATHS=cons.PUBLIC_PATHS
 
@@ -41,7 +41,7 @@ def login():
     pw=text.get("pw")
     pw=pw.encode('UTF-8')
     if userid not in USERS:
-        bcrypt.checkpw(pw, b"$2b$12$6Ik6AsvGpf9U3xm8aLhf8eB/fL1.EcgMauA58Mzfz5PbXLhNFmqWC") # noqa
+        bcrypt.checkpw(pw, cons_dev.DUMMY_HASHED_PW) # noqa. For hitting same average time on fail cases
         return jsonify({'status': cons.ERROR, 'message': cons.INVALID_CREDENTIALS}), 401
     else:
         if bcrypt.checkpw(pw, USERS[userid]):
