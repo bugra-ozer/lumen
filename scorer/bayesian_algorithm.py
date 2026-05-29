@@ -7,7 +7,7 @@ from constant import constants as cons
 logger=logging.getLogger(__name__)
 
 class BayesianScorer():
-    """Algorithmic class that takes transformed data, outputs the top n results based on bayesian score."""
+    """Algorithmic class that takes transformed data, adds calculated Bayesian statistics as new columns."""
     def __init__(self, candidates:pd.DataFrame):
         self.raw_data=candidates.copy()
         self.data=candidates.copy()
@@ -15,7 +15,6 @@ class BayesianScorer():
         self._convert_dtypes()
 
     def score(self):
-        """Orchestrator method for building and processing the candidates and giving output."""
         self._build_score() #modifies self.data and adds scores as new columns
         return self
 

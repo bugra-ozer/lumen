@@ -1,8 +1,4 @@
-import pandas as pd
-import pathlib as pl
-import json
-import logging
-import functools
+import pandas as pd, pathlib as pl, json, logging, functools, enum
 from validator import validator
 from logging import exception
 from datetime import datetime, timezone, timedelta
@@ -17,7 +13,7 @@ log_handler.LogHandler()
 logger=logging.getLogger(__name__)
 
 class DataContainer():
-    """Container class for retaining and managing the state of the dataframe."""
+    """Container class own Pipeline and runs end to end until dataset is loaded."""
 
     def __init__(self):
         self.data=pd.DataFrame()
@@ -80,7 +76,7 @@ class DataContainer():
         return self
 
 class DataPipeline():
-    """Orchestrator class owns loader class for external pandas dataframe operations."""
+    """Orchestrator class owns loader and downloader classes for external pandas dataframe operations."""
 
     def __init__(self, usecols=None, json_cfg:tuple=("main.json", "dataset.json")):
         self.config_dir='config'
@@ -102,7 +98,7 @@ class DataPipeline():
             raise Exception(cons.ERROR_LOAD_TSV_PATH)
         if not pl.Path(self.base_data_path).exists() or self._is_data_stale(): #check for base_data, if it exists skip all download dataset operation.
             if any(tsv for tsv in [*self.tsv_configs] if not pl.Path(tsv[cons.PATH_COLUMN]).exists()): #if file paths are empty orchestrate http request for dataset download.
-                self.dataset_downloader.main()
+                self.dataset_downloader.run()
         return self.build_data()
 
     def _load_config(self):
@@ -178,7 +174,7 @@ class DataPipeline():
         return data
 
 class DataLoader():
-    """Pandas Dataframe and file I/O operations class without business knowledge"""
+    """Pandas Dataframe and file I/O operations class without business knowledge."""
 
     def __init__(self, usecols=None):
         self.data=None
@@ -364,7 +360,7 @@ class AppService():
         self.bayes.score()
         self.data=self.bayes.data
 
-    def recommend(self, filter_tools:dict[str, dict]):
+    def run(self, filter_tools:dict[str, dict]):
         """
         :param filter_tools: nested list of filters or empty list(s)
         :return: list of picked movies
@@ -426,14 +422,10 @@ class AppManager():
             logger.exception(f'Unhandled exception.')
 
     def _main(self):
-        """Start cli and app service."""
-        self.cli.start()
+        """Run app locally."""
+        self.cli.run()
         self.filter_tools:dict[str,dict]=self.cli.all_filter_tools
-        self.app_service.recommend(self.filter_tools)
+        self.app_service.run(self.filter_tools)
 
 if __name__ == '__main__':
     AppManager()
-
-    
-
-

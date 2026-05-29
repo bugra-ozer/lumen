@@ -71,11 +71,11 @@ class DatasetDownloader():
             self._download_file(url, tsv_gz_dataset) #http request to IMDB server
             self._decompress_file(tsv_gz_dataset, dec_file) #decompress and delete old
 
-    def main(self):
+    def run(self):
         """Set up orchestration for main function."""
         requests_config=self._load_config()
         self.fetch_imdb_dataset(requests_config)
 
 if __name__ == '__main__':
-    dataset_obj=DatasetDownloader()
-    dataset_obj.main()
+    dataset_downloader=DatasetDownloader()
+    dataset_downloader.run()

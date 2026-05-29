@@ -20,7 +20,7 @@ PUBLIC_PATHS=cons.PUBLIC_PATHS
 
 @app.before_request
 def before_request():
-    """Authorization check before hitting endpoints of API"""
+    """Authorization check before hitting endpoints of API."""
     if request.path not in PUBLIC_PATHS: #JWT check, request not hitting login or refresh endpoints
         token=request.headers.get(cons.AUTHORIZATION) #Entire authz token with 'Bearer' in it
         if token is None:
@@ -36,6 +36,7 @@ def before_request():
 
 @app.route('/login', methods=["POST"])
 def login():
+    """Hashed credentials verification."""
     text=request.get_json(force=True)
     userid=text.get('id')
     pw=text.get("pw")
@@ -54,7 +55,7 @@ def login():
 
 @app.route("/refresh", methods=['POST'])
 def refresh():
-    """Acquire new access token endpoint"""
+    """Acquire new access token endpoint."""
     text=request.get_json(force=True)
     token=text.get('refresh_token')
     if token in REF_TOKENS:
@@ -69,16 +70,18 @@ def refresh():
 
 @app.route("/recommendations", methods=['POST'])
 def service():
+    """End to end service endpoint."""
     text = request.get_json(force=True)
     filter_tools = text.get('filter_tools')
     if not validator.is_valid_filter_tools(filter_tools):
         return jsonify({'status': cons.ERROR, 'message': cons.FILTER_TOOLS_INVALID})
-    response=app_service.recommend(filter_tools)
+    response=app_service.run(filter_tools)
     response=jsonify(response)
     return response
 
 @app.route("/health", methods=['GET'])
 def health():
+    """Simple health endpoint."""
     return jsonify({'status': cons.OK})
 
 if __name__ == "__main__":

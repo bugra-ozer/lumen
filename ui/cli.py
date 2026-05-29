@@ -14,13 +14,13 @@ class SearchTypes(enum.Enum):
     BOTH = 'both'
 
 class CommandLineInterface():
-    """Class that provides interface for user-based actions."""
+    """Class that provides commandline interface for user-based actions."""
 
     def __init__(self): #type: ignore
         self.all_filter_tools:dict[str, dict]={}
 
-    def start(self):
-        """Prompt user for actions"""
+    def run(self):
+        """Direct user to main menu."""
         flag=True
         filter_tools=None
         while flag:
@@ -53,7 +53,7 @@ class CommandLineInterface():
                 print(messages.INVALID_INPUT)
 
     def _rating_search(self):
-        """Prompt user for search help and return input"""
+        """Prompt user for search help and return input."""
         keep=True
         while keep:
             search = input(messages.RATING_SEARCH).lower().strip()
@@ -107,7 +107,7 @@ class CommandLineInterface():
         
     @staticmethod
     def _is_input_help(user_input:str):
-        """Return boolean based on user input."""
+        """Check if user input is help."""
         if user_input in ['--help', 'help', '-help']:
             return True
         else:
@@ -138,6 +138,5 @@ class CommandLineInterface():
         return input(messages.WELCOME)
 
 if __name__ == "__main__":
-    """"""
     ui=CommandLineInterface()
-    ui.start()
+    ui.run()
