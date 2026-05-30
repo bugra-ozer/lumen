@@ -12,11 +12,11 @@
 
 ## What is it?
 
-Lumen gives tailored movie recommendations, cutting through thousands of titles to surface what's worth your time tonight.
+Lumen is an intelligent movie recommendation engine designed to filter through thousands of titles and deliver tailored suggestions.
 
-Lumen pulls from the IMDB public dataset and scores every movie using a **Bayesian averaging algorithm** — the same approach used by IMDB's own Top 250 list. It corrects for vote count bias, so a 9.0 from 50 votes doesn't outrank an 8.5 from 50,000.
+Powered by the public IMDb dataset, Lumen evaluates films using a Bayesian averaging algorithm—the same statistical methodology utilized by IMDb's Top 250 list. This approach corrects for vote-count bias, ensuring that statistically significant ratings (e.g., an 8.5 rating across 50,000 votes) appropriately outrank skewed outliers (e.g., a 9.0 rating with only 50 votes).
 
-Recommendations are served through a **Flask REST API** with JWT-based authentication, and filtered by genre or rating per request. A CLI interface is also available for local use.
+The core engine is served through a **Flask REST API** with JWT-based authentication, and allows users to dynamically query by genre and rating per request. Additionally, a Command Line Interface (CLI) is provided for local deployment and testing.
 
 ---
 
