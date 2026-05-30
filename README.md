@@ -1,5 +1,5 @@
 ![Lumen](asset/lumen_logo.svg)
-> A Python-powered movie recommendation engine with a Bayesian scoring algorithm, REST API, and JWT authentication.
+> An interface-agnostic recommendation engine built on Pandas and Parquet. Features a streaming ETL pipeline, in-memory Bayesian scoring, and a Flask API fortified by a 3-layer security model utilizing bcrypt, self-verifying HS256 JWTs, and secure refresh tokens.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-REST%20API-000000?style=flat&logo=flask)
