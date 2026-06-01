@@ -23,3 +23,6 @@ hit_endpoints.py
 try_request.py
 *.env
 *.venv
+
+# DB
+instance

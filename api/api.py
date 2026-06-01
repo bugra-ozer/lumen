@@ -7,12 +7,16 @@ from dotenv import load_dotenv
 from datetime import datetime, timezone, timedelta
 from constant import constants as cons
 from constant import constants_dev as cons_dev
+from db.database import db
+from db.models import User
 import secrets, bcrypt, jwt, os
 
 os.chdir(Path(__file__).parent.parent)
 load_dotenv()
 secret_key=os.environ.get("SECRET_KEY")
 app=Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///lumen.db"
+db.init_app(app)
 app_service=AppService()
 USERS=cons_dev.USERS
 REF_TOKENS={}
@@ -85,4 +89,6 @@ def health():
     return jsonify({'status': cons.OK})
 
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
     app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)

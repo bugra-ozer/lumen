@@ -64,3 +64,7 @@ INVALID_CREDENTIALS='Invalid credentials'
 #Bayes cons
 M_POOL=25
 N_POP=5
+
+#DB cons
+USERS_TABLE_NAME= 'USERS'
+USER_DEFAULT_ROLE='BASIC'
