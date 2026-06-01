@@ -4,7 +4,7 @@ import json
 from constant import constants as cons
 
 class StateStore():
-    """Class that handles file operations for orchestrator class for caching."""
+    """Class that handles file operations for orchestrator class for caching and remembering previous sessions."""
     def __init__(self, json_cfg:str="state.json"):
         """Store properties and set configuration parsing."""
         self.concat=None
