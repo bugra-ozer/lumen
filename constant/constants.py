@@ -2,7 +2,7 @@
 FILTER_VALUE='value'
 FILTER_OPERATOR='operator'
 FILTER_COLUMN='column'
-IMDB_ID_COLUMN = 'IMDBid'
+IMDB_ID_COLUMN = 'imdb_id'
 IMDB_ID_COLUMN_LEGACY = 'tconst'
 GENRE_COLUMN = 'Genre'
 GENRE_COLUMN_LEGACY = 'genres'
@@ -21,9 +21,9 @@ DECAY_FACTOR_COLUMN = 'Decay Factor'
 ADJUSTED_SCORE_COLUMN = 'Adjusted Score'
 DATE_COLUMN = 'Date'
 GENRE_LIST=["action", "adventure", "animation", "biography", "comedy", "crime", "documentary", "drama", "family", "fantasy", "film-noir", "game-show", "history", "horror", "music", "musical", "mystery", "news", "reality-tv", "romance", "sci-fi", "short", "sport", "talk-show", "thriller", "war", "western"]
-COLUMNS_TO_KEEP='IMDBid', 'Average Rating', 'Number of Votes', 'Primary Title', 'Published', 'Genre'
+COLUMNS_TO_KEEP='imdb_id', 'Average Rating', 'Number of Votes', 'Primary Title', 'Published', 'Genre'
 COLUMNS_TO_KEEP_LEGACY='tconst', 'averageRating', 'numVotes', 'primaryTitle', 'startYear', 'genres'
-COLUMN_RENAME_DICT={'tconst': 'IMDBid','averageRating': 'Average Rating',
+COLUMN_RENAME_DICT={'tconst': 'imdb_id','averageRating': 'Average Rating',
                                     'numVotes': 'Number of Votes','titleType': 'Title Type',
                                     'primaryTitle': 'Primary Title','originalTitle': 'Original Title','isAdult': 'Is Adult',
                                     'startYear': 'Published','endYear': 'End Year','runtimeMinutes': 'Run Time Minutes','genres': 'Genre'}

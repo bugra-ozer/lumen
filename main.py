@@ -71,7 +71,7 @@ class DataContainer():
     def _purge_data(self):
         """Remove excessive items with low votes, empty primary titles and genres."""
         self.data = self._filter_rows(cons.TITLE_TYPE_COLUMN_LEGACY, 'movie')  # remove anything else than movie in records
-        self.data = self.data[(self.data[cons.PRIMARY_TITLE_COLUMN_LEGACY].notna()) & (self.data[cons.GENRE_COLUMN_LEGACY].notna()) & (self.data[cons.NUMBER_OF_VOTES_COLUMN_LEGACY] > 5000)]  # Purge unsuitable titles
+        self.data = self.data[(self.data[cons.PRIMARY_TITLE_COLUMN_LEGACY].notna()) & (self.data[cons.GENRE_COLUMN_LEGACY].notna()) & (self.data[cons.NUMBER_OF_VOTES_COLUMN_LEGACY] > 25000)]  # Purge unsuitable titles
         self.data.dropna(subset=[cons.PUBLISHED_COLUMN_LEGACY], inplace=True)
         return self
 
@@ -235,7 +235,7 @@ class DataLoader():
 class DataFilter():
     """Internally selects and stores selected movies after user filter is applied."""
 
-    def __init__(self, df:pd.DataFrame, filter_tools:dict[str,dict], sort_column=cons.ADJUSTED_SCORE_COLUMN):
+    def __init__(self, df:pd.DataFrame, filter_tools:dict[str,dict]=None, sort_column=cons.ADJUSTED_SCORE_COLUMN):
         self.df=df.copy()
         self.sort_column = None
         self.sort_ascending = True
@@ -248,9 +248,13 @@ class DataFilter():
         """Retrieve list of movies with user filter applied.
         filter_tools: Filter params: column_name, operator, value
         """
-        candidates=self.apply_each_filter(filter_tools)
-        self._configure_sort(sort_column, False)
-        result=self._sort_candidates(candidates)
+        if filter_tools is None:
+            self._configure_sort(sort_column, ascend=False),
+            result=self._sort_candidates(self.df)
+        else:
+            candidates=self.apply_each_filter(filter_tools)
+            self._configure_sort(sort_column, False)
+            result=self._sort_candidates(candidates)
         return result
     
     @staticmethod
@@ -392,7 +396,7 @@ class AppService():
     def decide_candidates(self, filter_tools):
         """Decides if candidates are same as df, or reduced."""
         if self._is_filter_empty(filter_tools):
-            candidates=self.data
+            candidates = DataFilter(self.data).result
         else:
             candidates = DataFilter(self.data, filter_tools).result
         return candidates
