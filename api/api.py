@@ -8,8 +8,7 @@ from datetime import datetime, timezone, timedelta
 from constant import constants as cons
 from constant import constants_dev as cons_dev
 from db.database import db
-from db.models import Content
-from db.models import User
+from db.models import *
 import secrets, bcrypt, jwt, os
 
 os.chdir(Path(__file__).parent.parent)
@@ -17,7 +16,6 @@ load_dotenv()
 secret_key=os.environ.get("SECRET_KEY")
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///lumen.db"
-db.init_app(app)
 app_service=AppService()
 USERS=cons_dev.USERS
 REF_TOKENS={}
@@ -43,18 +41,18 @@ def before_request():
 def login():
     """Hashed credentials verification."""
     text=request.get_json(force=True)
-    userid=text.get('id')
+    user_id=text.get('id')
     pw=text.get("pw")
     pw=pw.encode('UTF-8')
-    if userid not in USERS:
+    if user_id not in USERS:
         bcrypt.checkpw(pw, cons_dev.DUMMY_HASHED_PW) # noqa. For hitting same average time on fail cases
         return jsonify({'status': cons.ERROR, 'message': cons.INVALID_CREDENTIALS}), 401
     else:
-        if bcrypt.checkpw(pw, USERS[userid]):
+        if bcrypt.checkpw(pw, USERS[user_id]):
             ref_token=secrets.token_hex(32)
-            REF_TOKENS[ref_token]=userid, datetime.now(timezone.utc)+timedelta(days=30)
-            access_token=jwt.encode(payload={'id': userid, 'exp': datetime.now(timezone.utc)+timedelta(minutes=15)}, key=secret_key, algorithm='HS256')
-            return jsonify({'access_token': access_token, 'refresh_token': ref_token, 'id': userid}), 200
+            REF_TOKENS[ref_token]=user_id, datetime.now(timezone.utc)+timedelta(days=30)
+            access_token=jwt.encode(payload={'id': user_id, 'exp': datetime.now(timezone.utc)+timedelta(minutes=15)}, key=secret_key, algorithm='HS256')
+            return jsonify({'access_token': access_token, 'refresh_token': ref_token, 'id': user_id}), 200
         else:
             return jsonify({'status': cons.ERROR, 'message': cons.INVALID_CREDENTIALS}), 401
 
@@ -64,11 +62,11 @@ def refresh():
     text=request.get_json(force=True)
     token=text.get('refresh_token')
     if token in REF_TOKENS:
-        userid=REF_TOKENS[token][0]
+        user_id=REF_TOKENS[token][0]
         if REF_TOKENS[token][1]<=datetime.now(timezone.utc):
             return jsonify({'status': cons.ERROR, 'message': cons.TOKEN_EXPIRED}), 401
         else:
-            access_token=jwt.encode(payload={'id': userid, 'exp': datetime.now(timezone.utc)+timedelta(minutes=15), 'role': 'admin'}, key=secret_key, algorithm='HS256')
+            access_token=jwt.encode(payload={'id': user_id, 'exp': datetime.now(timezone.utc)+timedelta(minutes=15), 'role': 'admin'}, key=secret_key, algorithm='HS256')
             return jsonify({'access_token': access_token, 'refresh_token': token})
     else:
         return jsonify({'status': cons.ERROR, 'message': cons.TOKEN_INVALID}), 401
@@ -90,13 +88,4 @@ def health():
     return jsonify({'status': cons.OK})
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-        existing_imdb_ids=[row.imdb_id for row in db.session.query(Content.imdb_id).all()]
-        is_in_mask=~app_service.data[cons.IMDB_ID_COLUMN].isin(existing_imdb_ids)
-        minimal_df=app_service.data[is_in_mask]
-        try:minimal_df = minimal_df.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
-        except ValueError: raise ValueError()
-        if not len(minimal_df)==0:
-            minimal_df.to_sql(cons.TABLE_NAME_CONTENT, if_exists='append', index=False, con=db.engine)
     app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)
