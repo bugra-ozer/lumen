@@ -363,7 +363,7 @@ class AppService():
         self.bayes=scorer.BayesianScorer(self.container.data)
         self.bayes.score()
         self.data=self.bayes.data
-
+        
     def run(self, filter_tools:dict[str, dict]):
         """
         :param filter_tools: nested list of filters or empty list(s)

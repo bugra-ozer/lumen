@@ -1,3 +1,4 @@
+from flask_migrate import migrate
 from db.database import db
 from constant import constants as cons
 from datetime import datetime, timezone, timedelta
@@ -14,11 +15,10 @@ class Content(db.Model):
     __tablename__=cons.TABLE_NAME_CONTENT
     imdb_id=db.Column(db.String(80),primary_key=True)
     average_rating=db.Column(db.Float,nullable=False)
-    num_votes=db.Column(db.Integer,nullable=False)
-    title_type=db.Column(db.String(80),nullable=True)
+    number_of_votes=db.Column(db.Integer,nullable=False)
     primary_title=db.Column(db.String(160),nullable=False)
-    start_year=db.Column(db.Integer,nullable=False)
-    genres=db.Column(db.String(80),nullable=False)
+    published=db.Column(db.Integer,nullable=False)
+    genre=db.Column(db.String(80),nullable=False)
 
 class RefreshToken(db.Model):
     __tablename__=cons.TABLE_NAME_REFRESH_TOKEN
@@ -33,5 +33,3 @@ class PreviousData(db.Model):
     user_id=db.Column(db.Integer,db.ForeignKey(f'{cons.TABLE_NAME_USERS}.user_id'))
     imdb_id=db.Column(db.String(80),db.ForeignKey(f'{cons.TABLE_NAME_CONTENT}.imdb_id'))
     date=db.Column(db.DateTime,default=lambda:datetime.now(timezone.utc))
-
-#ADD CONTENT AND HISTORY TABLES

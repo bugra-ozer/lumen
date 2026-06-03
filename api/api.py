@@ -8,6 +8,7 @@ from datetime import datetime, timezone, timedelta
 from constant import constants as cons
 from constant import constants_dev as cons_dev
 from db.database import db
+from db.models import Content
 from db.models import User
 import secrets, bcrypt, jwt, os
 
@@ -91,4 +92,11 @@ def health():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
+        existing_imdb_ids=[row.imdb_id for row in db.session.query(Content.imdb_id).all()]
+        is_in_mask=~app_service.data[cons.IMDB_ID_COLUMN].isin(existing_imdb_ids)
+        minimal_df=app_service.data[is_in_mask]
+        try:minimal_df = minimal_df.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
+        except ValueError: raise ValueError()
+        if not len(minimal_df)==0:
+            minimal_df.to_sql(cons.TABLE_NAME_CONTENT, if_exists='append', index=False, con=db.engine)
     app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)

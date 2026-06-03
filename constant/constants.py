@@ -4,29 +4,29 @@ FILTER_OPERATOR='operator'
 FILTER_COLUMN='column'
 IMDB_ID_COLUMN = 'imdb_id'
 IMDB_ID_COLUMN_LEGACY = 'tconst'
-GENRE_COLUMN = 'Genre'
+GENRE_COLUMN = 'genre'
 GENRE_COLUMN_LEGACY = 'genres'
-PUBLISHED_COLUMN = 'Published'
-TITLE_TYPE_COLUMN = 'Title Type'
+PUBLISHED_COLUMN = 'published'
+TITLE_TYPE_COLUMN = 'title_type'
 TITLE_TYPE_COLUMN_LEGACY = 'titleType'
 PUBLISHED_COLUMN_LEGACY = 'startYear'
-NUMBER_OF_VOTES_COLUMN = 'Number of Votes'
+NUMBER_OF_VOTES_COLUMN = 'number_of_votes'
 NUMBER_OF_VOTES_COLUMN_LEGACY = 'numVotes'
-PRIMARY_TITLE_COLUMN = 'Primary Title'
+PRIMARY_TITLE_COLUMN = 'primary_title'
 PRIMARY_TITLE_COLUMN_LEGACY = 'primaryTitle'
-AVERAGE_RATING_COLUMN = 'Average Rating'
-BAYES_SCORE_COLUMN = 'Bay Score'
+AVERAGE_RATING_COLUMN = 'average_rating'
+BAYES_SCORE_COLUMN = 'bay_score'
 PATH_COLUMN='path'
-DECAY_FACTOR_COLUMN = 'Decay Factor'
-ADJUSTED_SCORE_COLUMN = 'Adjusted Score'
-DATE_COLUMN = 'Date'
+DECAY_FACTOR_COLUMN = 'decay_factor'
+ADJUSTED_SCORE_COLUMN = 'adjusted_score'
+DATE_COLUMN = 'date'
 GENRE_LIST=["action", "adventure", "animation", "biography", "comedy", "crime", "documentary", "drama", "family", "fantasy", "film-noir", "game-show", "history", "horror", "music", "musical", "mystery", "news", "reality-tv", "romance", "sci-fi", "short", "sport", "talk-show", "thriller", "war", "western"]
-COLUMNS_TO_KEEP='imdb_id', 'Average Rating', 'Number of Votes', 'Primary Title', 'Published', 'Genre'
+COLUMNS_TO_KEEP='imdb_id', 'average_rating', 'number_of_votes', 'primary_title', 'published', 'genre'
 COLUMNS_TO_KEEP_LEGACY='tconst', 'averageRating', 'numVotes', 'primaryTitle', 'startYear', 'genres'
-COLUMN_RENAME_DICT={'tconst': 'imdb_id','averageRating': 'Average Rating',
-                                    'numVotes': 'Number of Votes','titleType': 'Title Type',
-                                    'primaryTitle': 'Primary Title','originalTitle': 'Original Title','isAdult': 'Is Adult',
-                                    'startYear': 'Published','endYear': 'End Year','runtimeMinutes': 'Run Time Minutes','genres': 'Genre'}
+COLUMN_RENAME_DICT={'tconst': 'imdb_id','averageRating': 'average_rating',
+                                    'numVotes': 'number_of_votes','titleType': 'title_type',
+                                    'primaryTitle': 'primary_title','originalTitle': 'original_title','isAdult': 'is_adult',
+                                    'startYear': 'published','endYear': 'end_year','runtimeMinutes': 'run_time_minutes','genres': 'genre'}
 
 #Pandas errors
 ERROR_APPLY_CON='Failed to apply condition to the file.'
