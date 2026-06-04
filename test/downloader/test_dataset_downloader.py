@@ -1,10 +1,10 @@
-import io
-import pytest
+import io, pytest, logging
 from unittest.mock import MagicMock
 from constant import constants_dev as cons_dev
 from unittest import mock
 from downloader import downloader
 
+logger = logging.getLogger(__name__)
 patch = mock.patch
 
 @patch('downloader.downloader.open')

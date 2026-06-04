@@ -1,10 +1,11 @@
-import io, main, pytest, pandas as pd, pathlib as pl
+import io, main, pytest, pandas as pd, pathlib as pl, logging
 from validator import validator
 from unittest import mock
 from unittest.mock import MagicMock
 from constant import constants_dev as cons_dev, constants as cons
 
-patch=mock.patch
+logger = logging.getLogger(__name__)
+patch = mock.patch
 
 def test_happy_path():
     all_columns=cons.COLUMNS_TO_KEEP+(cons.ADJUSTED_SCORE_COLUMN,)

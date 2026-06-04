@@ -9,7 +9,9 @@ from constant import constants as cons
 from constant import constants_dev as cons_dev
 from db.database import db
 from db.models import *
-import secrets, bcrypt, jwt, os
+import secrets, bcrypt, jwt, os, logging
+
+logger = logging.getLogger(__name__)
 
 os.chdir(Path(__file__).parent.parent)
 load_dotenv()

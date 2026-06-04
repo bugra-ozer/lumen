@@ -1,10 +1,11 @@
-import io, pytest, pandas as pd, pathlib as pl
+import io, pytest, pandas as pd, pathlib as pl, logging
 from unittest.mock import MagicMock
 from constant import constants_dev as cons_dev
 from constant import constants as cons
 from unittest import mock
 from main import DataLoader
 
+logger = logging.getLogger(__name__)
 patch = mock.patch
 
 @patch('main.pd.read_parquet')
