@@ -15,7 +15,7 @@ os.chdir(Path(__file__).parent.parent)
 load_dotenv()
 secret_key=os.environ.get("SECRET_KEY")
 app=Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///lumen.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app_service=AppService()
 USERS=cons_dev.USERS
 REF_TOKENS={}

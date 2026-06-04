@@ -162,7 +162,7 @@ class DataPipeline():
         data_frames=[]
         if pl.Path.exists(pl.Path(self.base_data_path)):
             logger.info(cons.INFO_LOAD_BASE_DATA)
-            data=self.data_loader.read_file(str(self.base_data_path), 'parquet')
+            data=self.data_loader.read_file(str(self.base_data_path), cons.STR_PARQUET)
         else:
             for tsv in self.tsv_configs:
                 logger.info(cons.INFO_MERGE_TSV)
@@ -201,7 +201,7 @@ class DataLoader():
         """Read TSV file from given path
 
         Args:
-            paths: read from
+            paths: for TSV/Parquet; file path, for SQL; table name
             file_type: parquet, tsv or csv
             usecols: columns to retain, configured in .json"""
         path = pl.Path(paths)

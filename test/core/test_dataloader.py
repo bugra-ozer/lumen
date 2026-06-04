@@ -1,6 +1,7 @@
 import io, pytest, pandas as pd, pathlib as pl
 from unittest.mock import MagicMock
 from constant import constants_dev as cons_dev
+from constant import constants as cons
 from unittest import mock
 from main import DataLoader
 
@@ -11,7 +12,7 @@ def test_read_parquet(mock_parquet):
     unit = DataLoader()
     mock_parquet.return_value = pd.DataFrame()
     path=pl.Path(cons_dev.MOCK_RANDOM_PATH)
-    read=unit.read_file(cons_dev.MOCK_RANDOM_PATH, 'parquet')
+    read=unit.read_file(cons_dev.MOCK_RANDOM_PATH, cons.STR_PARQUET)
     mock_parquet.assert_called_once_with(path)
     assert isinstance(read,pd.DataFrame)
 
