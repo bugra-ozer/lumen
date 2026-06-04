@@ -8,6 +8,7 @@ from downloader import downloader as client
 from scorer import bayesian_algorithm as scorer
 from log import log_handler
 from constant import constants as cons
+from db.database import db
 
 log_handler.LogHandler()
 logger=logging.getLogger(__name__)
@@ -204,26 +205,37 @@ class DataLoader():
             file_type: parquet, tsv or csv
             usecols: columns to retain, configured in .json"""
         path = pl.Path(paths)
-        if file_type.strip().lower() == 'tsv':
+        if file_type.strip().lower() == cons.STR_TSV:
             try:
                 file = pd.read_csv(path, delimiter='\t', encoding='latin-1', on_bad_lines='skip', na_values='\\N', usecols=usecols)  # Read file
             except Exception as e:
-                raise IOError(f"Failed to read CSV/TSV: {e}") from e
-        elif file_type.strip().lower() == 'parquet':
+                raise IOError(f"Failed to read {cons.STR_TSV}: {e}") from e
+        elif file_type.strip().lower() == cons.STR_PARQUET:
             try:
                 file = pd.read_parquet(path)  # Read file
             except Exception as e:
-                raise IOError(f"Failed to read parquet: {e}") from e
+                raise IOError(f"Failed to read {cons.STR_PARQUET}: {e}") from e
+        elif file_type.strip().lower() == cons.STR_SQL:
+            try:
+                file = pd.read_sql(db.engine, path)  # Read file
+            except Exception as e:
+                raise IOError(f"Failed to read {cons.STR_SQL}: {e}") from e
         else:
             raise ValueError(f"Failed to read file: {path}")
         return file
 
-    def save_file(self, file:pd.DataFrame, path):
+    def save_file(self, file:pd.DataFrame, path, file_type:str=cons.STR_PARQUET):
         """Save file to given path."""
-        try:
-            file.to_parquet(path)
-        except Exception as e:
-            raise IOError(f"Failed to save file: {e}") from e
+        if file_type.strip().lower() == cons.STR_TSV:
+            try:
+                file.to_parquet(path)
+            except Exception as e:
+                raise IOError(f"Failed to save file: {e}") from e
+        elif file_type.strip().lower() == cons.STR_SQL:
+            try:
+                file.to_sql(db.engine, path, if_exists='append', index=False)
+            except Exception as e:
+                raise IOError(f"Failed to save file: {e}") from e
         return self
 
     def delete_file(self, path):

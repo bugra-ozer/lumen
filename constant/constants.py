@@ -48,6 +48,10 @@ PATH_KEY = 'path'
 BASE_DATA_EXP_FILE = 'base_data_exp.json'
 CONFIG_DIR = 'config'
 BASE_DATA_EXP_JSON='last_update'
+STR_PARQUET='parquet'
+STR_TSV='tsv'
+STR_SQL='sql'
+STR_JSON='json'
 
 #API cons
 PUBLIC_PATHS='/login', '/refresh', '/health'
