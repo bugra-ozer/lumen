@@ -226,7 +226,7 @@ class DataLoader():
 
     def save_file(self, file:pd.DataFrame, path, file_type:str=cons.STR_PARQUET):
         """Save file to given path."""
-        if file_type.strip().lower() == cons.STR_TSV:
+        if file_type.strip().lower() == cons.STR_PARQUET:
             try:
                 file.to_parquet(path)
             except Exception as e:
