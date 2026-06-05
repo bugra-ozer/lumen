@@ -8,7 +8,7 @@ from downloader import downloader as client
 from scorer import bayesian_algorithm as scorer
 from log import log_handler
 from constant import constants as cons
-from db.database import db
+from db.database import db, db_engine_local
 
 log_handler.LogHandler()
 logger=logging.getLogger(__name__)
@@ -160,8 +160,12 @@ class DataPipeline():
     def build_data(self):
         """Read if processed file exists, else run operations to initiate one."""
         data_frames=[]
+
         if pl.Path.exists(pl.Path(self.base_data_path)):
             logger.info(cons.INFO_LOAD_BASE_DATA)
+            dfe=self.data_loader.read_file(cons.TABLE_NAME_CONTENT, 'sql')
+            print(dfe)
+            input()
             data=self.data_loader.read_file(str(self.base_data_path), cons.STR_PARQUET)
         else:
             for tsv in self.tsv_configs:
@@ -202,7 +206,7 @@ class DataLoader():
 
         Args:
             paths: for TSV/Parquet; file path, for SQL; table name
-            file_type: parquet, tsv or csv
+            file_type: parquet, tsv or sql
             usecols: columns to retain, configured in .json"""
         path = pl.Path(paths)
         if file_type.strip().lower() == cons.STR_TSV:
@@ -217,7 +221,7 @@ class DataLoader():
                 raise IOError(f"Failed to read {cons.STR_PARQUET}: {e}") from e
         elif file_type.strip().lower() == cons.STR_SQL:
             try:
-                file = pd.read_sql(db.engine, path)  # Read file
+                file = pd.read_sql(path, db_engine_local)  # Read file
             except Exception as e:
                 raise IOError(f"Failed to read {cons.STR_SQL}: {e}") from e
         else:
@@ -247,7 +251,7 @@ class DataLoader():
 class DataFilter():
     """Internally selects and stores selected movies after user filter is applied."""
 
-    def __init__(self, df:pd.DataFrame, filter_tools:dict[str,dict]=None, sort_column=cons.ADJUSTED_SCORE_COLUMN):
+    def __init__(self, df:pd.DataFrame, filter_tools:dict[str,dict]=None, sort_column=cons.ADJUSTED_SCORE_COLUMN): # noqa
         self.df=df.copy()
         self.sort_column = None
         self.sort_ascending = True
@@ -444,4 +448,7 @@ class AppManager():
         self.app_service.run(self.filter_tools)
 
 if __name__ == '__main__':
+    df = pd.read_sql(f"SELECT * FROM {cons.TABLE_NAME_CONTENT}", db_engine_local)
+    print(df.to_string())
+    input()
     AppManager()
