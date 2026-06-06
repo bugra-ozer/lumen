@@ -89,7 +89,25 @@ def health():
     """Simple health endpoint."""
     return jsonify({'status': cons.OK})
 
+def db_setup(api_app):
+    db.init_app(api_app)
+    with api_app.app_context():
+        db.create_all()
 
+def db_seed(main_app_service):
+    existing_imdb_ids = [row.imdb_id for row in db.session.query(Content.imdb_id).all()]
+    is_in_mask = ~main_app_service.data[cons.IMDB_ID_COLUMN].isin(existing_imdb_ids)
+    minimal_df = main_app_service.data[is_in_mask]
+    try:
+        minimal_df = minimal_df.drop(
+            columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
+    except ValueError:
+        logger.error(ValueError)
+    if not len(minimal_df) == 0:
+        minimal_df.to_sql(cons.TABLE_NAME_CONTENT, if_exists='append', index=False, con=db.engine)
+
+db_setup(app)
+db_seed(app_service)
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)
