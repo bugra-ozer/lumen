@@ -9,7 +9,7 @@ from constant import constants as cons
 from constant import constants_dev as cons_dev
 from db.database import db
 from db.models import *
-import secrets, bcrypt, jwt, os, logging
+import secrets, bcrypt, jwt, os, logging, sqlalchemy
 
 logger = logging.getLogger(__name__)
 
@@ -89,10 +89,11 @@ def health():
     """Simple health endpoint."""
     return jsonify({'status': cons.OK})
 
-def db_setup(api_app):
+def db_setup(api_app, main_app_service):
     db.init_app(api_app)
     with api_app.app_context():
         db.create_all()
+        db_seed(main_app_service)
 
 def db_seed(main_app_service):
     existing_imdb_ids = [row.imdb_id for row in db.session.query(Content.imdb_id).all()]
@@ -104,10 +105,9 @@ def db_seed(main_app_service):
     except ValueError:
         logger.error(ValueError)
     if not len(minimal_df) == 0:
-        minimal_df.to_sql(cons.TABLE_NAME_CONTENT, if_exists='append', index=False, con=db.engine)
+        minimal_df.to_sql(sqlalchemy.text(f'{cons.TABLE_NAME_CONTENT}'), if_exists='append', index=False, con=db.engine)
 
-db_setup(app)
-db_seed(app_service)
+db_setup(app, app_service)
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)

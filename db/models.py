@@ -31,5 +31,5 @@ class PreviousData(db.Model):
     __tablename__=cons.TABLE_NAME_PREVIOUS_DATA
     previous_data_id=db.Column(db.Integer,primary_key=True)
     user_id=db.Column(db.Integer,db.ForeignKey(f'{cons.TABLE_NAME_USERS}.user_id'))
-    imdb_id=db.Column(db.String(80),db.ForeignKey(f'{cons.TABLE_NAME_CONTENT}.imdb_id'))
+    imdb_id=db.Column(db.String(80), db.ForeignKey(f'{cons.TABLE_NAME_CONTENT}.imdb_id'))
     date=db.Column(db.DateTime,default=lambda:datetime.now(timezone.utc))
