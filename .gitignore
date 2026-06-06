@@ -14,7 +14,7 @@ server.py
 
 # Log files
 log/
-base_data_exp.json
+db_exp.json
 
 # Vim
 *.un~

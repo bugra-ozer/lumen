@@ -30,13 +30,14 @@ COLUMN_RENAME_DICT={'tconst': 'imdb_id','averageRating': 'average_rating',
 
 #Pandas errors
 ERROR_APPLY_CON='Failed to apply condition to the file.'
-ERROR_LOAD_BASE_DATA='Failed to load base data'
+ERROR_LOAD_DB= 'Failed to load database'
 ERROR_LOAD_TSV_PATH='Failed to load tsv paths'
 ERROR_WRONG_FILTER_OR_DF='Failed to load filter_tools or DataFrame'
+ERROR_SAVE='Failed to save file'
 
 #CLI
 INFO_PRESS_ANY='Press any key to continue...'
-INFO_LOAD_BASE_DATA='loading base data file...'
+INFO_LOAD_DB= 'loading db...'
 INFO_MERGE_TSV='merging tsv file(s)...'
 INFO_LOAD_DONE='load complete!'
 
@@ -45,13 +46,14 @@ PREVIOUS_DATA_KEY = 'previous_data'
 BAYESIAN_DATA_KEY = 'bayesian_data'
 FALLBACK_KEY = 'fallback'
 PATH_KEY = 'path'
-BASE_DATA_EXP_FILE = 'base_data_exp.json'
+DB_EXP_FILE = 'db_exp.json'
 CONFIG_DIR = 'config'
-BASE_DATA_EXP_JSON='last_update'
+DB_EXP_JSON= 'last_update'
 STR_PARQUET='parquet'
 STR_TSV='tsv'
 STR_SQL='sql'
 STR_JSON='json'
+DATASET_JSON='dataset.json'
 
 #API cons
 PUBLIC_PATHS='/login', '/refresh', '/health'
@@ -79,6 +81,7 @@ USER_DEFAULT_ROLE='BASIC'
 DEFAULT_NAME_DB_URL="DATABASE_URL"
 FILE_NAME_DATABASE= 'lumen.db'
 FOLDER_NAME_INSTANCE='instance'
+ERROR_CONNECT_DB= 'Failed to connect to database'
 
 #os
 FILE_NAME_ENV='.env'

@@ -1,4 +1,7 @@
 import pandas as pd, pathlib as pl, json, logging, functools, enum, sqlalchemy
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import OperationalError, DatabaseError
+
 from validator import validator
 from logging import exception
 from datetime import datetime, timezone, timedelta
@@ -79,8 +82,8 @@ class DataContainer():
 class DataPipeline():
     """Orchestrator class owns loader and downloader classes for external pandas dataframe operations."""
 
-    def __init__(self, usecols=None, json_cfg:tuple=("main.json", "dataset.json")):
-        self.config_dir='config'
+    def __init__(self, usecols=None, json_cfg:tuple=(cons.DATASET_JSON,)):
+        self.config_dir=cons.CONFIG_DIR
         self.json_cfg=json_cfg
         self.config_dict={}
         self.base_data_path=None
@@ -93,8 +96,9 @@ class DataPipeline():
         self._load_config()
         self._fetch_paths()
         self._convert_config_pl()
-        self._download_dataset()
-        return self.build_data()
+        db_count=self._count_query_db(cons.TABLE_NAME_CONTENT)
+        self._download_dataset(db_count)
+        return self.build_data(db_count)
 
     def _load_config(self):
         """Load configuration file for file operations."""
@@ -120,60 +124,69 @@ class DataPipeline():
     def _fetch_paths(self):
         """Fetch tsv file and base file paths"""
         for key, value in self.config_dict.items():
-            if 'base' in str(key):
-                self.base_data_path = value[cons.PATH_COLUMN]
             if 'imdb' in str(key):
                 self.tsv_configs.append(value)
         return self
 
     def _is_data_stale(self):
         """Check if base data is stale or not."""
-        if pl.Path.exists((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE)):  # check config file
-            base_data_exp = json.load(open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE)))
-            return datetime.now(timezone.utc)-datetime.fromisoformat(base_data_exp[cons.BASE_DATA_EXP_JSON]) > timedelta(weeks=2)  # return boolean
+        if pl.Path.exists((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.DB_EXP_FILE)):  # check config file
+            db_exp = json.load(open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.DB_EXP_FILE)))
+            return datetime.now(timezone.utc)-datetime.fromisoformat(db_exp[cons.DB_EXP_JSON]) > timedelta(weeks=2)  # return boolean
         else:
             self._create_base_data_exp() # noqa
 
     @staticmethod
-    def _update_base_data_exp():
+    def _update_db_exp():
         """Update base data expiry date."""
-        if pl.Path.exists((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE)):  # check config file
-            base_data_exp = json.load(open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE), mode='r'))
+        if pl.Path.exists((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.DB_EXP_FILE)):  # check config file
+            base_data_exp = json.load(open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.DB_EXP_FILE), mode='r'))
             update_exp = datetime.now(timezone.utc).isoformat()
-            base_data_exp[cons.BASE_DATA_EXP_JSON] = update_exp
-            json.dump(base_data_exp, open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE), 'w'))
+            base_data_exp[cons.DB_EXP_JSON] = update_exp
+            json.dump(base_data_exp, open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.DB_EXP_FILE), 'w'))
 
     @staticmethod
     def _create_base_data_exp():
         """Case handling when exp file is corrupted, deleted or missing; write expiry date for consistency."""
         base_data_exp = dict()
         update_exp = datetime.now(timezone.utc).isoformat()
-        base_data_exp[cons.BASE_DATA_EXP_JSON] = update_exp
-        json.dump(base_data_exp, open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE), 'w'))
+        base_data_exp[cons.DB_EXP_JSON] = update_exp
+        json.dump(base_data_exp, open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.DB_EXP_FILE), 'w'))
 
-    def _download_dataset(self):
-        if self.base_data_path is None:
-            raise Exception(cons.ERROR_LOAD_BASE_DATA)
+    def _download_dataset(self, db_count=0):
+        if db_engine_local is None:
+            raise Exception(cons.ERROR_LOAD_DB)
         elif not self.tsv_configs:
             raise Exception(cons.ERROR_LOAD_TSV_PATH)
-        if not pl.Path(self.base_data_path).exists() or self._is_data_stale(): #check for base_data, if it exists and not stale skip all download dataset operation.
+        if db_count==0 or self._is_data_stale(): #check for base_data, if it exists and not stale skip all download dataset operation.
             if any(tsv for tsv in [*self.tsv_configs] if not pl.Path(tsv[cons.PATH_COLUMN]).exists()): #if file paths are empty orchestrate http request for dataset download.
                 self.dataset_downloader.run()
 
-    def build_data(self):
+    @staticmethod
+    def _count_query_db(table_name):
+        try: count=pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM {table_name}'), db_engine_local).iloc[0, 0] #grab row 0 col 0
+        except (DatabaseError, pd.errors.DatabaseError): count=0
+        return count
+
+    def build_data(self, db_count):
         """Read if processed file exists, else run operations to initiate one."""
         data_frames=[]
-        if pl.Path.exists(pl.Path(self.base_data_path)):
-            logger.info(cons.INFO_LOAD_BASE_DATA)
-            data=self.data_loader.read_file(str(self.base_data_path), cons.STR_PARQUET)
+        if db_count != 0:
+            try:
+                with db_engine_local.connect():
+                    logger.info(cons.INFO_LOAD_DB)
+                    data=self.data_loader.read_file(cons.TABLE_NAME_CONTENT, cons.STR_SQL)
+            except OperationalError:
+                logger.exception(cons.ERROR_CONNECT_DB)
+                raise Exception(cons.ERROR_CONNECT_DB)
         else:
             for tsv in self.tsv_configs:
                 logger.info(cons.INFO_MERGE_TSV)
                 data_frames.append(self.data_loader.read_file(str(tsv[cons.PATH_COLUMN]), 'tsv', usecols=tsv['usecols']))
                 self.data_loader.delete_file(tsv[cons.PATH_COLUMN])
             data=self.data_loader.merge_dataframes(*data_frames, on=cons.IMDB_ID_COLUMN_LEGACY)
-            self.data_loader.save_file(data, self.base_data_path)
-            self._update_base_data_exp()
+            self.data_loader.save_file(data, cons.TABLE_NAME_CONTENT, cons.STR_SQL)
+            self._update_db_exp()
         logger.info(cons.INFO_LOAD_DONE)
         return data
 
@@ -221,25 +234,21 @@ class DataLoader():
                 raise IOError(f"Failed to read {cons.STR_PARQUET}: {e}") from e
         elif file_type.strip().lower() == cons.STR_SQL:
             try:
-                file = pd.read_sql(sqlalchemy.text(f'SELECT * FROM {path}'), db_engine_local, usecols=usecols)  # Read file
+                file = pd.read_sql(sqlalchemy.text(f'SELECT * FROM {path}'), db_engine_local)  # Read file
             except Exception as e:
                 raise IOError(f"Failed to read {cons.STR_SQL}: {e}") from e
         else:
             raise ValueError(f"Failed to read file: {path}")
         return file
 
-    def save_file(self, file:pd.DataFrame, path, file_type:str=cons.STR_PARQUET):
+    def save_file(self, file:pd.DataFrame, table_name, file_type:str=cons.STR_SQL):
         """Save file to given path."""
-        if file_type.strip().lower() == cons.STR_PARQUET:
+        if file_type.strip().lower() == cons.STR_SQL:
             try:
-                file.to_parquet(path)
+                file.to_sql(table_name, db_engine_local, if_exists='append', index=False)
             except Exception as e:
-                raise IOError(f"Failed to save file: {e}") from e
-        elif file_type.strip().lower() == cons.STR_SQL:
-            try:
-                file.to_sql(db.engine, path, if_exists='append', index=False)
-            except Exception as e:
-                raise IOError(f"Failed to save file: {e}") from e
+                logger.exception(cons.ERROR_CONNECT_DB)
+                raise IOError(f"{cons.ERROR_SAVE}: {e}") from e
         return self
 
     def delete_file(self, path):
