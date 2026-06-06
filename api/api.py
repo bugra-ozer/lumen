@@ -105,7 +105,7 @@ def db_seed(main_app_service):
     except ValueError:
         logger.error(ValueError)
     if not len(minimal_df) == 0:
-        minimal_df.to_sql(sqlalchemy.text(f'{cons.TABLE_NAME_CONTENT}'), if_exists='append', index=False, con=db.engine)
+        minimal_df.to_sql((f'{cons.TABLE_NAME_CONTENT}'), if_exists='append', index=False, con=db.engine)
 
 db_setup(app, app_service)
 

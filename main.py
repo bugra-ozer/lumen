@@ -93,13 +93,7 @@ class DataPipeline():
         self._load_config()
         self._fetch_paths()
         self._convert_config_pl()
-        if self.base_data_path is None:
-            raise Exception(cons.ERROR_LOAD_BASE_DATA)
-        elif not self.tsv_configs:
-            raise Exception(cons.ERROR_LOAD_TSV_PATH)
-        if not pl.Path(self.base_data_path).exists() or self._is_data_stale(): #check for base_data, if it exists skip all download dataset operation.
-            if any(tsv for tsv in [*self.tsv_configs] if not pl.Path(tsv[cons.PATH_COLUMN]).exists()): #if file paths are empty orchestrate http request for dataset download.
-                self.dataset_downloader.run()
+        self._download_dataset()
         return self.build_data()
 
     def _load_config(self):
@@ -157,14 +151,20 @@ class DataPipeline():
         base_data_exp[cons.BASE_DATA_EXP_JSON] = update_exp
         json.dump(base_data_exp, open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.BASE_DATA_EXP_FILE), 'w'))
 
+    def _download_dataset(self):
+        if self.base_data_path is None:
+            raise Exception(cons.ERROR_LOAD_BASE_DATA)
+        elif not self.tsv_configs:
+            raise Exception(cons.ERROR_LOAD_TSV_PATH)
+        if not pl.Path(self.base_data_path).exists() or self._is_data_stale(): #check for base_data, if it exists and not stale skip all download dataset operation.
+            if any(tsv for tsv in [*self.tsv_configs] if not pl.Path(tsv[cons.PATH_COLUMN]).exists()): #if file paths are empty orchestrate http request for dataset download.
+                self.dataset_downloader.run()
+
     def build_data(self):
         """Read if processed file exists, else run operations to initiate one."""
         data_frames=[]
         if pl.Path.exists(pl.Path(self.base_data_path)):
             logger.info(cons.INFO_LOAD_BASE_DATA)
-            dfe=self.data_loader.read_file(cons.TABLE_NAME_CONTENT, cons.STR_SQL)
-            print(dfe)
-            input()
             data=self.data_loader.read_file(str(self.base_data_path), cons.STR_PARQUET)
         else:
             for tsv in self.tsv_configs:
@@ -199,14 +199,16 @@ class DataLoader():
                 result = result.merge(args[i], on=on)
         return result
 
-    def read_file(self, paths:str, file_type:str, usecols=None):
+    @staticmethod
+    def read_file(paths:str, file_type:str, usecols=None):
         """Read TSV file from given path
 
         Args:
             paths: for TSV/Parquet; file path, for SQL; table name
             file_type: parquet, tsv or sql
             usecols: columns to retain, configured in .json"""
-        path=self._grab_path(paths, file_type)
+        path=paths.strip()
+        if file_type != cons.STR_SQL: path=pl.Path(paths)
         if file_type.strip().lower() == cons.STR_TSV:
             try:
                 file = pd.read_csv(path, delimiter='\t', encoding='latin-1', on_bad_lines='skip', na_values='\\N', usecols=usecols)  # Read file
@@ -219,19 +221,12 @@ class DataLoader():
                 raise IOError(f"Failed to read {cons.STR_PARQUET}: {e}") from e
         elif file_type.strip().lower() == cons.STR_SQL:
             try:
-                file = pd.read_sql(sqlalchemy.text(f'SELECT * FROM {path}'), db_engine_local)  # Read file
+                file = pd.read_sql(sqlalchemy.text(f'SELECT * FROM {path}'), db_engine_local, usecols=usecols)  # Read file
             except Exception as e:
                 raise IOError(f"Failed to read {cons.STR_SQL}: {e}") from e
         else:
             raise ValueError(f"Failed to read file: {path}")
         return file
-
-    @staticmethod
-    def _grab_path(path, type):
-        if type != cons.STR_SQL:
-            return pl.Path(path)
-        elif type != cons.STR_TSV:
-            return path
 
     def save_file(self, file:pd.DataFrame, path, file_type:str=cons.STR_PARQUET):
         """Save file to given path."""
