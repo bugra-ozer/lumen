@@ -31,14 +31,7 @@ class DataContainer():
         self.data=self.data_pipeline.main()
         self.raw_data=self.data #set raw dataframe before clearing main dataframe
         self._purge_data()
-        self.mutate_dataframe()
-    
-    def rename_columns(self, columns:dict):
-        """Make columns in imdb .tsv files more readable and intuitive"""
-        try:    
-            self.data:pd.DataFrame=self.data.rename(columns=columns)
-            return self
-        except KeyError as e: raise KeyError(f"Column not found to rename: {e}") from e
+        self.select_columns(*cons.COLUMNS_TO_KEEP)
 
     def select_columns(self, *args:str):
         """Internal limitation the data with given columns.
@@ -49,12 +42,6 @@ class DataContainer():
         if len(columns_to_limit)>0:self.condition=columns_to_limit
         try:self._apply_column_selection()
         except KeyError as e:raise KeyError(f"With given arguments, column not found: {e}") from e
-        return self
-
-    def mutate_dataframe(self):
-        """Setup imdb data and call on files to be modified"""
-        self.rename_columns(cons.COLUMN_RENAME_DICT) #rename the columns to be more intuitive
-        self.select_columns(*cons.COLUMNS_TO_KEEP) #Mutate only wanted columns
         return self
 
     def _apply_column_selection(self):
@@ -74,9 +61,9 @@ class DataContainer():
 
     def _purge_data(self):
         """Remove excessive items with low votes, empty primary titles and genres."""
-        self.data = self._filter_rows(cons.TITLE_TYPE_COLUMN_LEGACY, 'movie')  # remove anything else than movie in records
-        self.data = self.data[(self.data[cons.PRIMARY_TITLE_COLUMN_LEGACY].notna()) & (self.data[cons.GENRE_COLUMN_LEGACY].notna()) & (self.data[cons.NUMBER_OF_VOTES_COLUMN_LEGACY] > 25000)]  # Purge unsuitable titles
-        self.data.dropna(subset=[cons.PUBLISHED_COLUMN_LEGACY], inplace=True)
+        self.data = self._filter_rows(cons.TITLE_TYPE_COLUMN, 'movie')  # remove anything else than movie in records
+        self.data = self.data[(self.data[cons.PRIMARY_TITLE_COLUMN].notna()) & (self.data[cons.GENRE_COLUMN].notna()) & (self.data[cons.NUMBER_OF_VOTES_COLUMN] > 25000)]  # Purge unsuitable titles
+        self.data.dropna(subset=[cons.PUBLISHED_COLUMN], inplace=True)
         return self
 
 class DataPipeline():
@@ -127,6 +114,15 @@ class DataPipeline():
             if 'imdb' in str(key):
                 self.tsv_configs.append(value)
         return self
+
+    @staticmethod
+    def rename_columns(data, columns:dict):
+        """Make columns in imdb .tsv files more readable and intuitive"""
+        try:
+            return data.rename(columns=columns)
+        except KeyError as e:
+            logger.exception(cons.ERROR_COLUMN_NOT_FOUND)
+            raise KeyError(f"{cons.ERROR_COLUMN_NOT_FOUND} {e}") from e
 
     def _is_data_stale(self):
         """Check if base data is stale or not."""
@@ -185,6 +181,7 @@ class DataPipeline():
                 data_frames.append(self.data_loader.read_file(str(tsv[cons.PATH_COLUMN]), 'tsv', usecols=tsv['usecols']))
                 self.data_loader.delete_file(tsv[cons.PATH_COLUMN])
             data=self.data_loader.merge_dataframes(*data_frames, on=cons.IMDB_ID_COLUMN_LEGACY)
+            data=self.rename_columns(data, cons.COLUMN_RENAME_DICT)
             self.data_loader.save_file(data, cons.TABLE_NAME_CONTENT, cons.STR_SQL)
             self._update_db_exp()
         logger.info(cons.INFO_LOAD_DONE)
