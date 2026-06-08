@@ -1,6 +1,4 @@
-import datetime
-import pandas as pd
-import logging
+import datetime, pandas as pd, logging, numpy as np
 from persister import state_store
 from constant import constants as cons
 
@@ -26,55 +24,15 @@ class BayesianScorer():
 
     def _build_score(self):
         """Builds bayesian algorithm taking release year, number of votes and average rating into account."""
-        bayes_scores = []
-        decay_factors = []
-        adjusted_scores = []
         m=self.data[cons.NUMBER_OF_VOTES_COLUMN].mean()
         c=self.data[cons.AVERAGE_RATING_COLUMN].mean()
-        for index, movie in self.data.iterrows():
-            b_score=self._calculate_bayesian_score(movie, m, c)
-            d_factor=self._calculate_decay_factor(movie)
-            a_score=b_score*d_factor
-            bayes_scores.append(b_score)
-            decay_factors.append(d_factor)
-            adjusted_scores.append(a_score)
-        self.data[cons.BAYES_SCORE_COLUMN] = bayes_scores
-        self.data[cons.DECAY_FACTOR_COLUMN] = decay_factors
-        self.data[cons.ADJUSTED_SCORE_COLUMN] = adjusted_scores
+        v=self.data[cons.NUMBER_OF_VOTES_COLUMN]
+        r=self.data[cons.AVERAGE_RATING_COLUMN]
+        years_old = datetime.date.today().year - (self.data[cons.PUBLISHED_COLUMN]).astype(int)
+        condition_list=[years_old<years for years in cons.DECAY_FACTOR_THRESHOLD]
+        choice_list=[decay_value**years_old for decay_value in cons.DECAY_FACTOR_VALUES]
+        self.data[cons.BAYES_SCORE_COLUMN] = (v / (v + m)) * r + (m / (v + m) * c)
+        self.data[cons.DECAY_FACTOR_COLUMN] = np.select(condition_list, choice_list ,cons.DECAY_FACTOR_THRESHOLD_DEFAULT**years_old)
+        self.data[cons.ADJUSTED_SCORE_COLUMN] = self.data[cons.DECAY_FACTOR_COLUMN]*self.data[cons.BAYES_SCORE_COLUMN]
         self.data[cons.DATE_COLUMN] = self.date
         return self
-
-    @staticmethod
-    def _calculate_bayesian_score(movie, m, c):
-        """
-        Calculate bayesian score for a single movie.
-
-        Args:
-            movie: Single pandas row with all movie details.
-            m: Mean of number of votes in entire df.
-            c: Mean of average rating in entire df.
-        Returns:
-            Weighted Bayesian score as a float.
-        """
-        v=movie[cons.NUMBER_OF_VOTES_COLUMN]
-        r=movie[cons.AVERAGE_RATING_COLUMN]
-        bayes_score=(v/(v+m)) * r + (m/(v+m) * c)
-        return bayes_score
-    
-    @staticmethod
-    def _calculate_decay_factor(movie):
-        """Calculate decay factor for single movie."""
-        years_old=datetime.date.today().year-int(movie[cons.PUBLISHED_COLUMN])
-        if years_old<10:
-            decay_factor=0.9997**years_old
-        elif years_old<15:
-            decay_factor=0.9996**years_old
-        elif years_old<20:
-            decay_factor=0.9995**years_old
-        elif years_old<30:
-            decay_factor=0.9994**years_old
-        elif years_old<45:
-            decay_factor=0.9993**years_old
-        else:
-            decay_factor=0.9992**years_old
-        return decay_factor

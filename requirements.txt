@@ -9,3 +9,4 @@ bcrypt
 python-dotenv
 flask-migrate
 flask-sqlalchemy
+numpy
