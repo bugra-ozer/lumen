@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 patch = mock.patch
 
 def test_happy_path():
-    all_columns=cons.COLUMNS_TO_KEEP+(cons.ADJUSTED_SCORE_COLUMN,)
+    all_columns= cons.CONTENT_COLUMNS_TO_KEEP + (cons.ADJUSTED_SCORE_COLUMN,)
     fake_df=pd.DataFrame(columns=all_columns, data=[["tt0014358",7.2,6236,"The Pilgrim",1923,"Action, Horror",5]])
     fake_filter_tools=cons_dev.DUMMY_FILTER_TOOLS
     unit=main.DataFilter(fake_df, fake_filter_tools)
@@ -21,7 +21,7 @@ def test_sad_df_path():
         main.DataFilter(fake_df, fake_filter_tools)
 
 def test_sad_filter_path():
-    all_columns = cons.COLUMNS_TO_KEEP + (cons.ADJUSTED_SCORE_COLUMN,)
+    all_columns = cons.CONTENT_COLUMNS_TO_KEEP + (cons.ADJUSTED_SCORE_COLUMN,)
     fake_df = pd.DataFrame(columns=all_columns,
                            data=[["tt0014358", 7.2, 6236, "The Pilgrim", 1923, "Action, Horror", 5]])
     fake_filter_tools = cons_dev.DUMMY_SAD_FILTER_TOOLS

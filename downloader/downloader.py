@@ -1,10 +1,6 @@
-import json
-import requests
-import pathlib as pl
-import gzip
+import json, requests, pathlib as pl, gzip, logging
 from constant import constants as cons
 from tqdm import tqdm
-import logging
 
 logger = logging.getLogger(__name__)
 

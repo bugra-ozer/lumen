@@ -1,7 +1,6 @@
 import pandas as pd, pathlib as pl, json, logging, functools, enum, sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import OperationalError, DatabaseError
-
 from validator import validator
 from logging import exception
 from datetime import datetime, timezone, timedelta
@@ -23,7 +22,7 @@ class DataContainer():
         self.data=pd.DataFrame()
         self.raw_data=None
         self.condition=None
-        usecols=cons.COLUMNS_TO_KEEP_LEGACY
+        usecols=cons.CONTENT_COLUMNS_TO_KEEP_LEGACY
         self.data_pipeline=DataPipeline(usecols=usecols)
 
     def build_container(self):
@@ -31,7 +30,7 @@ class DataContainer():
         self.data=self.data_pipeline.main()
         self.raw_data=self.data #set raw dataframe before clearing main dataframe
         self._purge_data()
-        self.select_columns(*cons.COLUMNS_TO_KEEP)
+        self.select_columns(*cons.CONTENT_COLUMNS_TO_KEEP)
 
     def select_columns(self, *args:str):
         """Internal limitation the data with given columns.
@@ -167,7 +166,7 @@ class DataPipeline():
     def build_data(self, db_count):
         """Read if processed file exists, else run operations to initiate one."""
         data_frames=[]
-        if db_count != 0:
+        if db_count != 0: #content table has data
             try:
                 with db_engine_local.connect():
                     logger.info(cons.INFO_LOAD_DB)
@@ -210,15 +209,15 @@ class DataLoader():
         return result
 
     @staticmethod
-    def read_file(paths:str, file_type:str, usecols=None):
+    def read_file(name:str, file_type:str, usecols=None):
         """Read TSV file from given path
 
         Args:
-            paths: for TSV/Parquet; file path, for SQL; table name
-            file_type: parquet, tsv or sql
+            name: for TSV/Parquet; file path, for SQL; table name
+            file_type: parquet, tsv or SQL
             usecols: columns to retain, configured in .json"""
-        path=paths.strip()
-        if file_type != cons.STR_SQL: path=pl.Path(paths)
+        path=name.strip()
+        if file_type != cons.STR_SQL: path=pl.Path(name)
         if file_type.strip().lower() == cons.STR_TSV:
             try:
                 file = pd.read_csv(path, delimiter='\t', encoding='latin-1', on_bad_lines='skip', na_values='\\N', usecols=usecols)  # Read file
@@ -377,11 +376,11 @@ class AppService():
 
     def __init__(self):
         self.picks=None
-        self.state_store = state_store.StateStore()  #For caching
+        self.state_store = state_store.StateStore(cons.TABLE_NAME_PREVIOUS_DATA,db_engine_local)  #For caching
         self.state_store.load_all_files()
         self.container = DataContainer()
         self.container.build_container()
-        self.previous_ids = set(self.state_store.data.get(cons.PREVIOUS_DATA_KEY, pd.DataFrame()).get(cons.IMDB_ID_COLUMN, []))
+        self.previous_ids = set(self.state_store.previous_data[cons.IMDB_ID_COLUMN])
         self.bayes=scorer.BayesianScorer(self.container.data)
         self.bayes.score()
         self.data=self.bayes.data
@@ -393,8 +392,8 @@ class AppService():
         """
         candidates=self.decide_candidates(filter_tools)
         self.picks=self._pick_top(candidates, cons.M_POOL, cons.N_POP)
-        self.state_store.concat_file({cons.PREVIOUS_DATA_KEY: pd.DataFrame(self.picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]])})
-        self.state_store.save_all_files()
+        self.state_store.concat_file(pd.DataFrame(self.picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]]))
+        self.state_store.save_file()
         self.picks=self.picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN]) # noqa
         print(self.picks.to_string())
         return self.picks.to_dict(orient='records')

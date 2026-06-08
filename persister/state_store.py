@@ -1,24 +1,16 @@
-import pandas as pd, pathlib as pl, json, logging
+import pandas as pd, pathlib as pl, logging, sqlalchemy
+from sqlalchemy.exc import OperationalError, DatabaseError
 from constant import constants as cons
 
 logger = logging.getLogger(__name__)
 
 class StateStore():
     """Class that handles file operations for orchestrator class for caching and remembering previous sessions."""
-    def __init__(self, json_cfg:str="state.json"):
+    def __init__(self, table_name, engine):
         """Store properties and set configuration parsing."""
-        self.concat=None
-        self.data={}
-        self.json_cfg=json_cfg
-        self.config_dir='config'
-        self.config_dict:dict=self._load_config()
-        self.path=None
-
-    def save_all_files(self):
-        """Process saving all files."""
-        for file in self.data:
-            self._save_file(file)
-        return self
+        self.table_name=table_name
+        self.engine=engine
+        self.previous_data=None
 
     def load_all_files(self):
         """Load and clear duplicates from all saved files."""
@@ -27,61 +19,37 @@ class StateStore():
 
     def _clear_memory_dupli(self):
         """Drop duplicates from all loaded files."""
-        for file_name, df in self.data.items():
-            self.data[file_name]=df.drop_duplicates()
+        self.previous_data=self.previous_data.drop_duplicates()
 
     def _load_memory(self):
         """Load all files or reset it to given fallback property in config file."""
-        for file_name, file_config in self.config_dict.items():
-            file=self._load_file(file_name)
-            if not isinstance(file, pd.DataFrame):
-                file=pd.DataFrame(columns=file_config[cons.FALLBACK_KEY])
-            else:
-                pass
-            self.data[file_name]=file
+        file=self._load_file()
+        if not isinstance(file, pd.DataFrame):
+            self.previous_data=pd.DataFrame(columns=cons.PREVIOUS_COLUMNS)
+        else:
+            self.previous_data=file
         return True
 
-    def concat_file(self, concat:dict=None):
+    def concat_file(self, df:pd.DataFrame):
         """Concat dataframes for expanding files given in state.json.
 
         Args:
-            concat: dict that maps from file names to their update.
+            df: df that  to their update.
             """
-        self.concat=concat
-        if self.concat is not None:
-            for file, value in self.concat.items():
-                if file in self.data:
-                    self.data[file]=pd.concat(objs=[self.data[file], value], ignore_index=True)
+        self.previous_data=pd.concat(objs=[self.previous_data, df], ignore_index=True)
         return self
 
-    def _save_file(self, file: str):
+    def save_file(self):
         """Save file to internal config path."""
-        if file in self.data:
-            self.data[file].to_parquet(str(self.config_dict[file][cons.PATH_KEY]))
+        missing_rows=self.previous_data[cons.TABLE_ID_PREVIOUS_DATA].isna()
+        self.previous_data[missing_rows].to_sql(self.table_name, self.engine, if_exists='append', index=False)
         return self
 
-    def _load_file(self, file:str):
+    def _load_file(self):
         """Load file from internal config path."""
         try:
-            main_file=pd.read_parquet(str(self.config_dict[file][cons.PATH_KEY]))
-        except FileNotFoundError:
-            return False
-        except ValueError:
-            return False
-        return main_file
-
-    def _load_config(self):
-        """Load configuration file for file operations."""
-        try:
-            with open(pl.Path(__file__).parent.parent/self.config_dir/self.json_cfg, "r") as f:
-                config_dict=json.load(f)
-        except ValueError:
-            raise Exception('Failed to open .json config.')
-        except FileNotFoundError:
-            raise Exception('Failed to find .json config.')
-        for key, value in config_dict.items():
-            try:
-                value[cons.PATH_KEY] = pl.Path(__file__).parent.parent / value[cons.PATH_KEY]
-            except KeyError:
-                raise ValueError(f'Failed to find path for {key}')
-        return config_dict
+            self.previous_data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM {cons.TABLE_NAME_PREVIOUS_DATA}'), self.engine)
+        except (DatabaseError, pd.errors.DatabaseError):
+            logger.exception(f"Value not found at {cons.TABLE_NAME_PREVIOUS_DATA}")
+            raise Exception(f"Value not found at {cons.TABLE_NAME_PREVIOUS_DATA}")
+        return self.previous_data

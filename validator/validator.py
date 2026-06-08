@@ -35,7 +35,7 @@ def is_valid_filter_tools(filter_tools):
 def is_valid_dataframe(df:pd.DataFrame):
     if not isinstance(df, pd.DataFrame):
         return False
-    for col in constants.COLUMNS_TO_KEEP:
+    for col in constants.CONTENT_COLUMNS_TO_KEEP:
         if col not in df.columns:
             return False
     return True

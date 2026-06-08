@@ -1,3 +1,5 @@
+
+
 #Pandas operation constants
 FILTER_VALUE='value'
 FILTER_OPERATOR='operator'
@@ -21,8 +23,9 @@ DECAY_FACTOR_COLUMN = 'decay_factor'
 ADJUSTED_SCORE_COLUMN = 'adjusted_score'
 DATE_COLUMN = 'date'
 GENRE_LIST=["action", "adventure", "animation", "biography", "comedy", "crime", "documentary", "drama", "family", "fantasy", "film-noir", "game-show", "history", "horror", "music", "musical", "mystery", "news", "reality-tv", "romance", "sci-fi", "short", "sport", "talk-show", "thriller", "war", "western"]
-COLUMNS_TO_KEEP='imdb_id', 'average_rating', 'number_of_votes', 'primary_title', 'published', 'genre'
-COLUMNS_TO_KEEP_LEGACY='tconst', 'averageRating', 'numVotes', 'primaryTitle', 'startYear', 'genres'
+CONTENT_COLUMNS_TO_KEEP= 'imdb_id', 'average_rating', 'number_of_votes', 'primary_title', 'published', 'genre'
+CONTENT_COLUMNS_TO_KEEP_LEGACY= 'tconst', 'averageRating', 'numVotes', 'primaryTitle', 'startYear', 'genres'
+PREVIOUS_COLUMNS='previous_data_id', 'user_id', 'imdb_id', 'date'
 COLUMN_RENAME_DICT={'tconst': 'imdb_id','averageRating': 'average_rating',
                                     'numVotes': 'number_of_votes','titleType': 'title_type',
                                     'primaryTitle': 'primary_title','originalTitle': 'original_title','isAdult': 'is_adult',
@@ -83,6 +86,7 @@ DEFAULT_NAME_DB_URL="DATABASE_URL"
 FILE_NAME_DATABASE= 'lumen.db'
 FOLDER_NAME_INSTANCE='instance'
 ERROR_CONNECT_DB= 'Failed to connect to database'
+TABLE_ID_PREVIOUS_DATA= 'previous_data_id'
 
 #os
 FILE_NAME_ENV='.env'
