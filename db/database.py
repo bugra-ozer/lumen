@@ -11,4 +11,5 @@ logger = logging.getLogger(__name__)
 db=SQLAlchemy()
 load_dotenv(Path(__file__).parent.parent / cons.FILE_NAME_ENV)
 DATABASE_URL=os.environ.get('DATABASE_URL')
+if DATABASE_URL is None: DATABASE_URL='sqlite:///{Path(__file__).parent.parent / cons.FOLDER_NAME_INSTANCE / cons.FILE_NAME_DATABASE}'
 db_engine_local=sqlalchemy.create_engine(DATABASE_URL)
