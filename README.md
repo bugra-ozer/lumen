@@ -8,7 +8,7 @@
 ![Docker](https://img.shields.io/badge/v29.5.2%2B-000000?style=flat&logo=Docker&label=Docker)
 ![Pandas](https://img.shields.io/badge/v3.0%2B-000000?style=flat&logo=Pandas&label=Pandas)
 ![IMDB](https://img.shields.io/badge/Data-000000?style=flat&logo=IMDb)
-![JWT](https://img.shields.io/badge/Auth-JWT-000000?style=flat&logo=jsonwebtokens&logoColor=white)
+![Auth](https://img.shields.io/badge/bcrypt,_JWT,_secrets-000000?style=flat&logo=jsonwebtokens&logoColor=white&label=Auth)
 ---
 
 ## What is it?
