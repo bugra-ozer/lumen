@@ -130,6 +130,7 @@ class DataPipeline():
             return datetime.now(timezone.utc)-datetime.fromisoformat(db_exp[cons.DB_EXP_JSON]) > timedelta(weeks=2)  # return boolean
         else:
             self._create_base_data_exp() # noqa
+            return False
 
     @staticmethod
     def _update_db_exp():
