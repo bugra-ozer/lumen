@@ -50,6 +50,6 @@ class StateStore():
         try:
             self.previous_data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM {cons.TABLE_NAME_PREVIOUS_DATA}'), self.engine)
         except (DatabaseError, pd.errors.DatabaseError):
-            logger.exception(f"Value not found at {cons.TABLE_NAME_PREVIOUS_DATA}")
-            raise Exception(f"Value not found at {cons.TABLE_NAME_PREVIOUS_DATA}")
+            logger.info(f"Value not found at {cons.TABLE_NAME_PREVIOUS_DATA}")
+            return None
         return self.previous_data
