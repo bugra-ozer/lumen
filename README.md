@@ -1,13 +1,14 @@
 ![Lumen](asset/lumen_logo.svg)
 > An interface-agnostic recommendation engine built on Pandas and Parquet. Features a streaming ETL pipeline, in-memory Bayesian scoring, and a Flask API fortified by a 3-layer security model utilizing bcrypt, self-verifying HS256 JWTs, and secure refresh tokens.
 
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-REST%20API-000000?style=flat&logo=flask)
 [![.github/workflows/ci.yml](https://github.com/bugra-ozer/lumen/actions/workflows/ci.yml/badge.svg)](https://github.com/bugra-ozer/lumen/actions/workflows/ci.yml)
-![JWT](https://img.shields.io/badge/Auth-JWT-000000?style=flat&logo=jsonwebtokens)
-![Pandas](https://img.shields.io/badge/Pandas-pandas?style=flat&logo=pandas&label=ETL&color=%23231f52)
-![IMDB](https://img.shields.io/badge/Data-IMDB%20Dataset-d4a80b?style=flat&logo=imdb)
-
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/v3.1%2B-3776AB?style=flat&logo=Flask&label=Flask)
+![PostgreSQL](https://img.shields.io/badge/v18.4%2B-000000?style=flat&logo=PostgreSQL&label=PostgreSQL)
+![Docker](https://img.shields.io/badge/v29.5.2%2B-000000?style=flat&logo=Docker&label=Docker)
+![Pandas](https://img.shields.io/badge/v3.0%2B-000000?style=flat&logo=Pandas&label=Pandas)
+![IMDB](https://img.shields.io/badge/Data-000000?style=flat&logo=IMDb)
+![Auth](https://img.shields.io/badge/bcrypt,_JWT,_secrets-000000?style=flat&logo=jsonwebtokens&logoColor=white&label=Auth)
 ---
 
 ## What is it?
@@ -26,8 +27,8 @@ The core engine is served through a **Flask REST API** with JWT-based authentica
 AppManager                        ← Orchestrates CLI vs API entry points
   └── AppService                ← Core business logic, interface-agnostic
         ├── DataContainer            ← DataFrame container
-        │     └── DataPipeline    ← Load, merge, cache IMDB TSV/Parquet data
-        │           └── DataLoader
+        │     └── DataPipeline    ← Load, merge, cache IMDB TSV
+        │           └── DataLoader  ← business agnostic SQL read/write and file I/O
         ├── BayesianScorer           ← Bayesian scoring (scorer/bayesian_algorithm.py)
         ├── DataFilter           ← Filter and rank candidate DataFrame
         └── StateStore            ← Persist recommendation history (Parquet)
@@ -41,11 +42,10 @@ AppManager                        ← Orchestrates CLI vs API entry points
 |---|---|
 | Language | Python 3.10+ |
 | API | Flask |
-| Data processing | Pandas, PyArrow, Parquet |
+| Database | PostgreSQL, Flask-SQLAlchemy |
+| Data processing | Pandas, PyArrow|
 | Dataset | IMDB public TSV datasets |
 | Authentication | PyJWT, bcrypt |
-| HTTP client | Requests |
-| Persistence | Parquet files |
 | CLI | Custom terminal UI |
 
 ### Dependencies
@@ -96,11 +96,9 @@ Three-layer security stack:
 
 Standard weighted rating formula:
 
-```
-Score = (v / (v + m)) × R + (m / (v + m)) × C
-```
+$$Score = \left(\frac{v}{v + m}\right) r + \left(\frac{m}{v + m}\right) c$$
 
-Where `v` = vote count, `m` = minimum votes threshold, `R` = movie average, `C` = global average. Scores are computed once at startup across the full dataset and held in memory.
+Where `v` = vote count, `m` = minimum votes threshold, `r` = movie average, `c` = global average. Scores are computed once at startup across the full dataset and held in memory.
 
 ---
 
@@ -122,7 +120,7 @@ lumen/
 ├── cons/
 │   └── constants.py
 ├── config/               ← JSON config files
-├── data/                 ← Parquet + TSV (gitignored)
+├── data/                 ← TSV (gitignored)
 └── logs/
 ```
 
@@ -152,12 +150,8 @@ python main.py
 
 ## Roadmap
 
-- [ ] Per-user recommendation history
 - [ ] Rate limiting (Flask-Limiter)
-- [ ] Role-based authorisation
-- [ ] Replace hardcoded users with database (Flask-SQLAlchemy)
 - [ ] HTTPS (Flask-Talisman)
-- [ ] Multi-genre filtering
 - [ ] OMDB API integration for live metadata
 - [ ] OpenAPI / Swagger docs
 
