@@ -24,6 +24,18 @@ def test_download_write_chunks_b(mock_get, mock_open):
     unit._download_file(url, destination)
     assert mock_file.getvalue() == b''.join(mock_response.iter_content.return_value)
 
+@patch('downloader.downloader.requests.get')
+def test_download_write_chunks_b_status_er(mock_get):
+    """Test not 200 status code for server."""
+    unit = downloader.DatasetDownloader()
+    mock_response=MagicMock()
+    destination = MagicMock()
+    url = cons_dev.MOCK_RANDOM_URL  # constant
+    mock_response.status_code=404
+    mock_get.return_value=mock_response
+    with pytest.raises(IOError):
+        unit._download_file(url, destination)
+
 @patch('downloader.downloader.open')
 @patch('downloader.downloader.gzip.open')
 def test_decompress_downloaded(mock_gzip, mock_open):

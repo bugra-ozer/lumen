@@ -33,7 +33,8 @@ class DatasetDownloader():
                     f.write(chunk)
                     bar.update(len(chunk))
                 return True
-        else:raise Exception(f'Download failed. Server threw status code: {self.response.status_code}.')
+        else:
+            raise IOError(f'Download failed. Server threw status code: {self.response.status_code}.')
 
     def _decompress_file(self, source, destination):
         """Decompress .gz files, clean up and save to destination."""
