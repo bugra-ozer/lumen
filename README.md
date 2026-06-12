@@ -105,6 +105,12 @@ This preserves the robustness of the Bayesian estimate while introducing a mild 
 ## Getting Started
 
 ```bash
+## Requirements
+- Python 3.10+
+- Docker Desktop
+
+## Running
+
 # Clone the repo
 git clone https://github.com/bugra-ozer/lumen
 cd lumen
@@ -113,7 +119,10 @@ cd lumen
 pip install -r requirements.txt
 
 # Set environment variables
-cp .env.example .env  # add your SECRET_KEY
+cp .env.example .env  # fill in SECRET_KEY and DATABASE_URL
+
+# Start PostgreSQL
+docker-compose up -d
 
 # Run the API
 python api/api.py
