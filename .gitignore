@@ -26,5 +26,6 @@ try_request.py
 *.venv
 
 # DB
-instance
+instance/*
+!instance/.gitkeep
 *.db

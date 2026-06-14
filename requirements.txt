@@ -11,3 +11,4 @@ flask-migrate
 flask-sqlalchemy
 numpy
 psycopg2-binary
+sqlalchemy

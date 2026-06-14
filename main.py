@@ -160,7 +160,8 @@ class DataPipeline():
 
     @staticmethod
     def _count_query_db(table_name):
-        try: count=pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM {table_name}'), db_engine_local).iloc[0, 0] #grab row 0 col 0
+        # grab row 0 col 0, warning is for iterator type, without chunk size arg read_sql only returns df
+        try: count=pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM {table_name}'), db_engine_local).iloc[0, 0] # noqa
         except (DatabaseError, pd.errors.DatabaseError): count=0
         return count
 
@@ -231,7 +232,7 @@ class DataLoader():
                 raise IOError(f"Failed to read {cons.STR_PARQUET}: {e}") from e
         elif file_type.strip().lower() == cons.STR_SQL:
             try:
-                file = pd.read_sql(sqlalchemy.text(f'SELECT * FROM {path}'), db_engine_local)  # Read file
+                file = pd.read_sql(sqlalchemy.text(f'SELECT * FROM {path}'), db_engine_local)  # language=SQL
             except Exception as e:
                 raise IOError(f"Failed to read {cons.STR_SQL}: {e}") from e
         else:
@@ -266,12 +267,12 @@ class DataFilter():
         if not validator.is_ready_structure(self.df, self.filter_tools): raise ValueError(cons.ERROR_WRONG_FILTER_OR_DF)
         self.result=self.get_movies(self.filter_tools, sort_column=sort_column)
 
-    def get_movies(self, filter_tools:dict[str,dict], sort_column=cons.ADJUSTED_SCORE_COLUMN):
+    def get_movies(self, filter_tools, sort_column=cons.ADJUSTED_SCORE_COLUMN):
         """Retrieve list of movies with user filter applied.
         filter_tools: Filter params: column_name, operator, value
         """
         if filter_tools is None:
-            self._configure_sort(sort_column, ascend=False),
+            self._configure_sort(sort_column, ascend=False)
             result=self._sort_candidates(self.df)
         else:
             candidates=self.apply_each_filter(filter_tools)
@@ -376,7 +377,7 @@ class AppService():
     """Recommendation service that runs end to end."""
 
     def __init__(self):
-        self.picks=None
+        self.picks=pd.DataFrame()
         self.state_store = state_store.StateStore(cons.TABLE_NAME_PREVIOUS_DATA,db_engine_local)  #For caching
         self.state_store.load_all_files()
         self.container = DataContainer()
@@ -395,7 +396,7 @@ class AppService():
         self.picks=self._pick_top(candidates, cons.M_POOL, cons.N_POP)
         self.state_store.concat_file(pd.DataFrame(self.picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]]))
         self.state_store.save_file()
-        self.picks=self.picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN]) # noqa
+        self.picks=self.picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
         print(self.picks.to_string())
         return self.picks.to_dict(orient='records')
 
@@ -409,7 +410,7 @@ class AppService():
              DataFrame
         """
         if n > m > 0 >= n:
-            return ValueError('Pool can not be larger than population.')
+            raise ValueError('Pool can not be larger than population.')
         else:
             pool = self._drop_previous(self.previous_ids, pool, cons.IMDB_ID_COLUMN)
             subpool=pool.head(m)
