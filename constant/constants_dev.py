@@ -24,3 +24,6 @@ MOCK_DECAY_VALUE=cons.DECAY_FACTOR_VALUES[0]
 DUMMY_HASHED_PW= b"$2b$12$6Ik6AsvGpf9U3xm8aLhf8eB/fL1.EcgMauA58Mzfz5PbXLhNFmqWC"
 USERS={"admin": b'$2b$12$Gy9z3lihHck5fCP4dAJMB.JzryhwuExZgHJ49GgynNW5t88hEuOLa', "robert55": b'$2b$12$AnnHZBLv63cVShZhl2OMjuUJX5fYKX4e23/LB8iWTV7aJzAHj5bxG'} # noqa
 FALLBACK_DB_URL="sqlite:///lumen.db"
+
+#db
+DUMMY_DB_URI="sqlite:///:memory:"

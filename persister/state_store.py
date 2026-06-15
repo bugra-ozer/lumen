@@ -10,7 +10,7 @@ class StateStore():
         """Store properties and set configuration parsing."""
         self.table_name=table_name
         self.engine=engine
-        self.previous_data=None
+        self.data=None
 
     def load_all_files(self):
         """Load and clear duplicates from all saved files."""
@@ -19,16 +19,16 @@ class StateStore():
 
     def _clear_memory_dupli(self):
         """Drop duplicates from all loaded files."""
-        self.previous_data=self.previous_data.drop_duplicates()
+        self.data=self.data.drop_duplicates()
 
     def _load_memory(self):
         """Load all files or reset it to given fallback property in config file."""
         db_count=self._count_query_db(self.table_name)
         file=self._load_file(db_count)
         if not isinstance(file, pd.DataFrame):
-            self.previous_data=pd.DataFrame(columns=cons.PREVIOUS_COLUMNS)
+            self.data=pd.DataFrame(columns=cons.PREVIOUS_COLUMNS)
         else:
-            self.previous_data=file
+            self.data=file
         return True
 
     def concat_file(self, df:pd.DataFrame):
@@ -37,13 +37,13 @@ class StateStore():
         Args:
             df: df that  to their update.
             """
-        self.previous_data=pd.concat(objs=[self.previous_data, df], ignore_index=True)
+        self.data=pd.concat(objs=[self.data, df], ignore_index=True)
         return self
 
     def save_file(self):
         """Save file to internal config path."""
-        missing_rows=self.previous_data[cons.TABLE_ID_PREVIOUS_DATA].isna()
-        self.previous_data[missing_rows].to_sql(self.table_name, self.engine, if_exists='append', index=False)
+        missing_rows=self.data[cons.TABLE_ID_PREVIOUS_DATA].isna()
+        self.data[missing_rows].to_sql(self.table_name, self.engine, if_exists='append', index=False)
         return self
 
     def _count_query_db(self, table_name):
@@ -56,8 +56,8 @@ class StateStore():
 
     def _load_file(self, db_count=0):
         """Load file from internal config path."""
-        if db_count != 0:self.previous_data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM {cons.TABLE_NAME_PREVIOUS_DATA}'), self.engine)
+        if db_count != 0:self.data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM {cons.TABLE_NAME_PREVIOUS_DATA}'), self.engine)
         else: #db error and empty db table
             logger.info(f"Value not found at {cons.TABLE_NAME_PREVIOUS_DATA}")
             return None
-        return self.previous_data
+        return self.data

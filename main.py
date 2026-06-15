@@ -382,7 +382,7 @@ class AppService():
         self.state_store.load_all_files()
         self.container = DataContainer()
         self.container.build_container()
-        self.previous_ids = set(self.state_store.previous_data[cons.IMDB_ID_COLUMN])
+        self.previous_ids = set(self.state_store.data[cons.IMDB_ID_COLUMN])
         self.bayes=scorer.BayesianScorer(self.container.data)
         self.bayes.score()
         self.data=self.bayes.data
