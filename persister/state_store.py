@@ -12,7 +12,7 @@ class StateStore():
         self.engine=engine
         self.data=None
 
-    def load_all_files(self):
+    def manage_files(self):
         """Load and clear duplicates from all saved files."""
         self._load_memory()
         self._clear_memory_dupli()
@@ -26,7 +26,7 @@ class StateStore():
         db_count=self._count_query_db(self.table_name)
         file=self._load_file(db_count)
         if not isinstance(file, pd.DataFrame):
-            self.data=pd.DataFrame(columns=cons.PREVIOUS_COLUMNS)
+            self.data=pd.DataFrame(columns=cons.TABLE_COLUMNS_PREVIOUS)
         else:
             self.data=file
         return True

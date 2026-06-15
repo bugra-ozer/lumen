@@ -25,7 +25,7 @@ DATE_COLUMN = 'date'
 GENRE_LIST=["action", "adventure", "animation", "biography", "comedy", "crime", "documentary", "drama", "family", "fantasy", "film-noir", "game-show", "history", "horror", "music", "musical", "mystery", "news", "reality-tv", "romance", "sci-fi", "short", "sport", "talk-show", "thriller", "war", "western"]
 CONTENT_COLUMNS_TO_KEEP= 'imdb_id', 'average_rating', 'number_of_votes', 'primary_title', 'published', 'genre'
 CONTENT_COLUMNS_TO_KEEP_LEGACY= 'tconst', 'averageRating', 'numVotes', 'primaryTitle', 'startYear', 'genres'
-PREVIOUS_COLUMNS='previous_data_id', 'user_id', 'imdb_id', 'date'
+TABLE_COLUMNS_PREVIOUS= 'previous_data_id', 'user_id', 'imdb_id', 'date'
 COLUMN_RENAME_DICT={'tconst': 'imdb_id','averageRating': 'average_rating',
                                     'numVotes': 'number_of_votes','titleType': 'title_type',
                                     'primaryTitle': 'primary_title','originalTitle': 'original_title','isAdult': 'is_adult',

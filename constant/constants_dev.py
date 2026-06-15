@@ -1,4 +1,6 @@
 from constant import constants as cons
+import pandas as pd
+
 
 #CI
 
@@ -10,7 +12,8 @@ MOCK_DATA_RESPONSE_BYTES=([b'a' * 8192, b'b' * 8192, b'c' * 8192, b'd' * 8192])
 DUMMY_DATAFRAME_COLUMNS_ONE=[cons.IMDB_ID_COLUMN, cons.PRIMARY_TITLE_COLUMN]
 DUMMY_DATAFRAME_COLUMNS_TWO=[cons.IMDB_ID_COLUMN, cons.GENRE_COLUMN]
 DUMMY_DATAFRAME_DATA=[['4924', 'Shawshank Redemption'], ['2134', 'Rebellion']]
-MOCK_DATAFRAME_DATA=['tt1675434', '8.5', '1027907', 'The Intouchables', '2011', 'Comedy,Drama'],['tt7286456', '8.3', '1694585', 'Joker', '2019', 'Crime,Drama,Thriller'] # noqa
+MOCK_CONTENT_DATA=['tt1675434', '8.5', '1027907', 'The Intouchables', '2011', 'Comedy,Drama'],['tt7286456', '8.3', '1694585', 'Joker', '2019', 'Crime,Drama,Thriller'] # noqa
+DUMMY_DATA_PREVIOUS=['25', '42', 'tt1675412', '2026-05-04']
 DUMMY_PATH="/test/test.py"
 DUMMY_DATE="29-05-1823"
 DUMMY_FILTER_TOOLS={f'{cons.GENRE_COLUMN}': {'value': ['action', 'horror']}}
@@ -27,3 +30,4 @@ FALLBACK_DB_URL="sqlite:///lumen.db"
 
 #db
 DUMMY_DB_URI="sqlite:///:memory:"
+DUMMY_DATAFRAME_PREVIOUS=pd.DataFrame(columns=cons.TABLE_COLUMNS_PREVIOUS, data=[DUMMY_DATA_PREVIOUS])

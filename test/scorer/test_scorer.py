@@ -8,7 +8,7 @@ from scorer import bayesian_algorithm as bayes
 logger = logging.getLogger(__name__)
 
 def test_build_score_validify():
-    mock_record = cons_dev.MOCK_DATAFRAME_DATA[0][:5]
+    mock_record = cons_dev.MOCK_CONTENT_DATA[0][:5]
     mock_record.pop(3)
     mock_record[1]=float(mock_record[1])
     mock_record[2]=float(mock_record[2])

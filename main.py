@@ -379,7 +379,7 @@ class AppService():
     def __init__(self):
         self.picks=pd.DataFrame()
         self.state_store = state_store.StateStore(cons.TABLE_NAME_PREVIOUS_DATA,db_engine_local)  #For caching
-        self.state_store.load_all_files()
+        self.state_store.manage_files()
         self.container = DataContainer()
         self.container.build_container()
         self.previous_ids = set(self.state_store.data[cons.IMDB_ID_COLUMN])
