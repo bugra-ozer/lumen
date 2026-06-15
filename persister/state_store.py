@@ -23,7 +23,8 @@ class StateStore():
 
     def _load_memory(self):
         """Load all files or reset it to given fallback property in config file."""
-        file=self._load_file()
+        db_count=self._count_query_db(self.table_name)
+        file=self._load_file(db_count)
         if not isinstance(file, pd.DataFrame):
             self.previous_data=pd.DataFrame(columns=cons.PREVIOUS_COLUMNS)
         else:
@@ -45,11 +46,18 @@ class StateStore():
         self.previous_data[missing_rows].to_sql(self.table_name, self.engine, if_exists='append', index=False)
         return self
 
-    def _load_file(self):
-        """Load file from internal config path."""
+    def _count_query_db(self, table_name):
+        # grab row 0 col 0, warning is for iterator type, without chunk size arg read_sql only returns df
         try:
-            self.previous_data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM {cons.TABLE_NAME_PREVIOUS_DATA}'), self.engine)
+            count = pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM {table_name}'), self.engine).iloc[0, 0]  # noqa
         except (DatabaseError, pd.errors.DatabaseError):
+            count = 0
+        return count
+
+    def _load_file(self, db_count=0):
+        """Load file from internal config path."""
+        if db_count != 0:self.previous_data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM {cons.TABLE_NAME_PREVIOUS_DATA}'), self.engine)
+        else: #db error and empty db table
             logger.info(f"Value not found at {cons.TABLE_NAME_PREVIOUS_DATA}")
             return None
         return self.previous_data
