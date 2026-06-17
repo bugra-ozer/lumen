@@ -11,6 +11,7 @@ from scorer import bayesian_algorithm as scorer
 from log import log_handler
 from constant import constants as cons
 from db.database import db, db_engine_local
+from db.models import *
 
 log_handler.LogHandler()
 logger=logging.getLogger(__name__)
@@ -18,19 +19,21 @@ logger=logging.getLogger(__name__)
 class DataContainer():
     """Container class own Pipeline and runs end to end until dataset is loaded."""
 
-    def __init__(self):
+    def __init__(self, engine):
         self.data=pd.DataFrame()
         self.raw_data=None
         self.condition=None
         usecols=cons.CONTENT_COLUMNS_TO_KEEP_LEGACY
-        self.data_pipeline=DataPipeline(usecols=usecols)
+        self.data_pipeline=DataPipeline(engine, usecols=usecols)
 
     def build_container(self):
         """Orchestrates the flow of code for easy readability."""
-        self.data=self.data_pipeline.main()
+        self.data, needs_insert=self.data_pipeline.main()
         self.raw_data=self.data #set raw dataframe before clearing main dataframe
-        self._purge_data()
-        self.select_columns(*cons.CONTENT_COLUMNS_TO_KEEP)
+        if needs_insert:
+            self._purge_data()
+            self.select_columns(*cons.CONTENT_COLUMNS_TO_KEEP)
+            self.data_pipeline.insert_update_exp(self.data)
 
     def select_columns(self, *args:str):
         """Internal limitation the data with given columns.
@@ -68,11 +71,12 @@ class DataContainer():
 class DataPipeline():
     """Orchestrator class owns loader and downloader classes for external pandas dataframe operations."""
 
-    def __init__(self, usecols=None, json_cfg:tuple=(cons.DATASET_JSON,)):
+    def __init__(self, engine, usecols=None, json_cfg:tuple=(cons.DATASET_JSON,)):
         self.config_dir=cons.CONFIG_DIR
         self.json_cfg=json_cfg
         self.config_dict={}
         self.base_data_path=None
+        self.engine=engine
         self.tsv_configs=[]
         self.data_loader=DataLoader(usecols)
         self.dataset_downloader=client.DatasetDownloader()
@@ -82,6 +86,7 @@ class DataPipeline():
         self._load_config()
         self._fetch_paths()
         self._convert_config_pl()
+        self._setup_schema()
         db_count=self._count_query_db(cons.TABLE_NAME_CONTENT)
         self._download_dataset(db_count)
         return self.build_data(db_count)
@@ -150,7 +155,7 @@ class DataPipeline():
         json.dump(base_data_exp, open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.DB_EXP_FILE), 'w'))
 
     def _download_dataset(self, db_count=0):
-        if db_engine_local is None:
+        if self.engine is None:
             raise Exception(cons.ERROR_LOAD_DB)
         elif not self.tsv_configs:
             raise Exception(cons.ERROR_LOAD_TSV_PATH)
@@ -158,35 +163,50 @@ class DataPipeline():
             if any(tsv for tsv in [*self.tsv_configs] if not pl.Path(tsv[cons.PATH_COLUMN]).exists()): #if file paths are empty orchestrate http request for dataset download.
                 self.dataset_downloader.run()
 
-    @staticmethod
-    def _count_query_db(table_name):
+    def _load_tsv_to_memory(self, data_frames, tsv):
+        logger.info(cons.INFO_MERGE_TSV)
+        data_frames.append(self.data_loader.read_file(str(tsv[cons.PATH_COLUMN]), cons.STR_TSV, self.engine, usecols=tsv['usecols']))
+        self.data_loader.delete_file(tsv[cons.PATH_COLUMN])
+        return data_frames
+
+    def _count_query_db(self, table_name):
         # grab row 0 col 0, warning is for iterator type, without chunk size arg read_sql only returns df
-        try: count=pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM {table_name}'), db_engine_local).iloc[0, 0] # noqa
+        try: count=pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM {table_name}'), self.engine).iloc[0, 0] # noqa
         except (DatabaseError, pd.errors.DatabaseError): count=0
         return count
+
+    def _setup_schema(self):
+        db.Model.metadata.create_all(self.engine)
+        return self
 
     def build_data(self, db_count):
         """Read if processed file exists, else run operations to initiate one."""
         data_frames=[]
         if db_count != 0: #content table has data
-            try:
-                with db_engine_local.connect():
-                    logger.info(cons.INFO_LOAD_DB)
-                    data=self.data_loader.read_file(cons.TABLE_NAME_CONTENT, cons.STR_SQL)
-            except OperationalError:
-                logger.exception(cons.ERROR_CONNECT_DB)
-                raise Exception(cons.ERROR_CONNECT_DB)
+            data,needs_insert=self.read_ready_db()
         else:
+            needs_insert = True
             for tsv in self.tsv_configs:
-                logger.info(cons.INFO_MERGE_TSV)
-                data_frames.append(self.data_loader.read_file(str(tsv[cons.PATH_COLUMN]), 'tsv', usecols=tsv['usecols']))
-                self.data_loader.delete_file(tsv[cons.PATH_COLUMN])
+                self._load_tsv_to_memory(data_frames, tsv)
             data=self.data_loader.merge_dataframes(*data_frames, on=cons.IMDB_ID_COLUMN_LEGACY)
             data=self.rename_columns(data, cons.COLUMN_RENAME_DICT)
-            self.data_loader.save_file(data, cons.TABLE_NAME_CONTENT, cons.STR_SQL)
-            self._update_db_exp()
-        logger.info(cons.INFO_LOAD_DONE)
-        return data
+        return data, needs_insert
+
+    def read_ready_db(self):
+        needs_insert = False
+        try:
+            with self.engine.connect():
+                logger.info(cons.INFO_LOAD_DB)
+                data = self.data_loader.read_file(cons.TABLE_NAME_CONTENT, cons.STR_SQL, self.engine)
+        except OperationalError:
+            logger.exception(cons.ERROR_CONNECT_DB)
+            raise Exception(cons.ERROR_CONNECT_DB)
+        return data, needs_insert
+
+    def insert_update_exp(self, data):
+        """Insert to SQL engine and update exp date."""
+        self.data_loader.save_file(data, cons.TABLE_NAME_CONTENT, self.engine, cons.STR_SQL)
+        self._update_db_exp()
 
 class DataLoader():
     """Pandas Dataframe and file I/O operations class without business knowledge."""
@@ -211,12 +231,13 @@ class DataLoader():
         return result
 
     @staticmethod
-    def read_file(name:str, file_type:str, usecols=None):
+    def read_file(name:str, file_type:str, engine, usecols=None):
         """Read TSV file from given path
 
         Args:
             name: for TSV/Parquet; file path, for SQL; table name
             file_type: parquet, tsv or SQL
+            engine: required for SQL reads
             usecols: columns to retain, configured in .json"""
         path=name.strip()
         if file_type != cons.STR_SQL: path=pl.Path(name)
@@ -232,18 +253,18 @@ class DataLoader():
                 raise IOError(f"Failed to read {cons.STR_PARQUET}: {e}") from e
         elif file_type.strip().lower() == cons.STR_SQL:
             try:
-                file = pd.read_sql(sqlalchemy.text(f'SELECT * FROM {path}'), db_engine_local)  # language=SQL
+                file = pd.read_sql(sqlalchemy.text(f'SELECT * FROM {path}'), engine)  # language=SQL
             except Exception as e:
                 raise IOError(f"Failed to read {cons.STR_SQL}: {e}") from e
         else:
             raise ValueError(f"Failed to read file: {path}")
         return file
 
-    def save_file(self, file:pd.DataFrame, table_name, file_type:str=cons.STR_SQL):
+    def save_file(self, file:pd.DataFrame, table_name, engine, file_type:str=cons.STR_SQL):
         """Save file to given path."""
         if file_type.strip().lower() == cons.STR_SQL:
             try:
-                file.to_sql(table_name, db_engine_local, if_exists='append', index=False)
+                file.to_sql(table_name, engine, if_exists='append', index=False)
             except Exception as e:
                 logger.exception(cons.ERROR_CONNECT_DB)
                 raise IOError(f"{cons.ERROR_SAVE}: {e}") from e
@@ -376,11 +397,12 @@ class DataFilter():
 class AppService():
     """Recommendation service that runs end to end."""
 
-    def __init__(self):
+    def __init__(self, engine):
         self.picks=pd.DataFrame()
+        self.engine=engine
         self.state_store = state_store.StateStore(cons.TABLE_NAME_PREVIOUS_DATA,db_engine_local)  #For caching
         self.state_store.manage_files()
-        self.container = DataContainer()
+        self.container = DataContainer(engine)
         self.container.build_container()
         self.previous_ids = set(self.state_store.data[cons.IMDB_ID_COLUMN])
         self.bayes=scorer.BayesianScorer(self.container.data)
@@ -442,7 +464,7 @@ class AppManager():
     
     def __init__(self):
         try:
-            self.app_service=AppService()
+            self.app_service=AppService(db_engine_local)
             self.cli=ui.CommandLineInterface()
             self._main()
         except Exception as e: # noqa
