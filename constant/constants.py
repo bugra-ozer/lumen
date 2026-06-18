@@ -87,6 +87,8 @@ FILE_NAME_DATABASE= 'lumen.db'
 FOLDER_NAME_INSTANCE='instance'
 ERROR_CONNECT_DB= 'Failed to connect to database'
 TABLE_ID_PREVIOUS_DATA= 'previous_data_id'
+TABLE_ID_USERS= 'user_id'
+TABLE_ID_DATE= 'date'
 
 #os
 FILE_NAME_ENV='.env'
