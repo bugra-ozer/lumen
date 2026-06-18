@@ -12,6 +12,7 @@ patch = mock.patch
 
 @patch('main.pd.read_sql')
 def test_read_sql(mock_sql):
+    """Test read SQL method is called once and consistent."""
     unit = DataLoader()
     mock_sql.return_value = pd.DataFrame()
     table_name=cons.TABLE_NAME_CONTENT
@@ -21,6 +22,7 @@ def test_read_sql(mock_sql):
 
 @patch('main.pd.read_csv')
 def test_read_csv(mock_tsv, usecols=None):
+    """Test csv/tsv read is called once and consistent."""
     unit = DataLoader()
     mock_tsv.return_value = pd.DataFrame()
     path=pl.Path(cons_dev.MOCK_RANDOM_PATH)
@@ -30,6 +32,7 @@ def test_read_csv(mock_tsv, usecols=None):
 
 @patch('main.pd.DataFrame.to_sql')
 def test_to_sql(mock_to_sql):
+    """Test SQL insertion is called once and consistent."""
     unit = DataLoader()
     mock_to_sql.return_value = None
     table_name=cons.TABLE_NAME_CONTENT #raw string
@@ -38,6 +41,7 @@ def test_to_sql(mock_to_sql):
     assert isinstance(write,DataLoader)
 
 def test_merge():
+    """Test pandas merge method consistency."""
     merge_to=pd.DataFrame([cons_dev.DUMMY_DATAFRAME_DATA[0]], columns=cons_dev.DUMMY_DATAFRAME_COLUMNS_ONE)
     merge_from=pd.DataFrame([cons_dev.DUMMY_DATAFRAME_DATA[1]], columns=cons_dev.DUMMY_DATAFRAME_COLUMNS_TWO)
     merge=merge_to.merge(merge_from, on=cons_dev.DUMMY_DATAFRAME_COLUMNS_ONE[0])

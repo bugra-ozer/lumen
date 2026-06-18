@@ -23,14 +23,14 @@ def config():
     yield unit, engine
 
 def test_load_file_missing_table(config):
-    """Check if missing table is handled gracefully."""
+    """Test if missing table is handled gracefully."""
     unit, engine = config
     unit.manage_files()
     assert unit.data.empty == True
     assert list(unit.data.columns) == list(cons.TABLE_COLUMNS_PREVIOUS)
 
 def test_load_memory(config):
-    """Check if loading non-empty tables are consistent."""
+    """Test if loading non-empty tables are consistent."""
     unit, engine = config
     dummy_df = cons_dev.DUMMY_DATAFRAME_PREVIOUS
     dummy_df.to_sql(cons.TABLE_NAME_PREVIOUS_DATA, engine, index=False, if_exists='append')
@@ -38,7 +38,7 @@ def test_load_memory(config):
     pd.testing.assert_frame_equal(unit.data, dummy_df, check_dtype=False)  # add check_dtype parameter as False if test becomes too sensitive
 
 def test_save_file(config):
-    """Check saving files does not create duplicates and is consistent."""
+    """Test saving files does not create duplicates and is consistent."""
     unit, engine = config
     unit.data=cons_dev.DUMMY_DATAFRAME_MIXED_PREVIOUS
     unit.save_file()
