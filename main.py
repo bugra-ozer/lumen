@@ -85,7 +85,7 @@ class DataPipeline():
         self._fetch_paths()
         self._convert_config_pl()
         self._setup_schema()
-        db_count=self._count_query_db(cons.TABLE_NAME_CONTENT)
+        db_count=self.data_loader.count_query_db(cons.TABLE_NAME_CONTENT, self.engine)
         self._download_dataset(db_count)
         return self.build_data(db_count)
 
@@ -104,15 +104,6 @@ class DataPipeline():
             if 'imdb' in str(key):
                 self.tsv_configs.append(value)
         return self
-
-    @staticmethod
-    def rename_columns(data, columns:dict):
-        """Make columns in imdb .tsv files more readable and intuitive"""
-        try:
-            return data.rename(columns=columns)
-        except KeyError as e:
-            logger.exception(cons.ERROR_COLUMN_NOT_FOUND)
-            raise KeyError(f"{cons.ERROR_COLUMN_NOT_FOUND} {e}") from e
 
     def _is_data_stale(self):
         """Check if base data is stale or not."""
@@ -141,6 +132,7 @@ class DataPipeline():
         json.dump(base_data_exp, open((pl.Path(__file__).parent / cons.CONFIG_DIR / cons.DB_EXP_FILE), 'w'))
 
     def _download_dataset(self, db_count=0):
+        """Instruct DatasetDownloader to download TSVs."""
         if self.engine is None:
             raise Exception(cons.ERROR_LOAD_DB)
         elif not self.tsv_configs:
@@ -148,12 +140,6 @@ class DataPipeline():
         if db_count==0 or self._is_data_stale(): #check for base_data, if it exists and not stale skip all download dataset operation.
             if any(tsv for tsv in [*self.tsv_configs] if not pl.Path(tsv[cons.PATH_COLUMN]).exists()): #if file paths are empty orchestrate http request for dataset download.
                 self.dataset_downloader.run()
-
-    def _count_query_db(self, table_name):
-        # grab row 0 col 0, warning is for iterator type, without chunk size arg read_sql only returns df
-        try: count=pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM {table_name}'), self.engine).iloc[0, 0] # noqa
-        except (DatabaseError, pd.errors.DatabaseError): count=0
-        return count
 
     def _setup_schema(self):
         db.Model.metadata.create_all(self.engine)
@@ -169,7 +155,7 @@ class DataPipeline():
             for tsv in self.tsv_configs:
                 self._load_tsv_to_memory(data_frames, tsv)
             data=self.data_loader.merge_dataframes(*data_frames, on=cons.IMDB_ID_COLUMN_LEGACY)
-            data=self.rename_columns(data, cons.COLUMN_RENAME_DICT)
+            data=self.data_loader.rename_columns(data, cons.COLUMN_RENAME_DICT)
         return data, needs_insert
 
     def read_ready_db(self):
@@ -217,6 +203,15 @@ class DataLoader():
         return result
 
     @staticmethod
+    def rename_columns(data, columns:dict):
+        """Make columns in imdb .tsv files more readable and intuitive"""
+        try:
+            return data.rename(columns=columns)
+        except KeyError as e:
+            logger.exception(cons.ERROR_COLUMN_NOT_FOUND)
+            raise KeyError(f"{cons.ERROR_COLUMN_NOT_FOUND} {e}") from e
+
+    @staticmethod
     def load_config(json_cfg:tuple, config_dict:dict):
         """Load configuration file for file operations."""
         for config_file in json_cfg:
@@ -228,6 +223,13 @@ class DataLoader():
             except FileNotFoundError:
                 raise Exception('Failed to find .json config.')
         return config_dict
+
+    @staticmethod
+    def count_query_db(table_name, engine):
+        # grab row 0 col 0, warning is for iterator type, without chunk size arg read_sql only returns df
+        try: count=pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM {table_name}'), engine).iloc[0, 0] # noqa
+        except (DatabaseError, pd.errors.DatabaseError): count=0
+        return count
 
     @staticmethod
     def read_file(name:str, file_type:str, engine, usecols=None):
