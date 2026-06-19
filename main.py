@@ -72,10 +72,8 @@ class DataPipeline():
     """Orchestrator class owns loader and downloader classes for external pandas dataframe operations."""
 
     def __init__(self, engine, usecols=None, json_cfg:tuple=(cons.DATASET_JSON,)):
-        self.config_dir=cons.CONFIG_DIR
         self.json_cfg=json_cfg
         self.config_dict={}
-        self.base_data_path=None
         self.engine=engine
         self.tsv_configs=[]
         self.data_loader=DataLoader(usecols)
@@ -83,25 +81,13 @@ class DataPipeline():
 
     def main(self):
         """Load file data from config and build or load the dataset."""
-        self._load_config()
+        self.config_dict=self.data_loader.load_config(self.json_cfg, self.config_dict)
         self._fetch_paths()
         self._convert_config_pl()
         self._setup_schema()
         db_count=self._count_query_db(cons.TABLE_NAME_CONTENT)
         self._download_dataset(db_count)
         return self.build_data(db_count)
-
-    def _load_config(self):
-        """Load configuration file for file operations."""
-        for config_file in self.json_cfg:
-            try:
-                with open(pl.Path(__file__).parent / self.config_dir / config_file, "r") as f:
-                    self.config_dict.update(json.load(f))
-            except ValueError:
-                raise Exception('Failed to open .json config.')
-            except FileNotFoundError:
-                raise Exception('Failed to find .json config.')
-        return self
 
     def _convert_config_pl(self):
         """Convert string paths to pathlib.Path objects."""
@@ -163,12 +149,6 @@ class DataPipeline():
             if any(tsv for tsv in [*self.tsv_configs] if not pl.Path(tsv[cons.PATH_COLUMN]).exists()): #if file paths are empty orchestrate http request for dataset download.
                 self.dataset_downloader.run()
 
-    def _load_tsv_to_memory(self, data_frames, tsv):
-        logger.info(cons.INFO_MERGE_TSV)
-        data_frames.append(self.data_loader.read_file(str(tsv[cons.PATH_COLUMN]), cons.STR_TSV, self.engine, usecols=tsv['usecols']))
-        self.data_loader.delete_file(tsv[cons.PATH_COLUMN])
-        return data_frames
-
     def _count_query_db(self, table_name):
         # grab row 0 col 0, warning is for iterator type, without chunk size arg read_sql only returns df
         try: count=pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM {table_name}'), self.engine).iloc[0, 0] # noqa
@@ -203,6 +183,12 @@ class DataPipeline():
             raise Exception(cons.ERROR_CONNECT_DB)
         return data, needs_insert
 
+    def _load_tsv_to_memory(self, data_frames, tsv):
+        logger.info(cons.INFO_MERGE_TSV)
+        data_frames.append(self.data_loader.read_file(str(tsv[cons.PATH_COLUMN]), cons.STR_TSV, self.engine, usecols=tsv['usecols']))
+        self.data_loader.delete_file(tsv[cons.PATH_COLUMN])
+        return data_frames
+
     def insert_update_exp(self, data):
         """Insert to SQL engine and update exp date."""
         self.data_loader.save_file(data, cons.TABLE_NAME_CONTENT, self.engine, cons.STR_SQL)
@@ -229,6 +215,19 @@ class DataLoader():
             for i in range(1, len(args)):
                 result = result.merge(args[i], on=on)
         return result
+
+    @staticmethod
+    def load_config(json_cfg:tuple, config_dict:dict):
+        """Load configuration file for file operations."""
+        for config_file in json_cfg:
+            try:
+                with open(pl.Path(__file__).parent / cons.CONFIG_DIR / config_file, "r") as f:
+                    config_dict.update(json.load(f))
+            except ValueError:
+                raise Exception('Failed to open .json config.')
+            except FileNotFoundError:
+                raise Exception('Failed to find .json config.')
+        return config_dict
 
     @staticmethod
     def read_file(name:str, file_type:str, engine, usecols=None):
