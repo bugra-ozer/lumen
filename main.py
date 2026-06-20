@@ -142,6 +142,7 @@ class DataPipeline():
                 self.dataset_downloader.run()
 
     def _setup_schema(self):
+        """Setup schema with given ORM architecture."""
         db.Model.metadata.create_all(self.engine)
         return self
 
@@ -159,6 +160,7 @@ class DataPipeline():
         return data, needs_insert
 
     def read_ready_db(self):
+        """Instruct data_loader to read SQL and append to data variable."""
         needs_insert = False
         try:
             with self.engine.connect():
@@ -170,6 +172,7 @@ class DataPipeline():
         return data, needs_insert
 
     def _load_tsv_to_memory(self, data_frames, tsv):
+        """Instruct data_loader to read TSV and append to data_frames variable."""
         logger.info(cons.INFO_MERGE_TSV)
         data_frames.append(self.data_loader.read_file(str(tsv[cons.PATH_COLUMN]), cons.STR_TSV, self.engine, usecols=tsv['usecols']))
         self.data_loader.delete_file(tsv[cons.PATH_COLUMN])
@@ -226,6 +229,7 @@ class DataLoader():
 
     @staticmethod
     def count_query_db(table_name, engine):
+        """Check if record(s) exists in database."""
         # grab row 0 col 0, warning is for iterator type, without chunk size arg read_sql only returns df
         try: count=pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM {table_name}'), engine).iloc[0, 0] # noqa
         except (DatabaseError, pd.errors.DatabaseError): count=0

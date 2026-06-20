@@ -11,14 +11,24 @@ MOCK_DATA_COMP_BYTES=[b'compressed', b'']
 MOCK_DATA_RESPONSE_BYTES=([b'a' * 8192, b'b' * 8192, b'c' * 8192, b'd' * 8192])
 DUMMY_DATAFRAME_COLUMNS_ONE=[cons.IMDB_ID_COLUMN, cons.PRIMARY_TITLE_COLUMN]
 DUMMY_DATAFRAME_COLUMNS_TWO=[cons.IMDB_ID_COLUMN, cons.GENRE_COLUMN]
-DUMMY_DATAFRAME_DATA=[['4924', 'Shawshank Redemption'], ['2134', 'Rebellion']]
+DUMMY_DATAFRAME_TWO_COLUMN=[['4924', 'Shawshank Redemption'], ['2134', 'Rebellion']] #ONLY IMDB_ID and PRIMARY_TITLE
 MOCK_CONTENT_DATA=['tt1675434', '8.5', '1027907', 'The Intouchables', '2011', 'Comedy,Drama'],['tt7286456', '8.3', '1694585', 'Joker', '2019', 'Crime,Drama,Thriller'] # noqa
 DUMMY_DATA_PREVIOUS=[25, 42, 'tt1675412', '2026-05-04']
 DUMMY_DATA_EMPTY_PREVIOUS=[None, 42, 'tt1675412', '2026-05-04']
+DUMMY_RECORD_CONTENT=['tt0004972', 6.1, 28331, 'The Birth of a Nation', 2011 ,'Drama,War']
 DUMMY_PATH="/test/test.py"
 DUMMY_DATE="29-05-1823"
 DUMMY_FILTER_TOOLS={f'{cons.GENRE_COLUMN}': {'value': ['action', 'horror']}}
 DUMMY_SAD_FILTER_TOOLS=[f'{cons.GENRE_COLUMN}',['action','horror']]
+DUMMY_DICT_DATASET={"mock_imdb_tsv_data":{
+       "name": "ratings",
+       "url": "https://datasets.imdbws.com/title.ratings.tsv.gz",
+       "filename": "imdb.title.ratings.tsv.gz",
+       "dec_filename": "imdb.title.ratings.tsv",
+       "path": "data/imdb.title.ratings.tsv",
+       "folder": "data/",
+       "usecols": ["tconst", "averageRating", "numVotes"]}}
+DUMMY_DATAFRAME_CONTENT=pd.DataFrame(columns=cons.CONTENT_COLUMNS_TO_KEEP_LEGACY, data=[DUMMY_RECORD_CONTENT])
 
 #unit_test_bayes
 MOCK_DECAY_YEARS_OLD=cons.DECAY_FACTOR_THRESHOLD[0]

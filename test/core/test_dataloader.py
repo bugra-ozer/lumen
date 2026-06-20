@@ -42,8 +42,8 @@ def test_to_sql(mock_to_sql):
 
 def test_merge():
     """Test pandas merge method consistency."""
-    merge_to=pd.DataFrame([cons_dev.DUMMY_DATAFRAME_DATA[0]], columns=cons_dev.DUMMY_DATAFRAME_COLUMNS_ONE)
-    merge_from=pd.DataFrame([cons_dev.DUMMY_DATAFRAME_DATA[1]], columns=cons_dev.DUMMY_DATAFRAME_COLUMNS_TWO)
+    merge_to=pd.DataFrame([cons_dev.DUMMY_DATAFRAME_TWO_COLUMN[0]], columns=cons_dev.DUMMY_DATAFRAME_COLUMNS_ONE)
+    merge_from=pd.DataFrame([cons_dev.DUMMY_DATAFRAME_TWO_COLUMN[1]], columns=cons_dev.DUMMY_DATAFRAME_COLUMNS_TWO)
     merge=merge_to.merge(merge_from, on=cons_dev.DUMMY_DATAFRAME_COLUMNS_ONE[0])
     all_columns=set()
     all_columns.update(merge_to.columns, merge_from.columns)
