@@ -9,7 +9,7 @@ class User(db.Model):
     username=db.Column(db.String(80),unique=True,nullable=False)
     created_at=db.Column(db.DateTime,default=lambda:datetime.now(timezone.utc))
     role=db.Column(db.String(80),nullable=False,default=cons.USER_DEFAULT_ROLE)
-    password_hash=db.Column(db.String(60),nullable=False)
+    pw_hash=db.Column(db.String(60),nullable=False)
 
 class Content(db.Model):
     __tablename__=cons.TABLE_NAME_CONTENT

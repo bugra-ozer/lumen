@@ -89,6 +89,8 @@ ERROR_CONNECT_DB= 'Failed to connect to database'
 TABLE_ID_PREVIOUS_DATA= 'previous_data_id'
 TABLE_ID_USERS= 'user_id'
 TABLE_ID_DATE= 'date'
+TABLE_ERROR_INTEGRITY='Integrity error, duplicates found'
+TABLE_ERROR_NOT_FOUND= 'Item not found'
 
 #os
 FILE_NAME_ENV='.env'
