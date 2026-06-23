@@ -10,7 +10,7 @@ from downloader import downloader as client
 from scorer import bayesian_algorithm as scorer
 from log import log_handler
 from constant import constants as cons
-from db.database import db, db_engine_local
+from db.database import db, engine_standalone
 from db.models import *
 
 log_handler.LogHandler()
@@ -405,7 +405,7 @@ class AppService():
     def __init__(self, engine):
         self.picks=pd.DataFrame()
         self.engine=engine
-        self.state_store = state_store.StateStore(cons.TABLE_NAME_PREVIOUS_DATA,db_engine_local)  #For caching
+        self.state_store = state_store.StateStore(cons.TABLE_NAME_PREVIOUS_DATA, engine_standalone)  #For caching
         self.state_store.manage_files()
         self.container = DataContainer(engine)
         self.container.build_container()
@@ -469,7 +469,7 @@ class AppManager():
     
     def __init__(self):
         try:
-            self.app_service=AppService(db_engine_local)
+            self.app_service=AppService(engine_standalone)
             self.cli=ui.CommandLineInterface()
             self._main()
         except Exception as e: # noqa

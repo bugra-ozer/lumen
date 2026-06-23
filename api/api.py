@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timezone, timedelta
 from constant import constants as cons
 from constant import constants_dev as cons_dev
-from db.database import db
+from db.database import db, engine_standalone, DATABASE_URL
 from db.models import *
 import secrets, bcrypt, jwt, os, logging, sqlalchemy
 
@@ -17,8 +17,8 @@ os.chdir(Path(__file__).parent.parent)
 load_dotenv()
 secret_key=os.environ.get("SECRET_KEY")
 app=Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app_service=AppService()
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+app_service=AppService(engine_standalone)
 USERS=cons_dev.USERS
 REF_TOKENS={}
 PUBLIC_PATHS=cons.PUBLIC_PATHS
