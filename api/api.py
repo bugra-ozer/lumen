@@ -92,6 +92,17 @@ def health():
     """Simple health endpoint."""
     return jsonify({'status': cons.OK})
 
+@app.route("/logout", methods=['POST'])
+def logout():
+    """Delete refresh token."""
+    text = request.get_json(force=True)
+    ref_token = text.get('refresh_token')
+    ref_token_object=session_manager.delete_ref_token(ref_token)
+    if ref_token_object:
+        return jsonify({'status': cons.OK})
+    else:
+        return jsonify({'status': cons.LOGOUT_FAILED}), 404
+
 def db_setup(api_app, main_app_service):
     db.init_app(api_app)
     with api_app.app_context():

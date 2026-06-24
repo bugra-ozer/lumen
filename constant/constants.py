@@ -70,6 +70,7 @@ TOKEN_MISSING='Token is missing'
 OK=('ok')
 AUTHORIZATION='Authorization'
 INVALID_CREDENTIALS='Invalid credentials'
+LOGOUT_FAILED='Logout failed'
 
 #Bayes cons
 M_POOL=25
