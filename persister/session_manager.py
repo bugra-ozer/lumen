@@ -19,8 +19,15 @@ class SessionManager():
             logger.error(cons.TABLE_ERROR_INTEGRITY)
             return False
 
-    def read_user(self, username):
+    def read_username(self, username):
+        """Checks if username exists, return User object or False if not."""
         try:return self.db.session.query(User).filter(User.username==username).one()
+        except NoResultFound:
+            return False
+
+    def read_user_id(self, user_id):
+        """Checks if user_id exists, return User object or False if not."""
+        try:return self.db.session.query(User).filter(User.user_id==user_id).one()
         except NoResultFound:
             return False
 

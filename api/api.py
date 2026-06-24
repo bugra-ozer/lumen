@@ -9,6 +9,7 @@ from constant import constants as cons
 from constant import constants_dev as cons_dev
 from db.database import db, engine_standalone, DATABASE_URL
 from db.models import *
+from persister.session_manager import SessionManager
 import secrets, bcrypt, jwt, os, logging, sqlalchemy
 
 logger = logging.getLogger(__name__)
@@ -19,8 +20,7 @@ secret_key=os.environ.get("SECRET_KEY")
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app_service=AppService(engine_standalone)
-USERS=cons_dev.USERS
-REF_TOKENS={}
+session_manager = SessionManager(db)
 PUBLIC_PATHS=cons.PUBLIC_PATHS
 
 @app.before_request
@@ -43,18 +43,19 @@ def before_request():
 def login():
     """Hashed credentials verification."""
     text=request.get_json(force=True)
-    user_id=text.get('id')
+    username=text.get('username')
     pw=text.get("pw")
     pw=pw.encode('UTF-8')
-    if user_id not in USERS:
+    user_object=session_manager.read_username(username)
+    if not user_object:
         bcrypt.checkpw(pw, cons_dev.DUMMY_HASHED_PW) # noqa. For hitting same average time on fail cases
         return jsonify({'status': cons.ERROR, 'message': cons.INVALID_CREDENTIALS}), 401
     else:
-        if bcrypt.checkpw(pw, USERS[user_id]):
+        if bcrypt.checkpw(pw, user_object.pw_hash):
             ref_token=secrets.token_hex(32)
-            REF_TOKENS[ref_token]=user_id, datetime.now(timezone.utc)+timedelta(days=30)
-            access_token=jwt.encode(payload={'id': user_id, 'exp': datetime.now(timezone.utc)+timedelta(minutes=15)}, key=secret_key, algorithm='HS256')
-            return jsonify({'access_token': access_token, 'refresh_token': ref_token, 'id': user_id}), 200
+            session_manager.write_ref_token(ref_token, user_object.user_id)
+            access_token=jwt.encode(payload={'id': user_object.user_id, 'exp': datetime.now(timezone.utc)+timedelta(minutes=15), 'role': user_object.role}, key=secret_key, algorithm='HS256')
+            return jsonify({'access_token': access_token, 'refresh_token': ref_token, 'id': user_object.user_id}), 200
         else:
             return jsonify({'status': cons.ERROR, 'message': cons.INVALID_CREDENTIALS}), 401
 
@@ -63,12 +64,14 @@ def refresh():
     """Acquire new access token endpoint."""
     text=request.get_json(force=True)
     token=text.get('refresh_token')
-    if token in REF_TOKENS:
-        user_id=REF_TOKENS[token][0]
-        if REF_TOKENS[token][1]<=datetime.now(timezone.utc):
+    ref_token_object=session_manager.read_ref_token(token)
+    if ref_token_object:
+        user_id=ref_token_object.user_id
+        if ref_token_object.expiry_at<=datetime.now(timezone.utc):
             return jsonify({'status': cons.ERROR, 'message': cons.TOKEN_EXPIRED}), 401
         else:
-            access_token=jwt.encode(payload={'id': user_id, 'exp': datetime.now(timezone.utc)+timedelta(minutes=15), 'role': 'admin'}, key=secret_key, algorithm='HS256')
+            user_object=session_manager.read_user_id(user_id)
+            access_token=jwt.encode(payload={'id': user_id, 'exp': datetime.now(timezone.utc)+timedelta(minutes=15), 'role': user_object.role}, key=secret_key, algorithm='HS256')
             return jsonify({'access_token': access_token, 'refresh_token': token})
     else:
         return jsonify({'status': cons.ERROR, 'message': cons.TOKEN_INVALID}), 401
