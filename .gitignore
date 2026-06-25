@@ -11,6 +11,7 @@ data/*.tsv
 
 # Server
 server.py
+try_request.py
 
 # Log files
 log/
@@ -21,7 +22,6 @@ db_exp.json
 *.swp
 *.swo
 hit_endpoints.py
-try_request.py
 *.env
 *.venv
 

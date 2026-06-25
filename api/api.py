@@ -89,8 +89,20 @@ def service():
 
 @app.route("/health", methods=['GET'])
 def health():
-    """Simple health endpoint."""
+    """Simple health check endpoint."""
     return jsonify({'status': cons.OK})
+
+@app.route("/register", methods=['POST'])
+def register():
+    """Register a new user."""
+    text = request.get_json(force=True)
+    pw = text.get('pw')
+    username = text.get('username')
+    pw_hash = bcrypt.hashpw(pw.encode('UTF-8'), bcrypt.gensalt(10))
+    if session_manager.write_user(username, cons.USER_DEFAULT_ROLE, pw_hash):
+        return jsonify({'status': cons.OK}), 200
+    else:
+        return jsonify({'status': cons.REGISTER_FAILED}), 409
 
 @app.route("/logout", methods=['POST'])
 def logout():
