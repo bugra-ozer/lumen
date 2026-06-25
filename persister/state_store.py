@@ -43,20 +43,21 @@ class StateStore():
     def save_file(self):
         """Save file to internal config path."""
         missing_rows=self.data[cons.TABLE_ID_PREVIOUS_DATA].isna()
+        self.data.drop(columns=cons.TABLE_ID_PREVIOUS_DATA, inplace=True)
         self.data[missing_rows].to_sql(self.table_name, self.engine, if_exists='append', index=False)
         return self
 
     def _count_query_db(self, table_name):
         # grab row 0 col 0, warning is for iterator type, without chunk size arg read_sql only returns df
         try:
-            count = pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM {table_name}'), self.engine).iloc[0, 0]  # noqa
+            count = pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM "{table_name}"'), self.engine).iloc[0, 0]  # noqa
         except (DatabaseError, pd.errors.DatabaseError):
             count = 0
         return count
 
     def _load_file(self, db_count=0):
         """Load file from internal config path."""
-        if db_count != 0:self.data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM {cons.TABLE_NAME_PREVIOUS_DATA}'), self.engine)
+        if db_count != 0:self.data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM "{cons.TABLE_NAME_PREVIOUS_DATA}"'), self.engine)
         else: #db error and empty db table
             logger.info(f"Value not found at {cons.TABLE_NAME_PREVIOUS_DATA}")
             return None
