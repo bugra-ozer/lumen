@@ -231,8 +231,8 @@ class DataLoader():
     def count_query_db(table_name, engine):
         """Check if record(s) exists in database."""
         # grab row 0 col 0, warning is for iterator type, without chunk size arg read_sql only returns df
-        try: count=pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM {table_name}'), engine).iloc[0, 0] # noqa
-        except (DatabaseError, pd.errors.DatabaseError): count=0
+        try: count=pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM "{table_name}"'), engine).iloc[0, 0] # noqa
+        except (DatabaseError, pd.errors.DatabaseError):count=0
         return count
 
     @staticmethod
@@ -258,7 +258,7 @@ class DataLoader():
                 raise IOError(f"Failed to read {cons.STR_PARQUET}: {e}") from e
         elif file_type.strip().lower() == cons.STR_SQL:
             try:
-                file = pd.read_sql(sqlalchemy.text(f'SELECT * FROM {path}'), engine)  # language=SQL
+                file = pd.read_sql(sqlalchemy.text(f'SELECT * FROM "{path}"'), engine)  # language=SQL
             except Exception as e:
                 raise IOError(f"Failed to read {cons.STR_SQL}: {e}") from e
         else:
@@ -310,29 +310,29 @@ class DataFilter():
     def _parse_filter_tools(filter_tools:dict[str, dict]):
         """Based on the argument length, assign variables to apply filters.
         This is needed for allowing user to type in titles and genres without explicit operations."""
-        operatr=None
+        local_operator=None
         for column, val_type in filter_tools.items():
                 if column == cons.GENRE_COLUMN:
                     value=val_type[cons.FILTER_VALUE]
-                    yield column, operatr, value
+                    yield column, local_operator, value
                 elif column == cons.AVERAGE_RATING_COLUMN:
                     value=val_type[cons.FILTER_VALUE]
-                    operatr=val_type[cons.FILTER_OPERATOR]
-                    yield column, operatr, value
+                    local_operator=val_type[cons.FILTER_OPERATOR]
+                    yield column, local_operator, value
                 else:
                     raise ValueError
 
     def apply_each_filter(self, filter_tools:dict[str,dict]):
         """Unpacks filter tools and applies each filter in it manually."""
         candidates=self.df
-        for column_name, operatr, value in self._parse_filter_tools(filter_tools):
-            candidates=self._apply_one_filter(candidates, column_name, operatr, value)
+        for column_name, local_operator, value in self._parse_filter_tools(filter_tools):
+            candidates=self._apply_one_filter(candidates, column_name, local_operator, value)
         return candidates
 
-    def _apply_one_filter(self, candidates, column_name:str, operatr:str, value):
+    def _apply_one_filter(self, candidates, column_name:str, local_operator:str, value):
         """Apply appropriate value as filter to column_name."""
         value=self._convert_value(candidates, column_name, value)
-        condition=self._build_filter(candidates, column_name, operatr, value)
+        condition=self._build_filter(candidates, column_name, local_operator, value)
         candidates=candidates[condition]
         return candidates
 
