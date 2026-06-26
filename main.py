@@ -1,3 +1,4 @@
+import bcrypt
 import pandas as pd, pathlib as pl, json, logging, functools, enum, sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import OperationalError, DatabaseError
@@ -144,6 +145,15 @@ class DataPipeline():
     def _setup_schema(self):
         """Setup schema with given ORM architecture."""
         db.Model.metadata.create_all(self.engine)
+        with self.engine.connect() as conn:
+            result = conn.execute(sqlalchemy.text(f'SELECT "{cons.COLUMN_USERNAME}" FROM "{cons.TABLE_NAME_USERS}" WHERE "{cons.COLUMN_USERNAME}"=:local'), {"local": cons.USERS_LOCAL_USER}).fetchone()
+            if result is None:
+                conn.execute(sqlalchemy.text(f'INSERT INTO "{cons.TABLE_NAME_USERS}" ("{cons.COLUMN_USERNAME}", '
+                                             f'"{cons.COLUMN_PW_HASH}", "{cons.COLUMN_ROLE}", "{cons.COLUMN_CREATED_AT}")'
+                                             f' VALUES (:val1, :val2, :val3, :val4)'),
+                                            {"val1": cons.USERS_LOCAL_USER, "val2": cons.PW_HASH_LOCAL_USER,
+                                             "val3": cons.USER_DEFAULT_ROLE, "val4": "NOW()"})
+                conn.commit()
         return self
 
     def build_data(self, db_count):

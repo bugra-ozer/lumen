@@ -93,6 +93,12 @@ TABLE_ID_USERS= 'user_id'
 TABLE_ID_DATE= 'date'
 TABLE_ERROR_INTEGRITY='Integrity error, duplicates found'
 TABLE_ERROR_NOT_FOUND= 'Item not found'
+USERS_LOCAL_USER= 'local_user'
+COLUMN_USERNAME= 'username'
+COLUMN_PW_HASH= 'pw_hash'
+COLUMN_ROLE= 'role'
+COLUMN_CREATED_AT= 'created_at'
+PW_HASH_LOCAL_USER= b'local'
 
 #os
 FILE_NAME_ENV='.env'
