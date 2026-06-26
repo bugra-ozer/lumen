@@ -100,6 +100,9 @@ COLUMN_ROLE= 'role'
 COLUMN_CREATED_AT= 'created_at'
 PW_HASH_LOCAL_USER= b'local'
 
+#docker
+ERROR_DOCKER_NOT_LAUNCHED="PostgreSQL is configured but unreachable. Start Docker first."
+
 #os
 FILE_NAME_ENV='.env'
 

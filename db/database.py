@@ -4,6 +4,7 @@ from flask.cli import load_dotenv
 from constant import constants as cons
 from constant import constants_dev as cons_dev
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import OperationalError
 from sqlalchemy import inspect
 
 logger = logging.getLogger(__name__)
@@ -13,3 +14,6 @@ load_dotenv(Path(__file__).parent.parent / cons.FILE_NAME_ENV)
 DATABASE_URL=os.environ.get('DATABASE_URL')
 if DATABASE_URL is None: DATABASE_URL=f'sqlite:///{Path(__file__).parent.parent / cons.FOLDER_NAME_INSTANCE / cons.FILE_NAME_DATABASE}'
 engine_standalone=sqlalchemy.create_engine(DATABASE_URL)
+try:
+    engine_standalone.connect()
+except OperationalError:raise RuntimeError(cons.ERROR_DOCKER_NOT_LAUNCHED)
