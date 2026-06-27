@@ -446,10 +446,10 @@ class AppService():
         Returns:
              DataFrame
         """
-        if n > m > 0 >= n:
-            raise ValueError('Pool can not be larger than population.')
+        pool = self._drop_previous(self.previous_ids, pool, cons.IMDB_ID_COLUMN)
+        if len(pool) < 1: return pool.iloc[0:0]
+        elif n > len(pool): return pool.iloc[:m]
         else:
-            pool = self._drop_previous(self.previous_ids, pool, cons.IMDB_ID_COLUMN)
             subpool=pool.head(m)
             return subpool.sample(n)
 
