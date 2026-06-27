@@ -1,4 +1,4 @@
-from validator import validator
+import secrets, bcrypt, jwt, os, logging, sqlalchemy
 from os import access
 from flask import request, Flask, jsonify
 from main import AppService
@@ -10,7 +10,7 @@ from constant import constants_dev as cons_dev
 from db.database import db, engine_standalone, DATABASE_URL
 from db.models import *
 from persister.session_manager import SessionManager
-import secrets, bcrypt, jwt, os, logging, sqlalchemy
+from validator import validator
 
 logger = logging.getLogger(__name__)
 
@@ -116,22 +116,20 @@ def logout():
         return jsonify({'status': cons.LOGOUT_FAILED}), 404
 
 def db_setup(api_app, main_app_service):
+    """Wire context manager."""
     db.init_app(api_app)
     with api_app.app_context():
         db.create_all()
         db_seed(main_app_service)
 
 def db_seed(main_app_service):
+    """Seed pandas data to database."""
     existing_imdb_ids = [row.imdb_id for row in db.session.query(Content.imdb_id).all()]
     is_in_mask = ~main_app_service.data[cons.IMDB_ID_COLUMN].isin(existing_imdb_ids)
     minimal_df = main_app_service.data[is_in_mask]
-    try:
-        minimal_df = minimal_df.drop(
-            columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
-    except ValueError:
-        logger.error(ValueError)
-    if not len(minimal_df) == 0:
-        minimal_df.to_sql((f'{cons.TABLE_NAME_CONTENT}'), if_exists='append', index=False, con=db.engine)
+    try:minimal_df = minimal_df.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
+    except ValueError:logger.error(ValueError)
+    if not len(minimal_df) == 0:minimal_df.to_sql((f'{cons.TABLE_NAME_CONTENT}'), if_exists='append', index=False, con=db.engine)
 
 db_setup(app, app_service)
 

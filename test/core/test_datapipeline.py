@@ -5,6 +5,7 @@ from constant import constants_dev as cons_dev, constants as cons
 
 @pytest.fixture
 def config():
+    """Setup requirements for test function(s)."""
     uri = cons_dev.DUMMY_DB_URI
     engine = sqlalchemy.create_engine(uri)
     unit=DataPipeline(engine)
@@ -13,6 +14,7 @@ def config():
     return unit
 
 def test_load_tsv(config):
+    """Tests load_tsv method."""
     unit=config
     df=cons_dev.DUMMY_DATAFRAME_CONTENT
     dummy_config_dict=cons_dev.DUMMY_DICT_DATASET

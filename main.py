@@ -240,7 +240,7 @@ class DataLoader():
     @staticmethod
     def count_query_db(table_name, engine):
         """Check if record(s) exists in database."""
-        # grab row 0 col 0, warning is for iterator type, without chunk size arg read_sql only returns df
+        # grab row 0 col 0, warning is for iterator type, without chunk size arg read_SQL only returns df
         try: count=pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM "{table_name}"'), engine).iloc[0, 0] # noqa
         except (DatabaseError, pd.errors.DatabaseError):count=0
         return count

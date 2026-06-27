@@ -10,6 +10,7 @@ class SessionManager():
         self.db = db
 
     def write_user(self, username, role, pw_hash):
+        """Given username, role, pw_hash, writes user to database."""
         try:
             self.db.session.add(User(username=username, role=role, pw_hash=pw_hash))
             self.db.session.commit()
@@ -32,11 +33,13 @@ class SessionManager():
             return False
 
     def read_ref_token(self, refresh_token):
+        """Checks if refresh_token exists, return RefreshToken object or False if not."""
         try:return self.db.session.query(RefreshToken).filter(RefreshToken.refresh_token==refresh_token).one()
         except NoResultFound:
             return False
 
     def write_ref_token(self, refresh_token, user_id):
+        """Given refresh_token, user_id, writes RefreshToken to database."""
         try:
             self.db.session.add(RefreshToken(refresh_token=refresh_token, user_id=user_id))
             self.db.session.commit()
@@ -46,6 +49,7 @@ class SessionManager():
             return False
 
     def delete_ref_token(self, refresh_token):
+        """Deletes given refresh_token from database."""
         to_delete=self.read_ref_token(refresh_token)
         if to_delete:
             self.db.session.delete(to_delete)
