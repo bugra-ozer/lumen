@@ -29,16 +29,16 @@ The core engine is served through a **Flask REST API** with JWT-based authentica
 
 ## Tech Stack
  
-| Layer          | Technology                                          |
-|----------------|-----------------------------------------------------|
-| Language       | Python 3.10+                                        |
-| API            | Flask 3.1+                                          |
-| Database       | PostgreSQL, psycopg2-binary, Flask-SQLAlchemy, Flask-Migrate |
-| Data processing| Pandas, PyArrow, NumPy                              |
-| Dataset        | IMDB public TSV datasets                            |
-| Authentication | PyJWT, bcrypt                                       |
-| Config         | python-dotenv                                       |
-| CLI            | Custom terminal UI, tqdm                            |
+| Layer           | Technology                                                   |
+|-----------------|--------------------------------------------------------------|
+| Language        | Python 3.10+                                                 |
+| API             | Flask 3.1+                                                   |
+| Database        | PostgreSQL, psycopg2-binary, Flask-SQLAlchemy, Flask-Migrate |
+| Data processing | Pandas, PyArrow, NumPy                                       |
+| Dataset         | IMDB public TSV datasets                                     |
+| Authentication  | PyJWT, bcrypt                                                |
+| Config          | python-dotenv                                                |
+| CLI             | Custom terminal UI, tqdm                                     |
 
 ---
 
