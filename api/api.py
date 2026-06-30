@@ -1,6 +1,6 @@
 import secrets, bcrypt, jwt, os, logging, sqlalchemy
 from os import access
-from flask import request, Flask, jsonify
+from flask import request, Flask, jsonify, g
 from main import AppService
 from pathlib import Path
 from dotenv import load_dotenv
@@ -21,99 +21,98 @@ app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app_service=AppService(engine_standalone)
 session_manager = SessionManager(db)
-PUBLIC_PATHS=cons.PUBLIC_PATHS
 
 @app.before_request
 def before_request():
     """Authorization check before hitting endpoints of API."""
-    if request.path not in PUBLIC_PATHS: #JWT check, request not hitting login or refresh endpoints
+    if request.path not in cons.PUBLIC_PATHS: #JWT check, request not hitting login or refresh endpoints
         token=request.headers.get(cons.AUTHORIZATION) #Entire authz token with 'Bearer' in it
         if token is None:
-            return jsonify({'status': cons.ERROR, 'message': cons.TOKEN_MISSING}), 401
+            return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.TOKEN_MISSING}), 401
         else:
             token=token.split(' ')
-            if len(token)<2: return jsonify({'status': cons.ERROR, 'message': cons.TOKEN_INVALID}), 401
+            if len(token)<2: return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.TOKEN_INVALID}), 401
             else: token=token[1]
-            try: jwt.decode(token, secret_key, algorithms=['HS256'])
-            except jwt.ExpiredSignatureError: return jsonify({'status': cons.ERROR, 'message': cons.TOKEN_EXPIRED}), 401
-            except jwt.InvalidTokenError: return jsonify({'status': cons.ERROR, 'message': cons.TOKEN_INVALID}), 401
+            try: g_payload=jwt.decode(token, secret_key, algorithms=['HS256'])
+            except jwt.ExpiredSignatureError: return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.TOKEN_INVALID}), 401
+            except jwt.InvalidTokenError: return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.TOKEN_INVALID}), 401
     return None
 
-@app.route('/login', methods=["POST"])
+@app.route(cons.ENDPOINT_LOGIN, methods=["POST"])
 def login():
     """Hashed credentials verification."""
     text=request.get_json(force=True)
-    username=text.get('username')
-    pw=text.get("pw")
-    pw=pw.encode('UTF-8')
+    username=text.get(cons.PAYLOAD_USERNAME)
+    pw=text.get(cons.PAYLOAD_PW)
+    pw=pw.encode(cons.PAYLOAD_UTF8)
     user_object=session_manager.read_username(username)
     if not user_object:
         bcrypt.checkpw(pw, cons_dev.DUMMY_HASHED_PW) # noqa. For hitting same average time on fail cases
-        return jsonify({'status': cons.ERROR, 'message': cons.INVALID_CREDENTIALS}), 401
+        return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.INVALID_CREDENTIALS}), 401
     else:
         if bcrypt.checkpw(pw, user_object.pw_hash):
             ref_token=secrets.token_hex(32)
             session_manager.write_ref_token(ref_token, user_object.user_id)
-            access_token=jwt.encode(payload={'id': user_object.user_id, 'exp': datetime.now(timezone.utc)+timedelta(minutes=15), 'role': user_object.role}, key=secret_key, algorithm='HS256')
-            return jsonify({'access_token': access_token, 'refresh_token': ref_token, 'id': user_object.user_id}), 200
+            access_token=jwt.encode(payload={cons.PAYLOAD_USER_ID: user_object.user_id, cons.PAYLOAD_EXP: datetime.now(timezone.utc)+timedelta(minutes=15), 'role': user_object.role}, key=secret_key, algorithm='HS256')
+            return jsonify({cons.PAYLOAD_ACCESS_TOKEN: access_token, cons.PAYLOAD_REFRESH_TOKEN: ref_token, cons.PAYLOAD_USER_ID: user_object.user_id}), 200
         else:
-            return jsonify({'status': cons.ERROR, 'message': cons.INVALID_CREDENTIALS}), 401
+            return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.INVALID_CREDENTIALS}), 401
 
-@app.route("/refresh", methods=['POST'])
+@app.route(cons.ENDPOINT_REFRESH, methods=[cons.METHOD_POST])
 def refresh():
     """Acquire new access token endpoint."""
     text=request.get_json(force=True)
-    token=text.get('refresh_token')
+    token=text.get(cons.PAYLOAD_REFRESH_TOKEN)
     ref_token_object=session_manager.read_ref_token(token)
     if ref_token_object:
         user_id=ref_token_object.user_id
         if ref_token_object.expiry_at<=datetime.now(timezone.utc):
-            return jsonify({'status': cons.ERROR, 'message': cons.TOKEN_EXPIRED}), 401
+            return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.TOKEN_EXPIRED}), 401
         else:
             user_object=session_manager.read_user_id(user_id)
-            access_token=jwt.encode(payload={'id': user_id, 'exp': datetime.now(timezone.utc)+timedelta(minutes=15), 'role': user_object.role}, key=secret_key, algorithm='HS256')
-            return jsonify({'access_token': access_token, 'refresh_token': token})
+            access_token=jwt.encode(payload={cons.PAYLOAD_USER_ID: user_id, cons.PAYLOAD_EXP: datetime.now(timezone.utc)+timedelta(minutes=15), 'role': user_object.role}, key=secret_key, algorithm='HS256')
+            return jsonify({cons.PAYLOAD_ACCESS_TOKEN: access_token, cons.PAYLOAD_REFRESH_TOKEN: token})
     else:
-        return jsonify({'status': cons.ERROR, 'message': cons.TOKEN_INVALID}), 401
+        return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.TOKEN_INVALID}), 401
 
-@app.route("/recommendations", methods=['POST'])
+@app.route(cons.ENDPOINT_RECOMMENDATIONS, methods=[cons.METHOD_POST])
 def service():
     """End to end service endpoint."""
     text = request.get_json(force=True)
     filter_tools = text.get('filter_tools')
     if not validator.is_valid_filter_tools(filter_tools):
-        return jsonify({'status': cons.ERROR, 'message': cons.FILTER_TOOLS_INVALID})
+        return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.FILTER_TOOLS_INVALID})
     response=app_service.run(filter_tools)
     response=jsonify(response)
     return response
 
-@app.route("/health", methods=['GET'])
+@app.route(cons.ENDPOINT_HEALTH, methods=[cons.METHOD_GET])
 def health():
     """Simple health check endpoint."""
-    return jsonify({'status': cons.OK})
+    return jsonify({cons.PAYLOAD_STATUS: cons.OK})
 
-@app.route("/register", methods=['POST'])
+@app.route(cons.ENDPOINT_REGISTER, methods=[cons.METHOD_POST])
 def register():
     """Register a new user."""
     text = request.get_json(force=True)
-    pw = text.get('pw')
-    username = text.get('username')
-    pw_hash = bcrypt.hashpw(pw.encode('UTF-8'), bcrypt.gensalt(10))
+    pw = text.get(cons.PAYLOAD_PW)
+    username = text.get(cons.PAYLOAD_USERNAME)
+    pw_hash = bcrypt.hashpw(pw.encode(cons.PAYLOAD_UTF8), bcrypt.gensalt(10))
     if session_manager.write_user(username, cons.USER_DEFAULT_ROLE, pw_hash):
-        return jsonify({'status': cons.OK}), 200
+        return jsonify({cons.PAYLOAD_STATUS: cons.OK}), 200
     else:
-        return jsonify({'status': cons.REGISTER_FAILED}), 409
+        return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 409
 
-@app.route("/logout", methods=['POST'])
+@app.route(cons.ENDPOINT_LOGOUT, methods=[cons.METHOD_POST])
 def logout():
     """Delete refresh token."""
     text = request.get_json(force=True)
-    ref_token = text.get('refresh_token')
+    ref_token = text.get(cons.PAYLOAD_REFRESH_TOKEN)
     ref_token_object=session_manager.delete_ref_token(ref_token)
     if ref_token_object:
-        return jsonify({'status': cons.OK})
+        return jsonify({cons.PAYLOAD_STATUS: cons.OK})
     else:
-        return jsonify({'status': cons.LOGOUT_FAILED}), 404
+        return jsonify({cons.PAYLOAD_STATUS: cons.LOGOUT_FAILED}), 404
 
 def db_setup(api_app, main_app_service):
     """Wire context manager."""
