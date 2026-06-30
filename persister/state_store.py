@@ -6,10 +6,11 @@ logger = logging.getLogger(__name__)
 
 class StateStore():
     """Class that handles file operations for orchestrator class for caching and remembering previous sessions."""
-    def __init__(self, table_name, engine):
+    def __init__(self, table_name, engine, user_id):
         """Store properties and set configuration parsing."""
         self.table_name=table_name
         self.engine=engine
+        self.user_id=user_id
         self.data=None
 
     def manage_files(self):
@@ -22,9 +23,9 @@ class StateStore():
         self.data=self.data.drop_duplicates()
 
     def _load_memory(self):
-        """Load all files or reset it to given fallback property in config file."""
+        """Load all files or reset it to fallback."""
         db_count=self._count_query_db(self.table_name)
-        file=self._load_file(db_count)
+        file=self.load_file(db_count)
         if not isinstance(file, pd.DataFrame):
             self.data=pd.DataFrame(columns=cons.TABLE_COLUMNS_PREVIOUS)
         else:
@@ -41,23 +42,22 @@ class StateStore():
         return self
 
     def save_file(self):
-        """Save file to internal config path."""
-        missing_rows=self.data[cons.TABLE_ID_PREVIOUS_DATA].isna()
-        self.data.drop(columns=cons.TABLE_ID_PREVIOUS_DATA, inplace=True)
-        self.data[missing_rows].to_sql(self.table_name, self.engine, if_exists='append', index=False)
+        """Save file to db."""
+        self.data[cons.TABLE_ID_USERS]=self.user_id
+        self.data.to_sql(self.table_name, self.engine, if_exists='append', index=False)
         return self
 
     def _count_query_db(self, table_name):
-        # grab row 0 col 0, warning is for iterator type, without chunk size arg read_sql only returns df
+        # grab row 0 col 0, warning is for iterator type, without chunk size arg read_SQL only returns df
         try:
             count = pd.read_sql(sqlalchemy.text(f'SELECT COUNT(*) FROM "{table_name}"'), self.engine).iloc[0, 0]  # noqa
         except (DatabaseError, pd.errors.DatabaseError):
             count = 0
         return count
 
-    def _load_file(self, db_count=0):
+    def load_file(self, db_count=0):
         """Load file from internal config path."""
-        if db_count != 0:self.data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM "{cons.TABLE_NAME_PREVIOUS_DATA}"'), self.engine)
+        if db_count != 0:self.data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM "{cons.TABLE_NAME_PREVIOUS_DATA}" WHERE {cons.TABLE_ID_USERS}=:user_id'), self.engine, params={cons.TABLE_ID_USERS: self.user_id})
         else: #db error and empty db table
             logger.info(f"Value not found at {cons.TABLE_NAME_PREVIOUS_DATA}")
             return None

@@ -33,7 +33,7 @@ def before_request():
             token=token.split(' ')
             if len(token)<2: return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.TOKEN_INVALID}), 401
             else: token=token[1]
-            try: g_payload=jwt.decode(token, secret_key, algorithms=['HS256'])
+            try: g.payload=jwt.decode(token, secret_key, algorithms=['HS256'])
             except jwt.ExpiredSignatureError: return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.TOKEN_INVALID}), 401
             except jwt.InvalidTokenError: return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.TOKEN_INVALID}), 401
     return None
@@ -80,9 +80,10 @@ def service():
     """End to end service endpoint."""
     text = request.get_json(force=True)
     filter_tools = text.get('filter_tools')
+    g.user_id=g.payload['user_id']
     if not validator.is_valid_filter_tools(filter_tools):
         return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.FILTER_TOOLS_INVALID})
-    response=app_service.run(filter_tools)
+    response=app_service.run(filter_tools, g.user_id)
     response=jsonify(response)
     return response
 

@@ -415,29 +415,32 @@ class AppService():
     def __init__(self, engine):
         self.picks=pd.DataFrame()
         self.engine=engine
-        self.state_store = state_store.StateStore(cons.TABLE_NAME_PREVIOUS_DATA, engine_standalone)  #For caching
-        self.state_store.manage_files()
         self.container = DataContainer(engine)
         self.container.build_container()
-        self.previous_ids = set(self.state_store.data[cons.IMDB_ID_COLUMN])
         self.bayes=scorer.BayesianScorer(self.container.data)
         self.bayes.score()
         self.data=self.bayes.data
         
-    def run(self, filter_tools:dict[str, dict]):
+    def run(self, filter_tools:dict[str, dict], user_id:int):
         """
-        :param filter_tools: nested list of filters or empty list(s)
+        Args:
+        filter_tools: nested list of filters or empty list(s)
+        user_id: per session user_id, flat integer
         :return: list of picked movies
         """
+        inner_state_store = state_store.StateStore(cons.TABLE_NAME_PREVIOUS_DATA, self.engine, user_id)  #For caching
+        inner_state_store.manage_files()
+        previous_ids = set(inner_state_store.data[cons.IMDB_ID_COLUMN])
         candidates=self.decide_candidates(filter_tools)
-        self.picks=self._pick_top(candidates, cons.M_POOL, cons.N_POP)
-        self.state_store.concat_file(pd.DataFrame(self.picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]]))
-        self.state_store.save_file()
+        self.picks=self._pick_top(candidates, cons.M_POOL, cons.N_POP, previous_ids)
+        inner_state_store.data = self.picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]]
+        inner_state_store.data[cons.TABLE_ID_USERS]=user_id
+        inner_state_store.save_file()
         self.picks=self.picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
         print(self.picks.to_string())
         return self.picks.to_dict(orient='records')
 
-    def _pick_top(self, pool:pd.DataFrame, m:int, n:int):
+    def _pick_top(self, pool:pd.DataFrame, m:int, n:int, previous_ids):
         """
         Args:
             pool: Main subpool of movies
@@ -446,7 +449,7 @@ class AppService():
         Returns:
              DataFrame
         """
-        pool = self._drop_previous(self.previous_ids, pool, cons.IMDB_ID_COLUMN)
+        pool = self._drop_previous(previous_ids, pool, cons.IMDB_ID_COLUMN)
         if len(pool) < 1: return pool.iloc[0:0]
         elif n > len(pool): return pool.iloc[:m]
         else:
@@ -477,9 +480,10 @@ class AppService():
 class AppManager():
     """Main orchestrator that assembles pre-requirements for service."""
     
-    def __init__(self):
+    def __init__(self, engine):
+        self.engine=engine
         try:
-            self.app_service=AppService(engine_standalone)
+            self.app_service=AppService(self.engine)
             self.cli=ui.CommandLineInterface()
             self._main()
         except Exception as e: # noqa
@@ -487,9 +491,15 @@ class AppManager():
 
     def _main(self):
         """Run app locally."""
+        local_user_id=self.get_local_user()
         self.cli.run()
         self.filter_tools:dict[str,dict]=self.cli.all_filter_tools
-        self.app_service.run(self.filter_tools)
+        self.app_service.run(self.filter_tools, local_user_id)
+
+    def get_local_user(self):
+        with self.engine.connect() as conn:
+            result=conn.execute(sqlalchemy.text(f'SELECT "{cons.TABLE_ID_USERS}" FROM "{cons.TABLE_NAME_USERS}" WHERE "{cons.COLUMN_USERNAME}"=:local'),{"local": cons.USERS_LOCAL_USER}).fetchone()
+            return result[0]
 
 if __name__ == '__main__':
-    AppManager()
+    AppManager(engine_standalone)
