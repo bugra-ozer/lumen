@@ -25,7 +25,7 @@ class StateStore():
     def _load_memory(self):
         """Load all files or reset it to fallback."""
         db_count=self._count_query_db(self.table_name)
-        file=self.load_file(db_count)
+        file=self.load_to_sql(db_count)
         if not isinstance(file, pd.DataFrame):
             self.data=pd.DataFrame(columns=cons.TABLE_COLUMNS_PREVIOUS)
         else:
@@ -41,7 +41,7 @@ class StateStore():
         self.data=pd.concat(objs=[self.data, df], ignore_index=True)
         return self
 
-    def save_file(self):
+    def save_to_sql(self):
         """Save file to db."""
         self.data[cons.TABLE_ID_USERS]=self.user_id
         self.data.to_sql(self.table_name, self.engine, if_exists='append', index=False)
@@ -55,7 +55,7 @@ class StateStore():
             count = 0
         return count
 
-    def load_file(self, db_count=0):
+    def load_to_sql(self, db_count=0):
         """Load file from internal config path."""
         if db_count != 0:self.data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM "{cons.TABLE_NAME_PREVIOUS_DATA}" WHERE {cons.TABLE_ID_USERS}=:user_id'), self.engine, params={cons.TABLE_ID_USERS: self.user_id})
         else: #db error and empty db table
