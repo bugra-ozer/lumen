@@ -435,7 +435,7 @@ class AppService():
         self.picks=self._pick_top(candidates, cons.M_POOL, cons.N_POP, previous_ids)
         inner_state_store.data = self.picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]]
         inner_state_store.data[cons.TABLE_ID_USERS]=user_id
-        inner_state_store.save_file()
+        inner_state_store.save_to_sql()
         self.picks=self.picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
         print(self.picks.to_string())
         return self.picks.to_dict(orient='records')

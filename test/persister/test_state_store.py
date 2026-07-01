@@ -10,14 +10,12 @@ from main import DataPipeline
 
 logger = logging.getLogger(__name__)
 
-#TODO apply missing ORM backtrack or connection and add fixed constants at the start of the program as engine and uri is used across.
-
 @pytest.fixture
 def config():
     """Setup constants for test functions to pull from."""
     uri = cons_dev.DUMMY_DB_URI
     engine = sqlalchemy.create_engine(uri)
-    unit = state_store.StateStore(table_name=cons.TABLE_NAME_PREVIOUS_DATA, engine=engine)
+    unit = state_store.StateStore(table_name=cons.TABLE_NAME_PREVIOUS_DATA, engine=engine, user_id=cons_dev.DUMMY_USER_ID_LOCAL)
     pipeline=DataPipeline(engine=engine)
     pipeline._setup_schema() # noqa
     yield unit, engine
@@ -40,8 +38,8 @@ def test_load_memory(config):
 def test_save_file(config):
     """Test saving files does not create duplicates and is consistent."""
     unit, engine = config
-    unit.data=cons_dev.DUMMY_DATAFRAME_MIXED_PREVIOUS
-    unit.save_file()
+    unit.data=cons_dev.DUMMY_DATAFRAME_PREVIOUS
+    unit.save_to_sql()
     returned_df=pd.read_sql(sqlalchemy.text(f'SELECT * FROM {TABLE_NAME_PREVIOUS_DATA}'), engine)
     returned_df=returned_df.drop(columns=[cons.TABLE_ID_PREVIOUS_DATA, cons.TABLE_ID_DATE], inplace=False)
     comparison_df=cons_dev.DUMMY_DATAFRAME_PREVIOUS.drop(columns=[cons.TABLE_ID_PREVIOUS_DATA, cons.TABLE_ID_DATE], inplace=False)
