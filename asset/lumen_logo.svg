@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg viewBox="0 0 500 640" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 500 100" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bladeGradA" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0" stop-color="#93C5FD"/>
@@ -22,7 +22,7 @@
       <stop offset="1" stop-color="#DBEAFE" stop-opacity="0"/>
     </radialGradient>
   </defs>
-  <g id="lumen-icon" transform="matrix(0.192544, 0, 0, 0.192544, 95.267807, 488.391479)">
+  <g id="lumen-icon" transform="matrix(0.192544, 0, 0, 0.192544, 85.715569, 3.956517)">
     <path d="M 250.00,40.00 L 431.87,145.00 L 431.87,355.00 L 250.00,460.00 L 68.13,355.00 L 68.13,145.00 Z" fill="#60A5FA" stroke="#FFFFFF" stroke-width="6" stroke-linejoin="round"/>
     <path d="M 250.00,40.00 L 351.84,98.80 Q 386.39,187.56 329.09,211.42 Q 260.63,190.95 250.00,40.00 Z" fill="url(#bladeGradA)" stroke="#ffffff" stroke-width="4" stroke-linejoin="round"/>
     <path d="M 431.87,145.00 L 431.87,262.60 Q 372.27,336.89 322.96,299.21 Q 306.45,229.68 431.87,145.00 Z" fill="url(#bladeGradB)" stroke="#ffffff" stroke-width="4" stroke-linejoin="round"/>
@@ -41,7 +41,7 @@
     <path d="M 251.22,247.88 L 247.04,256.34 L 220.00,301.96 L 245.98,255.73 Z" fill="url(#starGrad)"/>
     <circle cx="250" cy="250" r="9" fill="#FFFFFF"/>
   </g>
-  <g transform="matrix(1, 0, 0, 1, -68.337952, 476.848633)">
+  <g transform="matrix(1, 0, 0, 1, -77.89019, -7.58633)">
     <text x="268" y="82" font-size="50" font-weight="300" letter-spacing=".08em" style="fill: rgb(250, 249, 245); stroke: none; color: rgb(255, 255, 255); stroke-width: 1px; stroke-linecap: butt; stroke-linejoin: miter; opacity: 1; font-family: &quot;Cormorant Garamond&quot;, Georgia, serif; font-size: 50px; font-weight: 300; text-anchor: start; dominant-baseline: auto; white-space: pre;">L</text>
     <text x="304" y="82" font-size="40" font-weight="300" letter-spacing=".22em" style="fill: rgb(250, 249, 245); stroke: none; color: rgb(255, 255, 255); stroke-width: 1px; stroke-linecap: butt; stroke-linejoin: miter; opacity: 1; font-family: &quot;Cormorant Garamond&quot;, Georgia, serif; font-size: 40px; font-weight: 300; text-anchor: start; dominant-baseline: auto; white-space: pre;">UMEN</text>
   </g>
