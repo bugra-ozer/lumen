@@ -42,7 +42,7 @@ class StateStore():
         return self
 
     def save_to_sql(self):
-        """Save file to db."""
+        """Insert table to self-contained db engine attribute."""
         self.data[cons.TABLE_ID_USERS]=self.user_id
         self.data.to_sql(self.table_name, self.engine, if_exists='append', index=False)
         return self
@@ -56,7 +56,7 @@ class StateStore():
         return count
 
     def load_to_sql(self, db_count=0):
-        """Load file from internal config path."""
+        """Read from previous table with self-contained db engine attribute."""
         if db_count != 0:self.data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM "{cons.TABLE_NAME_PREVIOUS_DATA}" WHERE {cons.TABLE_ID_USERS}=:user_id'), self.engine, params={cons.TABLE_ID_USERS: self.user_id})
         else: #db error and empty db table
             logger.info(f"Value not found at {cons.TABLE_NAME_PREVIOUS_DATA}")

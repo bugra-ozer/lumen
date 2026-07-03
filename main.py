@@ -426,17 +426,10 @@ class AppService():
         Args:
         filter_tools: nested list of filters or empty list(s)
         user_id: per session user_id, flat integer
-        :return: list of picked movies
+        :return: dict of picked movies
         """
-        inner_state_store = state_store.StateStore(cons.TABLE_NAME_PREVIOUS_DATA, self.engine, user_id)  #For caching
-        inner_state_store.manage_files()
-        previous_ids = set(inner_state_store.data[cons.IMDB_ID_COLUMN])
-        candidates=self.decide_candidates(filter_tools)
-        self.picks=self._pick_top(candidates, cons.M_POOL, cons.N_POP, previous_ids)
-        inner_state_store.data = self.picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]]
-        inner_state_store.data[cons.TABLE_ID_USERS]=user_id
-        inner_state_store.save_to_sql()
-        self.picks=self.picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
+        inner_state_store = self._init_state_store(user_id)
+        self._orchestrate_run(inner_state_store, filter_tools, user_id)
         print(self.picks.to_string())
         return self.picks.to_dict(orient='records')
 
@@ -447,7 +440,7 @@ class AppService():
             m: subpool from pool
             n: amount of movies picked at random from subpool m
         Returns:
-             DataFrame
+             subset DataFrame of given DataFrame
         """
         pool = self._drop_previous(previous_ids, pool, cons.IMDB_ID_COLUMN)
         if len(pool) < 1: return pool.iloc[0:0]
@@ -476,6 +469,26 @@ class AppService():
         if filter_tools is None or filter_tools == {}:
             return True
         return False
+
+    def _orchestrate_run(self, inner_state_store:state_store.StateStore, filter_tools:dict, user_id):
+        """Orchestrate end to end until self.picks is populated."""
+        previous_ids = set(inner_state_store.data[cons.IMDB_ID_COLUMN])
+        candidates = self.decide_candidates(filter_tools)
+        self.picks = self._pick_top(candidates, cons.M_POOL, cons.N_POP, previous_ids)
+        self._seed_state_store(inner_state_store, user_id)
+        self.picks = self.picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
+        return self
+
+    def _seed_state_store(self, inner_state_store:state_store.StateStore, user_id: int):
+        inner_state_store.data = self.picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]]
+        inner_state_store.data[cons.TABLE_ID_USERS] = user_id
+        inner_state_store.save_to_sql()
+        return inner_state_store
+
+    def _init_state_store(self, user_id: int):
+        inner_state_store = state_store.StateStore(cons.TABLE_NAME_PREVIOUS_DATA, self.engine, user_id)
+        inner_state_store.manage_files()  # Load and seed previous table db
+        return inner_state_store
 
 class AppManager():
     """Main orchestrator that assembles pre-requirements for service."""
