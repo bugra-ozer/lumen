@@ -38,6 +38,11 @@ def before_request():
             except jwt.InvalidTokenError: return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.TOKEN_INVALID}), 401
     return None
 
+@app.errorhandler(Exception)
+def error_handler(e):
+    logger.exception(e)
+    return jsonify({cons.PAYLOAD_STATUS: cons.SERVER_FAILED}), 500
+
 @app.route(cons.ENDPOINT_LOGIN, methods=["POST"])
 def login():
     """Hashed credentials verification."""
