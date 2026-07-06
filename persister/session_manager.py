@@ -53,3 +53,11 @@ class SessionManager():
         to_delete=self.read_ref_token(refresh_token)
         if to_delete:
             self.db.session.delete(to_delete)
+            self.db.session.commit()
+
+    def delete_all_ref_tokens(self, user_id):
+        """Deletes all refresh_tokens from database given user_id."""
+        to_delete = self.read_user_id(user_id)
+        if to_delete:
+            self.db.session.query(RefreshToken).filter(RefreshToken.user_id==user_id).delete()
+            self.db.session.commit()

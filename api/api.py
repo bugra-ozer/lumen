@@ -56,6 +56,7 @@ def login():
         return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.INVALID_CREDENTIALS}), 401
     else:
         if bcrypt.checkpw(pw, user_object.pw_hash):
+            session_manager.delete_all_ref_tokens(user_object.user_id)
             ref_token=secrets.token_hex(32)
             session_manager.write_ref_token(ref_token, user_object.user_id)
             access_token=jwt.encode(payload={cons.PAYLOAD_USER_ID: user_object.user_id, cons.PAYLOAD_EXP: datetime.now(timezone.utc)+timedelta(minutes=15), 'role': user_object.role}, key=secret_key, algorithm='HS256')
