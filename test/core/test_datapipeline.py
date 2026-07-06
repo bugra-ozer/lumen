@@ -14,7 +14,7 @@ def config():
     return unit
 
 def test_load_tsv(config):
-    """Tests load_tsv method."""
+    """Tests TSV path"""
     unit=config
     df=cons_dev.DUMMY_DATAFRAME_CONTENT
     dummy_config_dict=cons_dev.DUMMY_DICT_DATASET
@@ -26,5 +26,18 @@ def test_load_tsv(config):
     result, needs_assert=unit.main()
     assert needs_assert==True
     pd.testing.assert_frame_equal(result,df)
-    unit.data_loader.read_from.assert_called_once_with(mock.ANY, cons.STR_TSV, mock.ANY, usecols=mock.ANY)
+    unit.data_loader.read_from.assert_called_once_with(mock.ANY, cons.STR_TSV, unit.engine, usecols=mock.ANY)
 
+def test_load_sql(config):
+    """Tests SQL path""" # noqa
+    unit=config
+    unit._is_data_stale=mock.Mock(return_value=False)
+    df=cons_dev.DUMMY_DATAFRAME_CONTENT
+    dummy_config_dict=cons_dev.DUMMY_DICT_DATASET
+    unit.data_loader.load_config.return_value = dummy_config_dict
+    unit.data_loader.count_query_db.return_value = 1
+    unit.data_loader.read_from.return_value = df
+    result, needs_assert=unit.main()
+    assert needs_assert==False
+    pd.testing.assert_frame_equal(result,df)
+    unit.data_loader.read_from.assert_called_once_with(mock.ANY, cons.STR_SQL, unit.engine)
