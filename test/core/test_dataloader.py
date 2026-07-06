@@ -16,7 +16,7 @@ def test_read_sql(mock_sql):
     unit = DataLoader()
     mock_sql.return_value = pd.DataFrame()
     table_name=cons.TABLE_NAME_CONTENT
-    read=unit.read_file(table_name, cons.STR_SQL, engine_standalone)
+    read=unit.read_from(table_name, cons.STR_SQL, engine_standalone)
     mock_sql.assert_called_once_with(mock.ANY, engine_standalone)
     assert isinstance(read,pd.DataFrame)
 
@@ -26,7 +26,7 @@ def test_read_csv(mock_tsv, usecols=None):
     unit = DataLoader()
     mock_tsv.return_value = pd.DataFrame()
     path=pl.Path(cons_dev.MOCK_RANDOM_PATH)
-    read=unit.read_file(cons_dev.MOCK_RANDOM_PATH, cons.STR_TSV, engine_standalone)
+    read=unit.read_from(cons_dev.MOCK_RANDOM_PATH, cons.STR_TSV, engine_standalone)
     mock_tsv.assert_called_once_with(path, delimiter='\t', encoding='latin-1', on_bad_lines='skip', na_values='\\N', usecols=usecols)
     assert isinstance(read,pd.DataFrame)
 
@@ -36,7 +36,7 @@ def test_to_sql(mock_to_sql):
     unit = DataLoader()
     mock_to_sql.return_value = None
     table_name=cons.TABLE_NAME_CONTENT #raw string
-    write=unit.save_file(pd.DataFrame(), table_name, engine_standalone, cons.STR_SQL)
+    write=unit.save_to_sql(pd.DataFrame(), table_name, engine_standalone, cons.STR_SQL)
     mock_to_sql.assert_called_once_with(mock.ANY, engine_standalone, if_exists='append', index=False)
     assert isinstance(write,DataLoader)
 

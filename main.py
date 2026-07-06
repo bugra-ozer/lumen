@@ -1,9 +1,6 @@
-import bcrypt
-import pandas as pd, pathlib as pl, json, logging, functools, enum, sqlalchemy
-from flask_sqlalchemy import SQLAlchemy
+import pandas as pd, pathlib as pl, json, logging, functools, sqlalchemy
 from sqlalchemy.exc import OperationalError, DatabaseError
 from validator import validator
-from logging import exception
 from datetime import datetime, timezone, timedelta
 from persister import state_store
 from ui import cli as ui
@@ -34,7 +31,7 @@ class DataContainer():
         if needs_insert:
             self._purge_data()
             self.select_columns(*cons.CONTENT_COLUMNS_TO_KEEP)
-            self.data_pipeline.insert_update_exp(self.data)
+            self.data_pipeline.insert_and_update_exp(self.data)
 
     def select_columns(self, *args:str):
         """Internal limitation the data with given columns.
@@ -159,7 +156,7 @@ class DataPipeline():
     def build_data(self, db_count):
         """Read if processed file exists, else run operations to initiate one."""
         data_frames=[]
-        if db_count != 0: #content table has data
+        if db_count != 0 and not self._is_data_stale(): #content table has data and data is fresh
             data,needs_insert=self.read_ready_db()
         else:
             needs_insert = True
@@ -170,12 +167,12 @@ class DataPipeline():
         return data, needs_insert
 
     def read_ready_db(self):
-        """Instruct data_loader to read SQL and append to data variable."""
+        """Instruct data_loader to read SQL and return the read result."""
         needs_insert = False
         try:
             with self.engine.connect():
                 logger.info(cons.INFO_LOAD_DB)
-                data = self.data_loader.read_file(cons.TABLE_NAME_CONTENT, cons.STR_SQL, self.engine)
+                data = self.data_loader.read_from(cons.TABLE_NAME_CONTENT, cons.STR_SQL, self.engine)
         except OperationalError:
             logger.exception(cons.ERROR_CONNECT_DB)
             raise Exception(cons.ERROR_CONNECT_DB)
@@ -184,13 +181,13 @@ class DataPipeline():
     def _load_tsv_to_memory(self, data_frames, tsv):
         """Instruct data_loader to read TSV and append to data_frames variable."""
         logger.info(cons.INFO_MERGE_TSV)
-        data_frames.append(self.data_loader.read_file(str(tsv[cons.PATH_COLUMN]), cons.STR_TSV, self.engine, usecols=tsv['usecols']))
-        self.data_loader.delete_file(tsv[cons.PATH_COLUMN])
+        data_frames.append(self.data_loader.read_from(str(tsv[cons.PATH_COLUMN]), cons.STR_TSV, self.engine, usecols=tsv['usecols']))
+        self.data_loader.delete_from(tsv[cons.PATH_COLUMN])
         return data_frames
 
-    def insert_update_exp(self, data):
+    def insert_and_update_exp(self, data):
         """Insert to SQL engine and update exp date."""
-        self.data_loader.save_file(data, cons.TABLE_NAME_CONTENT, self.engine, cons.STR_SQL)
+        self.data_loader.save_to_sql(data, cons.TABLE_NAME_CONTENT, self.engine, cons.STR_SQL)
         self._update_db_exp()
 
 class DataLoader():
@@ -246,7 +243,7 @@ class DataLoader():
         return count
 
     @staticmethod
-    def read_file(name:str, file_type:str, engine, usecols=None):
+    def read_from(name:str, file_type:str, engine, usecols=None):
         """Read TSV file from given path
 
         Args:
@@ -275,7 +272,7 @@ class DataLoader():
             raise ValueError(f"Failed to read file: {path}")
         return file
 
-    def save_file(self, file:pd.DataFrame, table_name, engine, file_type:str=cons.STR_SQL):
+    def save_to_sql(self, file:pd.DataFrame, table_name, engine, file_type:str=cons.STR_SQL):
         """Save file to given path."""
         if file_type.strip().lower() == cons.STR_SQL:
             try:
@@ -285,7 +282,7 @@ class DataLoader():
                 raise IOError(f"{cons.ERROR_SAVE}: {e}") from e
         return self
 
-    def delete_file(self, path):
+    def delete_from(self, path):
         """Delete file with given absolute path"""
         if path.exists():
             pl.Path(path).unlink()
@@ -413,7 +410,6 @@ class AppService():
     """Recommendation service that runs end to end."""
 
     def __init__(self, engine):
-        self.picks=pd.DataFrame()
         self.engine=engine
         self.container = DataContainer(engine)
         self.container.build_container()

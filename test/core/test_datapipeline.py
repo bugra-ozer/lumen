@@ -20,10 +20,11 @@ def test_load_tsv(config):
     dummy_config_dict=cons_dev.DUMMY_DICT_DATASET
     unit.data_loader.load_config.return_value = dummy_config_dict
     unit.data_loader.count_query_db.return_value = 0
-    unit.data_loader.read_file.return_value = df
+    unit.data_loader.read_from.return_value = df
     unit.data_loader.merge_dataframes.return_value = df
     unit.data_loader.rename_columns.return_value = df
     result, needs_assert=unit.main()
     assert needs_assert==True
     pd.testing.assert_frame_equal(result,df)
-    unit.data_loader.read_file.assert_called_once_with(mock.ANY, cons.STR_TSV, mock.ANY, usecols=mock.ANY)
+    unit.data_loader.read_from.assert_called_once_with(mock.ANY, cons.STR_TSV, mock.ANY, usecols=mock.ANY)
+
