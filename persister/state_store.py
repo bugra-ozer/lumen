@@ -59,6 +59,6 @@ class StateStore():
         """Read from previous table with self-contained db engine attribute."""
         if db_count != 0:self.data=pd.read_sql(sqlalchemy.text(f'SELECT * FROM "{cons.TABLE_NAME_PREVIOUS_DATA}" WHERE {cons.TABLE_ID_USERS}=:user_id'), self.engine, params={cons.TABLE_ID_USERS: self.user_id})
         else: #db error and empty db table
-            logger.info(f"Value not found at {cons.TABLE_NAME_PREVIOUS_DATA}")
+            logger.log(f"Value not found at {cons.TABLE_NAME_PREVIOUS_DATA}")
             return None
         return self.data

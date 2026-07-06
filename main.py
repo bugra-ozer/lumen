@@ -429,9 +429,9 @@ class AppService():
         :return: dict of picked movies
         """
         inner_state_store = self._init_state_store(user_id)
-        self._orchestrate_run(inner_state_store, filter_tools, user_id)
-        print(self.picks.to_string())
-        return self.picks.to_dict(orient='records')
+        picks=self._orchestrate_run(inner_state_store, filter_tools, user_id)
+        print(picks.to_string())
+        return picks.to_dict(orient='records')
 
     def _pick_top(self, pool:pd.DataFrame, m:int, n:int, previous_ids):
         """
@@ -474,13 +474,14 @@ class AppService():
         """Orchestrate end to end until self.picks is populated."""
         previous_ids = set(inner_state_store.data[cons.IMDB_ID_COLUMN])
         candidates = self.decide_candidates(filter_tools)
-        self.picks = self._pick_top(candidates, cons.M_POOL, cons.N_POP, previous_ids)
-        self._seed_state_store(inner_state_store, user_id)
-        self.picks = self.picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
-        return self
+        picks = self._pick_top(candidates, cons.M_POOL, cons.N_POP, previous_ids)
+        self._seed_state_store(inner_state_store, user_id, picks)
+        picks = picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
+        return picks
 
-    def _seed_state_store(self, inner_state_store:state_store.StateStore, user_id: int):
-        inner_state_store.data = self.picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]]
+    @staticmethod
+    def _seed_state_store(inner_state_store:state_store.StateStore, user_id: int, picks:pd.DataFrame):
+        inner_state_store.data = picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]]
         inner_state_store.data[cons.TABLE_ID_USERS] = user_id
         inner_state_store.save_to_sql()
         return inner_state_store
