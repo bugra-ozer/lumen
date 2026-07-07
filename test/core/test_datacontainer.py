@@ -17,3 +17,12 @@ def test_db_path(config):
     unit.data_pipeline.main.return_value=pipeline_returned_df, False
     unit.build_container()
     pd.testing.assert_frame_equal(unit.data, pipeline_returned_df)
+
+def test_tsv_path_business(config):
+    """Test business rules applied gracefully"""
+    unit:DataContainer=config
+    pipeline_returned_df=cons_dev.DUMMY_DATAFRAME_CONTENT_FAULTY
+    expected_df=cons_dev.DUMMY_DATAFRAME_CONTENT_NEW_COLUMNS
+    unit.data_pipeline.main.return_value=pipeline_returned_df, True
+    unit.build_container()
+    pd.testing.assert_frame_equal(unit.data, expected_df, check_dtype=False)

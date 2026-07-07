@@ -4,6 +4,7 @@ import pandas as pd
 
 #CI
 
+TEST_CONTENT_COLUMNS=cons.CONTENT_COLUMNS_TO_KEEP + (cons.TITLE_TYPE_COLUMN,)
 MOCK_RANDOM_URL= '127.0.0.1:8000'
 MOCK_RANDOM_PATH= 'giber/'
 MOCK_CONTENT_LENGTH={'Content-Length': '32768'} #dict
@@ -17,6 +18,12 @@ DUMMY_DATA_PREVIOUS=[25, 1, 'tt1675412', '2026-05-04']
 DUMMY_DATA_EMPTY_PREVIOUS=[None, 1, 'tt1675412', '2026-05-04']
 DUMMY_USER_ID_LOCAL=1
 DUMMY_RECORD_CONTENT=['tt0004972', 6.1, 28331, 'The Birth of a Nation', 2011 ,'Drama,War']
+DUMMY_RECORD_CONTENT_T_TYPE=['tt0004972', 6.1, 28331, 'The Birth of a Nation', 2011 ,'Drama,War', 'movie']
+DUMMY_RECORD_CONTENT_LOW_VOTE=['tt0004972', 6.1, 2331, 'The Birth of a Nation', 2011 ,'Drama,War', 'movie']
+DUMMY_RECORD_CONTENT_NA_GENRE=['tt0004972', 6.1, 28331, 'The Birth of a Nation', 2011 , None, 'movie']
+DUMMY_RECORD_CONTENT_NA_TITLE=['tt0004972', 6.1, 28331, None, 2011 ,'Drama,War', 'movie']
+DUMMY_RECORD_CONTENT_NA_PUBLISHED=['tt0004972', 6.1, 28331, 'The Birth of a Nation', None ,'Drama,War', 'movie']
+DUMMY_RECORD_CONTENT_NO_MOVIE=['tt0004972', 6.1, 28331, 'The Birth of a Nation', 2011 ,'Drama,War', 'documentary']
 DUMMY_PATH="/test/test.py"
 DUMMY_DATE="29-05-1823"
 DUMMY_FILTER_TOOLS={f'{cons.GENRE_COLUMN}': {'value': ['action', 'horror']}}
@@ -30,6 +37,8 @@ DUMMY_DICT_DATASET={"mock_imdb_tsv_data":{
        "folder": "data/",
        "usecols": ["tconst", "averageRating", "numVotes"]}}
 DUMMY_DATAFRAME_CONTENT=pd.DataFrame(columns=cons.CONTENT_COLUMNS_TO_KEEP_LEGACY, data=[DUMMY_RECORD_CONTENT])
+DUMMY_DATAFRAME_CONTENT_NEW_COLUMNS=pd.DataFrame(columns=cons.CONTENT_COLUMNS_TO_KEEP, data=[DUMMY_RECORD_CONTENT])
+DUMMY_DATAFRAME_CONTENT_FAULTY=pd.DataFrame(columns=TEST_CONTENT_COLUMNS, data=[DUMMY_RECORD_CONTENT_T_TYPE, DUMMY_RECORD_CONTENT_LOW_VOTE, DUMMY_RECORD_CONTENT_NA_GENRE, DUMMY_RECORD_CONTENT_NA_TITLE, DUMMY_RECORD_CONTENT_NA_PUBLISHED, DUMMY_RECORD_CONTENT_NO_MOVIE])
 
 #unit_test_bayes
 MOCK_DECAY_YEARS_OLD=cons.DECAY_FACTOR_THRESHOLD[0]
