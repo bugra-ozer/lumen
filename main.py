@@ -32,10 +32,11 @@ class DataContainer():
             self._purge_data()
             self.select_columns(*cons.CONTENT_COLUMNS_TO_KEEP)
             self.data_pipeline.insert_and_update_exp(self.data)
+        return self
 
     def select_columns(self, *args:str):
         """Internal limitation the data with given columns.
-        Call data to be mutated with given arguments.
+        Call data to be mutated with given columns.
 
         *args: Names of the columns to limit"""
         columns_to_limit=[*args]
