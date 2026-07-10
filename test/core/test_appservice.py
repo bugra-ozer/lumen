@@ -25,3 +25,9 @@ def test_empty_dict_filter_tools(data_filter:mock.Mock, config):
     unit.run({}, local_user_id)
     data_filter.assert_called_once_with(unit.data)
 
+@patcher('main.DataFilter')
+def test_valid_filter_tools(data_filter:mock.Mock, config):
+    unit, local_user_id = config
+    filter_tools=cons_dev.TEST_VALID_FILTER_TOOLS
+    unit.run(filter_tools, local_user_id)
+    data_filter.assert_called_once_with(unit.data, filter_tools)

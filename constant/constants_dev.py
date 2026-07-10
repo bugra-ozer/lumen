@@ -5,6 +5,7 @@ import pandas as pd
 #CI
 
 TEST_CONTENT_COLUMNS=cons.CONTENT_COLUMNS_TO_KEEP + (cons.TITLE_TYPE_COLUMN,)
+TEST_VALID_FILTER_TOOLS={'Genre': {'value': ['action', 'horror']}}
 MOCK_RANDOM_URL= '127.0.0.1:8000'
 MOCK_RANDOM_PATH= 'giber/'
 MOCK_CONTENT_LENGTH={'Content-Length': '32768'} #dict
