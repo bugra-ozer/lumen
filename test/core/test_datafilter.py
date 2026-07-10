@@ -30,3 +30,9 @@ def test_sad_filter_path():
     fake_filter_tools = cons_dev.DUMMY_SAD_FILTER_TOOLS
     with pytest.raises(ValueError):
         main.DataFilter(fake_df, fake_filter_tools)
+
+def test_df_sort():
+    fake_df=cons_dev.DUMMY_DATAFRAME_CONTENT_BAYES #with bayesian columns included
+    sorted_fake_df=fake_df.sort_values(by=[cons.ADJUSTED_SCORE_COLUMN], ascending=False)
+    result_df=main.DataFilter(fake_df).result
+    pd.testing.assert_frame_equal(result_df, sorted_fake_df)
