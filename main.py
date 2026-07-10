@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 from persister import state_store
 from ui import cli as ui
 from downloader import downloader as client
-from scorer import bayesian_algorithm as scorer
+from scorer.bayesian_algorithm import BayesianScorer
 from log import log_handler
 from constant import constants as cons
 from db.database import db, engine_standalone
@@ -414,11 +414,11 @@ class AppService():
         self.engine=engine
         self.container = DataContainer(engine)
         self.container.build_container()
-        self.bayes=scorer.BayesianScorer(self.container.data)
+        self.bayes=BayesianScorer(self.container.data)
         self.bayes.score()
         self.data=self.bayes.data
         
-    def run(self, filter_tools:dict[str, dict], user_id:int):
+    def run(self, filter_tools:dict[str, dict] | None, user_id:int):
         """
         Args:
         filter_tools: nested list of filters or empty list(s)
@@ -502,12 +502,12 @@ class AppManager():
 
     def _main(self):
         """Run app locally."""
-        local_user_id=self.get_local_user()
+        local_user_id=self.get_local_user_id()
         self.cli.run()
         self.filter_tools:dict[str,dict]=self.cli.all_filter_tools
         self.app_service.run(self.filter_tools, local_user_id)
 
-    def get_local_user(self):
+    def get_local_user_id(self):
         with self.engine.connect() as conn:
             result=conn.execute(sqlalchemy.text(f'SELECT "{cons.TABLE_ID_USERS}" FROM "{cons.TABLE_NAME_USERS}" WHERE "{cons.COLUMN_USERNAME}"=:local'),{"local": cons.USERS_LOCAL_USER}).fetchone()
             return result[0]
