@@ -49,9 +49,9 @@ IMDB distributes its dataset as gzip-compressed TSV files. On first run, Lumen:
 1. **Streams** the compressed files from IMDB using `requests` — no full download into memory
 2. **Decompresses** on the fly with `gzip`
 3. **Parses and merges** multiple TSV files into a single DataFrame with `pandas`
-4. **Caches** the result as a Parquet file via `pyarrow` for fast subsequent loads
+4. **Persists** the result in a SQL database
 
-Progress is tracked with `tqdm`. On subsequent runs, the pipeline skips straight to loading from Parquet — significantly faster startup.
+Progress is tracked with `tqdm`. On subsequent runs, the pipeline skips straight to loading from database — significantly faster startup.
 
 ---
  
