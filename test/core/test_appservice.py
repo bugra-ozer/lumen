@@ -38,3 +38,12 @@ def test_pick_top(config):
     result=unit._pick_top(df, 2, cons.N_POP, pd.DataFrame(columns=cons_dev.TEST_CONTENT_BAYES_COLUMNS, data=None))
     assert cons_dev.DUMMY_RECORD_CONTENT_BAYES_SCORE_LOWEST[8] not in result[cons.ADJUSTED_SCORE_COLUMN].values
     assert len(result) == cons.N_POP
+
+def test_picks(config):
+    """Tests if previous_ids are excluded in picks"""
+    state_store=mock.Mock()
+    unit, local_user_id = config
+    state_store.data=pd.DataFrame(columns=cons_dev.TEST_CONTENT_BAYES_COLUMNS, data=[cons_dev.DUMMY_RECORD_CONTENT_BAYES_SCORE_HIGHEST])
+    unit.data=cons_dev.DUMMY_DATAFRAME_CONTENT_BAYES #sorted and stable results
+    picks, picks_full=unit._orchestrate_run(state_store, {}, local_user_id)
+    assert cons_dev.DUMMY_RECORD_CONTENT_BAYES_SCORE_HIGHEST[0] not in picks[cons.IMDB_ID_COLUMN]

@@ -39,6 +39,7 @@ ERROR_LOAD_TSV_PATH='Failed to load tsv paths'
 ERROR_WRONG_FILTER_OR_DF='Failed to load filter_tools or DataFrame'
 ERROR_SAVE='Failed to save file'
 ERROR_COLUMN_NOT_FOUND='Column not found to rename:'
+ERROR_PARSE_FILTER_TOOLS='Unable to parse filter tools'
 
 #CLI
 INFO_PRESS_ANY='Press any key to continue...'
