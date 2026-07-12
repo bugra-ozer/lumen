@@ -47,3 +47,5 @@ def test_picks(config):
     unit.data=cons_dev.DUMMY_DATAFRAME_CONTENT_BAYES #sorted and stable results
     picks, picks_full=unit._orchestrate_run(state_store, {}, local_user_id)
     assert cons_dev.DUMMY_RECORD_CONTENT_BAYES_SCORE_HIGHEST[0] not in picks[cons.IMDB_ID_COLUMN]
+    assert set(picks[cons.IMDB_ID_COLUMN].values).issubset(set(unit.data[cons.IMDB_ID_COLUMN].values))
+    
