@@ -2,7 +2,7 @@ import pandas as pd, pathlib as pl, json, logging, functools, sqlalchemy
 from sqlalchemy.exc import OperationalError, DatabaseError
 from validator import validator
 from datetime import datetime, timezone, timedelta
-from persister import state_store
+from persister.state_store import StateStore
 from ui import cli as ui
 from downloader import downloader as client
 from scorer.bayesian_algorithm import BayesianScorer
@@ -328,7 +328,7 @@ class DataFilter():
                     local_operator=val_type[cons.FILTER_OPERATOR]
                     yield column, local_operator, value
                 else:
-                    raise ValueError
+                    raise ValueError(cons.ERROR_PARSE_FILTER_TOOLS)
 
     def apply_each_filter(self, filter_tools:dict[str,dict]):
         """Unpacks filter tools and applies each filter in it manually."""
@@ -426,7 +426,8 @@ class AppService():
         :return: dict of picked movies
         """
         inner_state_store = self._init_state_store(user_id)
-        picks=self._orchestrate_run(inner_state_store, filter_tools, user_id)
+        picks, picks_full=self._orchestrate_run(inner_state_store, filter_tools, user_id)
+        self._seed_state_store(inner_state_store, user_id, picks_full)
         print(picks.to_string())
         return picks.to_dict(orient='records')
 
@@ -467,24 +468,24 @@ class AppService():
             return True
         return False
 
-    def _orchestrate_run(self, inner_state_store:state_store.StateStore, filter_tools:dict, user_id):
+    def _orchestrate_run(self, inner_state_store:StateStore, filter_tools:dict, user_id):
         """Orchestrate end to end until self.picks is populated."""
         previous_ids = set(inner_state_store.data[cons.IMDB_ID_COLUMN])
         candidates = self.decide_candidates(filter_tools)
         picks = self._pick_top(candidates, cons.M_POOL, cons.N_POP, previous_ids)
-        self._seed_state_store(inner_state_store, user_id, picks)
+        picks_full=picks #picks with bayesian data retained.
         picks = picks.drop(columns=[cons.DECAY_FACTOR_COLUMN, cons.BAYES_SCORE_COLUMN, cons.DATE_COLUMN, cons.ADJUSTED_SCORE_COLUMN])
-        return picks
+        return picks, picks_full
 
     @staticmethod
-    def _seed_state_store(inner_state_store:state_store.StateStore, user_id: int, picks:pd.DataFrame):
+    def _seed_state_store(inner_state_store:StateStore, user_id: int, picks:pd.DataFrame):
         inner_state_store.data = picks[[cons.IMDB_ID_COLUMN, cons.DATE_COLUMN]]
         inner_state_store.data[cons.TABLE_ID_USERS] = user_id
         inner_state_store.save_to_sql()
         return inner_state_store
 
     def _init_state_store(self, user_id: int):
-        inner_state_store = state_store.StateStore(cons.TABLE_NAME_PREVIOUS_DATA, self.engine, user_id)
+        inner_state_store = StateStore(cons.TABLE_NAME_PREVIOUS_DATA, self.engine, user_id)
         inner_state_store.manage_files()  # Load and seed previous table db
         return inner_state_store
 
