@@ -1,10 +1,11 @@
-<svg width="100%" viewBox="0 0 720 290" role="img" style="" xmlns="http://www.w3.org/2000/svg">
+<svg width="100%" viewBox="0 0 720 430" role="img" style="" xmlns="http://www.w3.org/2000/svg">
 <title style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">Lumen architecture</title>
-<desc style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">API and Local both connect to AppService. Session manager is added above API as a sub-component. AppService connects to DataContainer, DataPipeline, DataLoader and DatasetDownloader along the main spine. AppService also branches down to BayesianScorer, DataFilter, Validator, and StateStore. db/ is consumed independently by API and AppService.</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker><mask id="imagine-text-gaps-ypa7gg" maskUnits="userSpaceOnUse"><rect x="0" y="0" width="720" height="290" fill="white"/>
+<desc style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">API and Local both connect to AppService. cli connects only to Local. Session manager is added above API as a sub-component. AppService connects to DataContainer, DataPipeline, DataLoader and DatasetDownloader along the main spine. AppService also branches down to BayesianScorer, DataFilter, Validator, and StateStore. The db/ module sits below the main diagram and owns four tables: SessionManager connects down to both the REFRESH_TOKEN table and the USERS table, DataLoader connects down to the CONTENT table, and StateStore connects down to the PREVIOUS_DATA table. Each connector is routed so it does not cross any other connector, arrow, or label.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker><mask id="imagine-text-gaps-ypa7gg" maskUnits="userSpaceOnUse"><rect x="0" y="0" width="720" height="430" fill="white"/>
 <rect x="65" y="10" width="118" height="22.33" fill="black" rx="2"/>
 <rect x="35" y="46" width="30" height="22.33" fill="black" rx="2"/>
 <rect x="35" y="86" width="45" height="22.33" fill="black" rx="2"/>
+<rect x="35" y="126" width="30" height="22.33" fill="black" rx="2"/>
 <rect x="205.44445037841797" y="46" width="77.56597900390625" height="22.33333396911621" fill="black" rx="2"/>
 <rect x="294" y="46" width="97.10250091552734" height="22.33333396911621" fill="black" rx="2"/>
 <rect x="405.0000305175781" y="46" width="85.62152862548828" height="22.33333396911621" fill="black" rx="2"/>
@@ -14,13 +15,14 @@
 <rect x="228" y="140.00001525878906" width="67.48923110961914" height="22.33333396911621" fill="black" rx="2"/>
 <rect x="227.44444274902344" y="172" width="63.44419479370117" height="22.33333396911621" fill="black" rx="2"/>
 <rect x="228" y="204" width="71.04687118530273" height="22.33333396911621" fill="black" rx="2"/>
-<rect x="36" y="248.22222900390625" width="397.7829895019531" height="19.555556297302246" fill="black" rx="2"/></mask></defs>
+</mask></defs>
 
 <line x1="50" y1="46" x2="50" y2="22" stroke="var(--color-border-primary)" stroke-width="1" mask="url(#imagine-text-gaps-ypa7gg)" style="fill:rgb(0, 0, 0);stroke:rgba(222, 220, 209, 0.4);color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
 <line x1="50" y1="22" x2="65" y2="22" stroke="var(--color-border-primary)" stroke-width="1" mask="url(#imagine-text-gaps-ypa7gg)" style="fill:rgb(0, 0, 0);stroke:rgba(222, 220, 209, 0.4);color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
 
 <line x1="65" y1="58" x2="205" y2="58" stroke="var(--color-border-primary)" stroke-width="1" mask="url(#imagine-text-gaps-ypa7gg)" style="fill:rgb(0, 0, 0);stroke:rgba(222, 220, 209, 0.4);color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
 <line x1="75" y1="98" x2="190" y2="98" stroke="var(--color-border-primary)" stroke-width="1" mask="url(#imagine-text-gaps-ypa7gg)" style="fill:rgb(0, 0, 0);stroke:rgba(222, 220, 209, 0.4);color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="50" y1="98" x2="50" y2="137" stroke="var(--color-border-primary)" stroke-width="1" mask="url(#imagine-text-gaps-ypa7gg)" style="fill:rgb(0, 0, 0);stroke:rgba(222, 220, 209, 0.4);color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
 <line x1="190" y1="58" x2="190" y2="98" stroke="var(--color-border-primary)" stroke-width="1" style="fill:rgb(0, 0, 0);stroke:rgba(222, 220, 209, 0.4);color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
 <circle cx="190" cy="58" r="2.5" fill="var(--color-border-primary)" style="fill:rgba(222, 220, 209, 0.4);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
 
@@ -41,6 +43,7 @@
 <text x="69" y="27" style="fill:rgb(250, 249, 245);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:start;dominant-baseline:auto">SessionManager</text>
 <text x="40" y="63" style="fill:rgb(250, 249, 245);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:start;dominant-baseline:auto">API</text>
 <text x="40" y="103" style="fill:rgb(250, 249, 245);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:start;dominant-baseline:auto">Local</text>
+<text x="40" y="143" style="fill:rgb(250, 249, 245);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:start;dominant-baseline:auto">CLI</text>
 
 <text x="210" y="63" style="fill:rgb(250, 249, 245);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:start;dominant-baseline:auto">AppService</text>
 <text x="298" y="63" style="fill:rgb(250, 249, 245);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:start;dominant-baseline:auto">DataContainer</text>
@@ -51,5 +54,49 @@
 <text x="232" y="157" style="fill:rgb(250, 249, 245);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:start;dominant-baseline:auto">DataFilter</text>
 <text x="232" y="189" style="fill:rgb(250, 249, 245);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:start;dominant-baseline:auto">Validator</text>
 <text x="232" y="221" style="fill:rgb(250, 249, 245);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:start;dominant-baseline:auto">StateStore</text>
-<text x="40" y="263" style="fill:rgb(194, 192, 182);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:start;dominant-baseline:auto">db/ — engine and ORM, consumed independently by API and AppService</text>
+
+<!-- db/ module: four tables, each connector individually routed so it never crosses another connector, arrow, or label -->
+
+<!-- SessionManager -> REFRESH_TOKEN -->
+<path d="M65,15 L8,15 L8,248 L100,248 L100,318" fill="none" marker-end="url(#arrow)" style="stroke:rgba(222, 220, 209, 0.55);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;fill:none"/>
+<!-- SessionManager -> USERS -->
+<path d="M65,19 L20,19 L20,234 L270,234 L270,318" fill="none" marker-end="url(#arrow)" style="stroke:rgba(222, 220, 209, 0.55);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;fill:none"/>
+<!-- StateStore -> PREVIOUS_DATA -->
+<path d="M263,226.33 L263,230 L440,230 L440,318" fill="none" marker-end="url(#arrow)" style="stroke:rgba(222, 220, 209, 0.55);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;fill:none"/>
+<!-- DataLoader -> CONTENT -->
+<path d="M608,37 L670,37 L670,250 L610,250 L610,318" fill="none" marker-end="url(#arrow)" style="stroke:rgba(222, 220, 209, 0.55);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;fill:none"/>
+
+<!-- db/ module container -->
+<rect x="10" y="295" width="690" height="100" rx="8" fill="none" stroke-dasharray="4 3" style="stroke:rgba(222, 220, 209, 0.4);stroke-width:1px;fill:none"/>
+<text x="22" y="312" style="fill:rgb(250, 249, 245);stroke:none;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:start;dominant-baseline:auto">db/</text>
+
+<!-- REFRESH_TOKEN table -->
+<rect x="25" y="320" width="150" height="60" rx="6" style="fill:rgba(255,255,255,0.03);stroke:rgba(222, 220, 209, 0.5);stroke-width:1px"/>
+<line x1="25" y1="344" x2="175" y2="344" style="stroke:rgba(222, 220, 209, 0.35);stroke-width:1px"/>
+<text x="39" y="336" style="fill:rgb(250, 249, 245);stroke:none;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:13px;font-weight:500;text-anchor:start;dominant-baseline:auto">REFRESH_TOKEN</text>
+<line x1="39" y1="354" x2="161" y2="354" style="stroke:rgba(222, 220, 209, 0.25);stroke-width:1px"/>
+<line x1="39" y1="366" x2="135" y2="366" style="stroke:rgba(222, 220, 209, 0.25);stroke-width:1px"/>
+
+<!-- USERS table -->
+<rect x="195" y="320" width="150" height="60" rx="6" style="fill:rgba(255,255,255,0.03);stroke:rgba(222, 220, 209, 0.5);stroke-width:1px"/>
+<line x1="195" y1="344" x2="345" y2="344" style="stroke:rgba(222, 220, 209, 0.35);stroke-width:1px"/>
+<text x="209" y="336" style="fill:rgb(250, 249, 245);stroke:none;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:13px;font-weight:500;text-anchor:start;dominant-baseline:auto">USERS</text>
+<line x1="209" y1="354" x2="331" y2="354" style="stroke:rgba(222, 220, 209, 0.25);stroke-width:1px"/>
+<line x1="209" y1="366" x2="305" y2="366" style="stroke:rgba(222, 220, 209, 0.25);stroke-width:1px"/>
+
+<!-- PREVIOUS_DATA table -->
+<rect x="365" y="320" width="150" height="60" rx="6" style="fill:rgba(255,255,255,0.03);stroke:rgba(222, 220, 209, 0.5);stroke-width:1px"/>
+<line x1="365" y1="344" x2="515" y2="344" style="stroke:rgba(222, 220, 209, 0.35);stroke-width:1px"/>
+<text x="379" y="336" style="fill:rgb(250, 249, 245);stroke:none;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:13px;font-weight:500;text-anchor:start;dominant-baseline:auto">PREVIOUS_DATA</text>
+<line x1="379" y1="354" x2="501" y2="354" style="stroke:rgba(222, 220, 209, 0.25);stroke-width:1px"/>
+<line x1="379" y1="366" x2="475" y2="366" style="stroke:rgba(222, 220, 209, 0.25);stroke-width:1px"/>
+
+<!-- CONTENT table -->
+<rect x="535" y="320" width="150" height="60" rx="6" style="fill:rgba(255,255,255,0.03);stroke:rgba(222, 220, 209, 0.5);stroke-width:1px"/>
+<line x1="535" y1="344" x2="685" y2="344" style="stroke:rgba(222, 220, 209, 0.35);stroke-width:1px"/>
+<text x="549" y="336" style="fill:rgb(250, 249, 245);stroke:none;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:13px;font-weight:500;text-anchor:start;dominant-baseline:auto">CONTENT</text>
+<line x1="549" y1="354" x2="671" y2="354" style="stroke:rgba(222, 220, 209, 0.25);stroke-width:1px"/>
+<line x1="549" y1="366" x2="645" y2="366" style="stroke:rgba(222, 220, 209, 0.25);stroke-width:1px"/>
+
+<text x="10" y="418" style="fill:rgb(194, 192, 182);stroke:none;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:start;dominant-baseline:auto">db/ — engine and ORM. SessionManager owns REFRESH_TOKEN and USERS; DataLoader owns CONTENT; StateStore owns PREVIOUS_DATA.</text>
 </svg>

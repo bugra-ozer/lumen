@@ -40,7 +40,7 @@ def test_pick_top(config):
     assert len(result) == cons.N_POP
 
 def test_picks(config):
-    """Tests if previous_ids are excluded in picks"""
+    """Tests if previous_ids are excluded in picks and picks are subset of the main pool"""
     state_store=mock.Mock()
     unit, local_user_id = config
     state_store.data=pd.DataFrame(columns=cons_dev.TEST_CONTENT_BAYES_COLUMNS, data=[cons_dev.DUMMY_RECORD_CONTENT_BAYES_SCORE_HIGHEST])

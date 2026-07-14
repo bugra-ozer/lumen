@@ -468,7 +468,7 @@ class AppService():
             return True
         return False
 
-    def _orchestrate_run(self, inner_state_store:StateStore, filter_tools:dict, user_id):
+    def _orchestrate_run(self, inner_state_store:StateStore, filter_tools:dict):
         """Orchestrate end to end until self.picks is populated."""
         previous_ids = set(inner_state_store.data[cons.IMDB_ID_COLUMN])
         candidates = self.decide_candidates(filter_tools)
