@@ -12,3 +12,4 @@ flask-sqlalchemy
 numpy
 psycopg2-binary
 sqlalchemy
+gunicorn
