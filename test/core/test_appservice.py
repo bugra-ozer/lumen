@@ -45,7 +45,7 @@ def test_picks(config):
     unit, local_user_id = config
     state_store.data=pd.DataFrame(columns=cons_dev.TEST_CONTENT_BAYES_COLUMNS, data=[cons_dev.DUMMY_RECORD_CONTENT_BAYES_SCORE_HIGHEST])
     unit.data=cons_dev.DUMMY_DATAFRAME_CONTENT_BAYES #sorted and stable results
-    picks, picks_full=unit._orchestrate_run(state_store, {}, local_user_id)
+    picks, picks_full=unit._orchestrate_run(state_store, {})
     assert cons_dev.DUMMY_RECORD_CONTENT_BAYES_SCORE_HIGHEST[0] not in picks[cons.IMDB_ID_COLUMN]
     assert set(picks[cons.IMDB_ID_COLUMN].values).issubset(set(unit.data[cons.IMDB_ID_COLUMN].values))
     
