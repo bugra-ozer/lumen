@@ -10,6 +10,7 @@ from log import log_handler
 from constant import constants as cons
 from db.database import db, engine_standalone
 from db.models import *
+import memory_profiler as mp
 
 log_handler.LogHandler()
 logger=logging.getLogger(__name__)
@@ -426,7 +427,7 @@ class AppService():
         :return: dict of picked movies
         """
         inner_state_store = self._init_state_store(user_id)
-        picks, picks_full=self._orchestrate_run(inner_state_store, filter_tools, user_id)
+        picks, picks_full=self._orchestrate_run(inner_state_store, filter_tools)
         self._seed_state_store(inner_state_store, user_id, picks_full)
         print(picks.to_string())
         return picks.to_dict(orient='records')
