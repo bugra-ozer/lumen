@@ -10,7 +10,7 @@ from log import log_handler
 from constant import constants as cons
 from db.database import db, engine_standalone
 from db.models import *
-import memory_profiler as mp
+from memory_profiler import profile
 
 log_handler.LogHandler()
 logger=logging.getLogger(__name__)
@@ -189,7 +189,11 @@ class DataPipeline():
 
     def insert_and_update_exp(self, data):
         """Insert to SQL engine and update exp date."""
-        self.data_loader.save_to_sql(data, cons.TABLE_NAME_CONTENT, self.engine, cons.STR_SQL)
+        upsert=self._is_data_stale()
+        if upsert:
+            self.data_loader.upsert_to_sql(data, cons.TABLE_NAME_CONTENT, self.engine, cons.IMDB_ID_COLUMN, cons.CONTENT_COLUMNS_LIST)
+        else:
+            self.data_loader.save_to_sql(data, cons.TABLE_NAME_CONTENT, self.engine)
         self._update_db_exp()
 
 class DataLoader():
@@ -274,14 +278,38 @@ class DataLoader():
             raise ValueError(f"Failed to read file: {path}")
         return file
 
-    def save_to_sql(self, file:pd.DataFrame, table_name, engine, file_type:str=cons.STR_SQL):
-        """Save file to given path."""
-        if file_type.strip().lower() == cons.STR_SQL:
-            try:
-                file.to_sql(table_name, engine, if_exists='append', index=False)
-            except Exception as e:
-                logger.exception(cons.ERROR_CONNECT_DB)
-                raise IOError(f"{cons.ERROR_SAVE}: {e}") from e
+    def save_to_sql(self, data_frame:pd.DataFrame, table_name, engine):
+        """Save DataFrame to given engine.
+
+        Args:
+            data_frame: DataFrame to save
+            table_name: table name to insert into
+            engine: db engine to be utilized"""
+        try:
+            data_frame.to_sql(table_name, engine, if_exists='append', index=False)
+        except Exception as e:
+            logger.exception(cons.ERROR_CONNECT_DB)
+            raise IOError(f"{cons.ERROR_SAVE}: {e}") from e
+        return self
+
+    def upsert_to_sql(self, data_frame:pd.DataFrame, table_name, engine, conflict_column:str, columns:list):
+        """Save DataFrame to given engine.
+
+        Args:
+            data_frame: DataFrame to save
+            table_name: table name to insert into
+            engine: db engine to be utilized
+            conflict_column: column to reference upsert to like primary key
+            columns: list of columns to update"""
+        try:
+            data_frame.to_sql(cons.TABLE_NAME_UPSERT_TEMP, con=engine, index=False, if_exists='replace')
+            with engine.begin() as conn:
+                conn.execute(sqlalchemy.text(f'INSERT INTO "{table_name}" ({", ".join(columns)}) SELECT {", ".join(columns)} FROM "{cons.TABLE_NAME_UPSERT_TEMP}" ON CONFLICT ({conflict_column}) DO UPDATE SET {", ".join([f"{col} = EXCLUDED.{col}" for col in columns if col != conflict_column])}'))
+                conn.execute(sqlalchemy.text(f'DROP TABLE "{cons.TABLE_NAME_UPSERT_TEMP}"'))
+                conn.commit()
+        except Exception as e:
+            logger.exception(cons.ERROR_CONNECT_DB)
+            raise IOError(f"{cons.ERROR_SAVE}: {e}") from e
         return self
 
     def delete_from(self, path):
@@ -493,7 +521,7 @@ class AppService():
 class AppManager():
     """Main orchestrator that assembles pre-requirements for service."""
     
-    def __init__(self, engine):
+    def __init__(self, engine:sqlalchemy.engine.Engine):
         self.engine=engine
         try:
             self.app_service=AppService(self.engine)

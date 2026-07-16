@@ -36,7 +36,7 @@ def test_to_sql(mock_to_sql):
     unit = DataLoader()
     mock_to_sql.return_value = None
     table_name=cons.TABLE_NAME_CONTENT #raw string
-    write=unit.save_to_sql(pd.DataFrame(), table_name, engine_standalone, cons.STR_SQL)
+    write=unit.save_to_sql(pd.DataFrame(), table_name, engine_standalone)
     mock_to_sql.assert_called_once_with(mock.ANY, engine_standalone, if_exists='append', index=False)
     assert isinstance(write,DataLoader)
 
