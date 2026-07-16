@@ -39,7 +39,7 @@ class DataContainer():
         """Internal limitation the data with given columns.
         Call data to be mutated with given columns.
 
-        *args: Names of the columns to limit"""
+        *args: Names of the columns to limit."""
         columns_to_limit=[*args]
         if len(columns_to_limit)>0:self.condition=columns_to_limit
         try:self._apply_column_selection()
@@ -47,7 +47,7 @@ class DataContainer():
         return self
 
     def _apply_column_selection(self):
-        """Based on condition, mutate the data to display"""
+        """Based on condition, mutate the data to display."""
         if self.data is None:
             raise ValueError(cons.ERROR_APPLY_CON)
         if self and self.condition:
@@ -125,7 +125,7 @@ class DataPipeline():
 
     @staticmethod
     def _create_base_data_exp():
-        """Case handling when exp file is corrupted, deleted or missing; write expiry date for consistency."""
+        """Case handling when exp file is corrupted, deleted or missing; write expiry date."""
         base_data_exp = dict()
         update_exp = datetime.now(timezone.utc).isoformat()
         base_data_exp[cons.DB_EXP_JSON] = update_exp
@@ -208,8 +208,8 @@ class DataLoader():
         """Merge pandas Dataframe objects.
 
         Args:
-            *args: pandas Dataframe objects
-            on: specific column to merge on"""
+            *args: pandas Dataframe objects.
+            on: specific column to merge on."""
         if on is None:
             raise ValueError('on is required')
         result = args[0]
@@ -220,7 +220,7 @@ class DataLoader():
 
     @staticmethod
     def rename_columns(data, columns:dict):
-        """Make columns in imdb .tsv files more readable and intuitive"""
+        """Make columns in imdb .tsv files more readable and intuitive."""
         try:
             return data.rename(columns=columns)
         except KeyError as e:
@@ -250,13 +250,13 @@ class DataLoader():
 
     @staticmethod
     def read_from(name:str, file_type:str, engine, usecols=None):
-        """Read TSV file from given path
+        """Read TSV file from given path.
 
         Args:
-            name: for TSV/Parquet; file path, for SQL; table name
-            file_type: parquet, tsv or SQL
-            engine: required for SQL reads
-            usecols: columns to retain, configured in .json"""
+            name: for TSV/Parquet; file path, for SQL; table name.
+            file_type: parquet, tsv or SQL.
+            engine: required for SQL reads.
+            usecols: columns to retain, configured in .json."""
         path=name.strip()
         if file_type != cons.STR_SQL: path=pl.Path(name)
         if file_type.strip().lower() == cons.STR_TSV:
@@ -282,9 +282,9 @@ class DataLoader():
         """Save DataFrame to given engine.
 
         Args:
-            data_frame: DataFrame to save
-            table_name: table name to insert into
-            engine: db engine to be utilized"""
+            data_frame: DataFrame to save, must be replaceable with given table_name in db by columns and record dtypes.
+            table_name: table name to insert into.
+            engine: db engine to be utilized."""
         try:
             data_frame.to_sql(table_name, engine, if_exists='append', index=False)
         except Exception as e:
@@ -293,14 +293,16 @@ class DataLoader():
         return self
 
     def upsert_to_sql(self, data_frame:pd.DataFrame, table_name, engine, conflict_column:str, columns:list):
-        """Save DataFrame to given engine.
+        """Upserts given DataFrame to given engine and retains schema.
+
+        Arguments conflict_column and columns must match the DataFrame object attributes.
 
         Args:
-            data_frame: DataFrame to save
-            table_name: table name to insert into
-            engine: db engine to be utilized
-            conflict_column: column to reference upsert to like primary key
-            columns: list of columns to update"""
+            data_frame: DataFrame to save, must be replaceable with given table_name in db by columns and record dtypes.
+            table_name: table name to insert into.
+            engine: db engine to be utilized.
+            conflict_column: column to reference upsert to like primary key.
+            columns: list of columns to update, it must be subset of DataFrame columns."""
         try:
             data_frame.to_sql(cons.TABLE_NAME_UPSERT_TEMP, con=engine, index=False, if_exists='replace')
             with engine.begin() as conn:
@@ -313,7 +315,7 @@ class DataLoader():
         return self
 
     def delete_from(self, path):
-        """Delete file with given absolute path"""
+        """Delete file with given absolute path."""
         if path.exists():
             pl.Path(path).unlink()
         return self
@@ -388,7 +390,7 @@ class DataFilter():
         return new_value
 
     def _build_filter(self, candidates, column_name:str, operator:str, value):
-        """Build pandas condition based on column, operator, and value"""
+        """Build pandas condition based on column, operator, and value."""
         if pd.api.types.is_numeric_dtype(candidates[column_name]):
             try:
                 condition=self._apply_numeric_filter(candidates, column_name, operator, value)
@@ -401,7 +403,7 @@ class DataFilter():
 
     @staticmethod
     def _apply_numeric_filter(candidates, column_name:str, operator:str, value:str):
-        """Build quantitative filter"""
+        """Build quantitative filter."""
         condition = candidates[column_name]
         if operator == ">":
             return condition > value
@@ -418,7 +420,7 @@ class DataFilter():
 
     @staticmethod
     def _apply_string_filter(candidates, column_name:str, value):
-        """Helper function that checks data for broader string matches, not exact for qualitative filter"""
+        """Helper function that checks data for broader string matches, not exact for qualitative filter."""
         boolean_mask=[candidates[column_name].str.lower().str.contains(genre) for genre in value]
         condition=functools.reduce(lambda x,y: x&y, boolean_mask)
         return condition
@@ -450,9 +452,9 @@ class AppService():
     def run(self, filter_tools:dict[str, dict] | None, user_id:int):
         """
         Args:
-        filter_tools: nested list of filters or empty list(s)
-        user_id: per session user_id, flat integer
-        :return: dict of picked movies
+        filter_tools: nested list of filters or empty list(s).
+        user_id: per session user_id, flat integer.
+        :return: dict of picked movies.
         """
         inner_state_store = self._init_state_store(user_id)
         picks, picks_full=self._orchestrate_run(inner_state_store, filter_tools)
@@ -463,11 +465,11 @@ class AppService():
     def _pick_top(self, pool:pd.DataFrame, m:int, n:int, previous_ids):
         """
         Args:
-            pool: Main subpool of movies
-            m: subpool from pool
-            n: amount of movies picked at random from subpool m
+            pool: Main subpool of movies.
+            m: subpool from pool.
+            n: amount of movies picked at random from subpool m.
         Returns:
-             subset DataFrame of given DataFrame
+             subset DataFrame of given DataFrame.
         """
         pool = self._drop_previous(previous_ids, pool, cons.IMDB_ID_COLUMN)
         if len(pool) < 1: return pool.iloc[0:0]
