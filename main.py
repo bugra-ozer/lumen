@@ -1,5 +1,7 @@
 import pandas as pd, pathlib as pl, json, logging, functools, sqlalchemy
 from sqlalchemy.exc import OperationalError, DatabaseError
+
+from downloader.downloader import DatasetDownloader
 from validator import validator
 from datetime import datetime, timezone, timedelta
 from persister.state_store import StateStore
@@ -183,7 +185,7 @@ class DataPipeline():
     def _load_tsv_to_memory(self, data_frames, tsv):
         """Instruct data_loader to read TSV and append to data_frames variable."""
         logger.info(cons.INFO_MERGE_TSV)
-        data_frames.append(self.data_loader.read_from(str(tsv[cons.PATH_COLUMN]), cons.STR_TSV, self.engine, usecols=tsv['usecols']))
+        data_frames.append(self.data_loader.read_from(str(tsv[cons.PATH_COLUMN]), cons.STR_TSV, self.engine, usecols=tsv[cons.USECOLS_COLUMN]))
         self.data_loader.delete_from(tsv[cons.PATH_COLUMN])
         return data_frames
 
