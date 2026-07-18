@@ -34,7 +34,7 @@ The core engine is served through a **Flask REST API** with JWT-based authentica
 | Language        | Python 3.10+                                                 |
 | API             | Flask 3.1+                                                   |
 | Database        | PostgreSQL, psycopg2-binary, Flask-SQLAlchemy, Flask-Migrate |
-| Data processing | Pandas, PyArrow, NumPy                                       |
+| Data processing | Pandas, NumPy                                       |
 | Dataset         | IMDB public TSV datasets                                     |
 | Authentication  | PyJWT, bcrypt                                                |
 | Config          | python-dotenv                                                |
