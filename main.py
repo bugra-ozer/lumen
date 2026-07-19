@@ -1,4 +1,5 @@
 import pandas as pd, pathlib as pl, json, logging, functools, sqlalchemy
+from pandas.io.parsers import TextFileReader
 from sqlalchemy.exc import OperationalError, DatabaseError
 
 from downloader.downloader import DatasetDownloader
@@ -65,7 +66,6 @@ class DataContainer():
 
     def _purge_data(self):
         """Remove excessive items with low votes, empty primary titles and genres."""
-        self.data = self._filter_rows(cons.TITLE_TYPE_COLUMN, 'movie')  # remove anything else than movie in records
         self.data = self.data[(self.data[cons.PRIMARY_TITLE_COLUMN].notna()) & (self.data[cons.GENRE_COLUMN].notna()) & (self.data[cons.NUMBER_OF_VOTES_COLUMN] > 25000)]  # Purge unsuitable titles
         self.data.dropna(subset=[cons.PUBLISHED_COLUMN], inplace=True)
         return self
@@ -165,7 +165,7 @@ class DataPipeline():
         else:
             needs_insert = True
             for tsv in self.tsv_configs:
-                self._load_tsv_to_memory(data_frames, tsv)
+                self._load_tsv_to_memory(data_frames, tsv, tsv[cons.DATASET_COLUMN_MASK_KEY], tsv[cons.DATASET_MASK_KEY])
             data=self.data_loader.merge_dataframes(*data_frames, on=cons.IMDB_ID_COLUMN_LEGACY)
             data=self.data_loader.rename_columns(data, cons.COLUMN_RENAME_DICT)
         return data, needs_insert
@@ -182,10 +182,10 @@ class DataPipeline():
             raise Exception(cons.ERROR_CONNECT_DB)
         return data, needs_insert
 
-    def _load_tsv_to_memory(self, data_frames, tsv):
+    def _load_tsv_to_memory(self, data_frames, tsv, column_mask=None, mask=None):
         """Instruct data_loader to read TSV and append to data_frames variable."""
         logger.info(cons.INFO_MERGE_TSV)
-        data_frames.append(self.data_loader.read_from(str(tsv[cons.PATH_COLUMN]), cons.STR_TSV, self.engine, usecols=tsv[cons.USECOLS_COLUMN]))
+        data_frames.append(self.data_loader.read_from(str(tsv[cons.PATH_COLUMN]), cons.STR_TSV, self.engine, usecols=tsv[cons.USECOLS_COLUMN], chunksize=cons.CHUNK_SIZE_TSV, column_mask=column_mask, mask=mask))
         self.data_loader.delete_from(tsv[cons.PATH_COLUMN])
         return data_frames
 
@@ -250,22 +250,21 @@ class DataLoader():
         except (DatabaseError, pd.errors.DatabaseError):count=0
         return count
 
-    @staticmethod
-    def read_from(name:str, file_type:str, engine, usecols=None):
+    def read_from(self, name: str, file_type: str, engine, usecols=None, chunksize: int = None, column_mask=None, mask=None):
         """Read TSV file from given path.
 
         Args:
             name: for TSV/Parquet; file path, for SQL; table name.
             file_type: parquet, tsv or SQL.
             engine: required for SQL reads.
-            usecols: columns to retain, configured in .json."""
-        path=name.strip()
-        if file_type != cons.STR_SQL: path=pl.Path(name)
+            usecols: columns to retain, configured in .json.
+            chunksize: required for tsv streaming chunks.
+            column_mask: for tsv in-place data size reduction.
+            mask: for tsv in-place mask to apply."""
+        path = name.strip()
+        if file_type != cons.STR_SQL: path = pl.Path(name)
         if file_type.strip().lower() == cons.STR_TSV:
-            try:
-                file = pd.read_csv(path, delimiter='\t', encoding='latin-1', on_bad_lines='skip', na_values='\\N', usecols=usecols)  # Read file
-            except Exception as e:
-                raise IOError(f"Failed to read {cons.STR_TSV}: {e}") from e
+            file = self._read_from_iterator(path, usecols, chunksize, column_mask, mask)
         elif file_type.strip().lower() == cons.STR_PARQUET:
             try:
                 file = pd.read_parquet(path)  # Read file
@@ -278,6 +277,23 @@ class DataLoader():
                 raise IOError(f"Failed to read {cons.STR_SQL}: {e}") from e
         else:
             raise ValueError(f"Failed to read file: {path}")
+        return file
+
+    @staticmethod
+    def _read_from_iterator(path, usecols=None, chunksize: int = None, column_mask=None, mask=None):
+        try:
+            data_frames = []
+            iterator = pd.read_csv(path, delimiter='\t', encoding='latin-1', on_bad_lines='skip', na_values='\\N', usecols=usecols, chunksize=chunksize)  # Read file
+            for chunk in iterator:
+                if column_mask is not None and mask is not None:
+                    data_frames.append(chunk[chunk[column_mask] == mask])
+                elif column_mask is None and mask is None:
+                    data_frames.append(chunk)
+                else:
+                    raise ValueError(cons.ERROR_COLUMN_MASK)
+            file = pd.concat(data_frames, ignore_index=True)
+        except Exception as e:
+            raise IOError(f"Failed to read {cons.STR_TSV}: {e}") from e
         return file
 
     def save_to_sql(self, data_frame:pd.DataFrame, table_name, engine):

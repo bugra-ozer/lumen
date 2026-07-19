@@ -1,5 +1,5 @@
 {
-  "imdb.title.ratings_data":
+  "imdb.title.ratings.tsv":
   {
       "name": "ratings",
       "url": "https://datasets.imdbws.com/title.ratings.tsv.gz",
@@ -7,9 +7,11 @@
       "dec_filename": "imdb.title.ratings.tsv",
       "path": "data/imdb.title.ratings.tsv",
       "folder": "data/",
-      "usecols": ["tconst", "averageRating", "numVotes"]
+      "usecols": ["tconst", "averageRating", "numVotes"],
+      "column_mask": null,
+      "mask": null
   },
-  "imdb.title.basics_data":
+  "imdb.title.basics.tsv":
   {
       "name": "basics",
       "url": "https://datasets.imdbws.com/title.basics.tsv.gz",
@@ -17,6 +19,8 @@
       "dec_filename": "imdb.title.basics.tsv",
       "path": "data/imdb.title.basics.tsv",
       "folder": "data/",
-      "usecols": ["tconst", "titleType","primaryTitle", "startYear", "genres"]
+      "usecols": ["tconst", "titleType","primaryTitle", "startYear", "genres"],
+      "column_mask": "titleType",
+      "mask": "movie"
   }
 }

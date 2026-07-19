@@ -26,7 +26,7 @@ def test_load_tsv(config):
     result, needs_assert=unit.main()
     assert needs_assert==True
     pd.testing.assert_frame_equal(result,df)
-    unit.data_loader.read_from.assert_called_once_with(mock.ANY, cons.STR_TSV, unit.engine, usecols=mock.ANY)
+    unit.data_loader.read_from.assert_called_once_with(mock.ANY, cons.STR_TSV, unit.engine, usecols=mock.ANY, chunksize=cons.CHUNK_SIZE_TSV, column_mask=mock.ANY, mask=mock.ANY)
 
 def test_load_sql(config):
     """Tests SQL path""" # noqa

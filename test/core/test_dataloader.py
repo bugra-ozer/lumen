@@ -21,13 +21,15 @@ def test_read_sql(mock_sql):
     assert isinstance(read,pd.DataFrame)
 
 @patch('main.pd.read_csv')
-def test_read_csv(mock_tsv, usecols=None):
+@patch('main.pd.concat')
+def test_read_csv(mock_concat,mock_tsv, usecols=None):
     """Test csv/tsv read is called once and consistent."""
     unit = DataLoader()
     mock_tsv.return_value = pd.DataFrame()
     path=pl.Path(cons_dev.MOCK_RANDOM_PATH)
-    read=unit.read_from(cons_dev.MOCK_RANDOM_PATH, cons.STR_TSV, engine_standalone)
-    mock_tsv.assert_called_once_with(path, delimiter='\t', encoding='latin-1', on_bad_lines='skip', na_values='\\N', usecols=usecols)
+    mock_concat.return_value = pd.DataFrame()
+    read=unit.read_from(cons_dev.MOCK_RANDOM_PATH, cons.STR_TSV, engine_standalone, None, cons.CHUNK_SIZE_TSV, None, None)
+    mock_tsv.assert_called_once_with(path, delimiter='\t', encoding='latin-1', on_bad_lines='skip', na_values='\\N', usecols=usecols, chunksize=mock.ANY)
     assert isinstance(read,pd.DataFrame)
 
 @patch('main.pd.DataFrame.to_sql')
@@ -38,7 +40,7 @@ def test_to_sql(mock_to_sql):
     table_name=cons.TABLE_NAME_CONTENT #raw string
     write=unit.save_to_sql(pd.DataFrame(), table_name, engine_standalone)
     mock_to_sql.assert_called_once_with(mock.ANY, engine_standalone, if_exists='append', index=False)
-    assert isinstance(write,DataLoader)
+    assert isinstance(write, DataLoader)
 
 def test_merge():
     """Test pandas merge method consistency."""

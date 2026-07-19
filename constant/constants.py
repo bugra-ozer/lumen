@@ -24,6 +24,7 @@ DECAY_FACTOR_COLUMN = 'decay_factor'
 ADJUSTED_SCORE_COLUMN = 'adjusted_score'
 DATE_COLUMN = 'date'
 USECOLS_COLUMN = 'usecols'
+CHUNK_SIZE_TSV=150000
 GENRE_LIST=["action", "adventure", "animation", "biography", "comedy", "crime", "documentary", "drama", "family", "fantasy", "film-noir", "game-show", "history", "horror", "music", "musical", "mystery", "news", "reality-tv", "romance", "sci-fi", "short", "sport", "talk-show", "thriller", "war", "western"]
 CONTENT_COLUMNS_TO_KEEP= 'imdb_id', 'average_rating', 'number_of_votes', 'primary_title', 'published', 'genre'
 CONTENT_COLUMNS_TO_KEEP_LEGACY= 'tconst', 'averageRating', 'numVotes', 'primaryTitle', 'startYear', 'genres'
@@ -41,6 +42,7 @@ ERROR_WRONG_FILTER_OR_DF='Failed to load filter_tools or DataFrame'
 ERROR_SAVE='Failed to save file'
 ERROR_COLUMN_NOT_FOUND='Column not found to rename:'
 ERROR_PARSE_FILTER_TOOLS='Unable to parse filter tools'
+ERROR_COLUMN_MASK='Column mask and mask are required to be both None or both valid.'
 
 #CLI
 INFO_PRESS_ANY='Press any key to continue...'
@@ -61,6 +63,9 @@ STR_TSV='tsv'
 STR_SQL='sql'
 STR_JSON='json'
 DATASET_JSON='dataset.json'
+DATASET_FILENAME_KEY = 'filename'
+DATASET_COLUMN_MASK_KEY = 'column_mask'
+DATASET_MASK_KEY = 'mask'
 
 #API cons
 PUBLIC_PATHS='/login', '/refresh', '/health'
@@ -129,6 +134,7 @@ ERROR_DOCKER_NOT_LAUNCHED="PostgreSQL is configured but unreachable. Start Docke
 
 #os
 FILE_NAME_ENV='.env'
+FILE_NAME_NON_TITLE_TYPE= ['ratings']
 
 #state store
 DECAY_FACTOR_THRESHOLD=[10, 15, 20, 30, 45]
