@@ -140,4 +140,4 @@ def db_seed(main_app_service):
 db_setup(app, app_service)
 
 if __name__ == "__main__":
-    app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)
+    """app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)"""
