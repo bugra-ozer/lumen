@@ -250,7 +250,7 @@ class DataLoader():
         except (DatabaseError, pd.errors.DatabaseError):count=0
         return count
 
-    def read_from(self, name: str, file_type: str, engine, usecols=None, chunksize: int = None, column_mask=None, mask=None):
+    def read_from(self, name: str, file_type: str, engine, usecols=None, chunksize: int | None = None, column_mask=None, mask=None):
         """Read TSV file from given path.
 
         Args:
@@ -280,7 +280,7 @@ class DataLoader():
         return file
 
     @staticmethod
-    def _read_from_iterator(path, usecols=None, chunksize: int = None, column_mask=None, mask=None):
+    def _read_from_iterator(path, usecols=None, chunksize: int | None = None, column_mask=None, mask=None):
         try:
             data_frames = []
             iterator = pd.read_csv(path, delimiter='\t', encoding='latin-1', on_bad_lines='skip', na_values='\\N', usecols=usecols, chunksize=chunksize)  # Read file
@@ -517,7 +517,7 @@ class AppService():
             return True
         return False
 
-    def _orchestrate_run(self, inner_state_store:StateStore, filter_tools:dict):
+    def _orchestrate_run(self, inner_state_store:StateStore, filter_tools:dict[str, dict] | None):
         """Orchestrate end to end until self.picks is populated."""
         previous_ids = set(inner_state_store.data[cons.IMDB_ID_COLUMN])
         candidates = self.decide_candidates(filter_tools)
