@@ -1,7 +1,6 @@
 import pandas as pd, pathlib as pl, json, logging, functools, sqlalchemy
 from pandas.io.parsers import TextFileReader
 from sqlalchemy.exc import OperationalError, DatabaseError
-
 from downloader.downloader import DatasetDownloader
 from validator import validator
 from datetime import datetime, timezone, timedelta
@@ -13,7 +12,6 @@ from log import log_handler
 from constant import constants as cons
 from db.database import db, engine_standalone
 from db.models import *
-from memory_profiler import profile
 
 log_handler.LogHandler()
 logger=logging.getLogger(__name__)
