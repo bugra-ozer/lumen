@@ -1,4 +1,4 @@
-import secrets, bcrypt, jwt, os, logging, sqlalchemy
+import secrets, bcrypt, jwt, os, logging, sqlalchemy, requests
 from os import access
 from flask import request, Flask, jsonify, g
 from main import AppService
@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 os.chdir(Path(__file__).parent.parent)
 load_dotenv()
 secret_key=os.environ.get("SECRET_KEY")
+tmdb_token = os.environ.get('TMDB_ACCESS_TOKEN')
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app_service=AppService(engine_standalone)
@@ -90,8 +91,24 @@ def service():
     if not validator.is_valid_filter_tools(filter_tools):
         return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.FILTER_TOOLS_INVALID})
     response=app_service.run(filter_tools, g.user_id)
+    response=attach_posters(response)
     response=jsonify(response)
     return response
+
+def attach_posters(picks):
+    """Attach posters to movie picks."""
+    tmdb_base_url=cons.TMDB_BASE_URL
+    tmdb_poster_size=cons.TMDB_POSTER_SIZE
+    for record in picks:
+        movie=record['imdb_id']
+        response_poster_url = requests.get(f"https://api.themoviedb.org/3/find/{movie}", headers={"Authorization": f"Bearer {tmdb_token}"}, params={'external_source': 'imdb_id'})
+        results=response_poster_url.json().get('movie_results', [])
+        if results and results[0].get('poster_path'):
+            poster=tmdb_base_url+tmdb_poster_size+results[0].get('poster_path')
+        else:
+            poster=cons.BLANK_POSTER_URL
+        record['poster_path']=poster
+    return picks
 
 @app.route('/')
 def index():

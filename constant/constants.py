@@ -102,6 +102,9 @@ ENDPOINT_LOGIN="/login"
 ENDPOINT_RECOMMENDATIONS="/recommendations"
 ENDPOINT_REGISTER="/register"
 ENDPOINT_LOGOUT="/logout"
+TMDB_BASE_URL='https://image.tmdb.org/t/p/'
+TMDB_POSTER_SIZE='w500'
+BLANK_POSTER_URL= "/static/placeholder_poster.webp"
 
 #Bayes cons
 M_POOL=25
