@@ -370,7 +370,7 @@ class DataFilter():
                 if column == cons.GENRE_COLUMN:
                     value=val_type[cons.FILTER_VALUE]
                     yield column, local_operator, value
-                elif column == cons.AVERAGE_RATING_COLUMN:
+                elif column == cons.RATING_KEY:
                     value=val_type[cons.FILTER_VALUE]
                     local_operator=val_type[cons.FILTER_OPERATOR]
                     yield column, local_operator, value
@@ -386,6 +386,8 @@ class DataFilter():
 
     def _apply_one_filter(self, candidates, column_name:str, local_operator:str, value):
         """Apply appropriate value as filter to column_name."""
+        if column_name == cons.RATING_KEY: #convert if called with 'rating'
+            column_name=cons.AVERAGE_RATING_COLUMN
         value=self._convert_value(candidates, column_name, value)
         condition=self._build_filter(candidates, column_name, local_operator, value)
         candidates=candidates[condition]
@@ -394,15 +396,18 @@ class DataFilter():
     @staticmethod
     def _convert_value(candidates, column_name:str, value:str):
         """Convert value if applicable to its column's value type."""
-        new_value=value
         if column_name is None:
             return value
-        if pd.api.types.is_numeric_dtype(candidates[column_name]):
-            try: new_value=int(value)
-            except ValueError: 
-                try: new_value=float(value) 
+        new_value = []
+        for v in value:
+            if pd.api.types.is_numeric_dtype(candidates[column_name]):
+                try: new_value.append(int(v))
                 except ValueError:
-                    raise ValueError
+                    try: new_value.append(float(v))
+                    except ValueError:
+                        raise ValueError
+            else:
+                new_value=value
         return new_value
 
     def _build_filter(self, candidates, column_name:str, operator:str, value):
@@ -422,15 +427,18 @@ class DataFilter():
         """Build quantitative filter."""
         condition = candidates[column_name]
         if operator == ">":
-            return condition > value
+            return condition > value[0]
         elif operator == "<":
-            return condition < value
+            return condition < value[0]
         elif operator == "<=":
-            return condition <= value
+            return condition <= value[0]
         elif operator == ">=":
-            return condition >= value
+            return condition >= value[0]
         elif operator == "==":
-            return condition == value
+            return condition == value[0]
+        elif operator == "between":
+            from_value, to_value = value
+            return (condition >= from_value) & (condition <= to_value)
         else:
             return ValueError
 
@@ -475,7 +483,6 @@ class AppService():
         inner_state_store = self._init_state_store(user_id)
         picks, picks_full=self._orchestrate_run(inner_state_store, filter_tools)
         self._seed_state_store(inner_state_store, user_id, picks_full)
-        print(picks.to_string())
         return picks.to_dict(orient='records')
 
     def _pick_top(self, pool:pd.DataFrame, m:int, n:int, previous_ids):
@@ -553,7 +560,7 @@ class AppManager():
         local_user_id=self.get_local_user_id()
         self.cli.run()
         self.filter_tools:dict[str,dict]=self.cli.all_filter_tools
-        self.app_service.run(self.filter_tools, local_user_id)
+        self.picks=self.app_service.run(self.filter_tools, local_user_id)
 
     def get_local_user_id(self):
         with self.engine.connect() as conn:
@@ -561,4 +568,5 @@ class AppManager():
             return result[0]
 
 if __name__ == '__main__':
-    AppManager(engine_standalone)
+    app=AppManager(engine_standalone)
+    print(app.picks)
