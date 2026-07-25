@@ -29,6 +29,7 @@ hit_endpoints.py
 instance/*
 !instance/.gitkeep
 *.db
+manual_db_queries.py
 
 #tmx
 *tmux-client*

@@ -25,7 +25,7 @@ session_manager = SessionManager(db)
 @app.before_request
 def before_request():
     """Authorization check before hitting endpoints of API."""
-    if request.path not in cons.PUBLIC_PATHS: #JWT check, request not hitting login or refresh endpoints
+    if request.path not in cons.PUBLIC_PATHS and not request.path.startswith('/static/'): #JWT check, request not hitting login or refresh endpoints
         token=request.headers.get(cons.AUTHORIZATION) #Entire authz token with 'Bearer' in it
         if token is None:
             return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.TOKEN_MISSING}), 401
@@ -93,6 +93,10 @@ def service():
     response=jsonify(response)
     return response
 
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
+
 @app.route(cons.ENDPOINT_HEALTH, methods=[cons.METHOD_GET])
 def health():
     """Simple health check endpoint."""
@@ -140,4 +144,4 @@ def db_seed(main_app_service):
 db_setup(app, app_service)
 
 if __name__ == "__main__":
-    """app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)"""
+    app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)

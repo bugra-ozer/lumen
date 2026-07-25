@@ -18,6 +18,8 @@ NUMBER_OF_VOTES_COLUMN_LEGACY = 'numVotes'
 PRIMARY_TITLE_COLUMN = 'primary_title'
 PRIMARY_TITLE_COLUMN_LEGACY = 'primaryTitle'
 AVERAGE_RATING_COLUMN = 'average_rating'
+RATING_KEY='rating'
+GENRE_KEY='genre'
 BAYES_SCORE_COLUMN = 'bay_score'
 PATH_COLUMN='path'
 DECAY_FACTOR_COLUMN = 'decay_factor'
@@ -68,7 +70,7 @@ DATASET_COLUMN_MASK_KEY = 'column_mask'
 DATASET_MASK_KEY = 'mask'
 
 #API cons
-PUBLIC_PATHS='/login', '/refresh', '/health'
+PUBLIC_PATHS='/login', '/refresh', '/register', '/health', '/'
 FILTER_TOOLS_INVALID='Invalid filter_tools'
 FILTER_TOOLS_NOT_SURE='Filter tools not found or invalid'
 ERROR=('ERROR')
