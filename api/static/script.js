@@ -72,6 +72,26 @@ document.getElementById('recommend-btn').addEventListener('click', function() {
     })
     .then(response => response.json())
     .then(data => {
-        console.log(data);
+        const resultsSection = document.getElementById('results-section');
+        resultsSection.innerHTML = '';
+            data.forEach(movie => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+
+                const img = document.createElement('img');
+                img.src = movie.poster_path;
+                img.alt = movie.primary_title;
+
+                const title = document.createElement('p');
+                title.textContent = movie.primary_title;
+
+                const meta = document.createElement('p');
+                meta.textContent = `${movie.published} · ⭐ ${movie.average_rating} · ${movie.genre}`;
+
+                card.appendChild(img);
+                card.appendChild(title);
+                card.appendChild(meta);
+                resultsSection.appendChild(card);
+        });
     });
 });
