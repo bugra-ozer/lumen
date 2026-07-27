@@ -20,13 +20,19 @@ document.getElementById('login-btn').addEventListener('click', function() {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username: username, pw: pw})
-    })
-    .then(response => response.json())
-    .then(data => {
-        token=data.access_token;
-        document.getElementById('auth-section').classList.add('hidden');
-        document.getElementById('filter-section').classList.remove('hidden');
-    });
+            })
+        .then(response => response.json().then(data => ({status: response.status, body: data})))
+        .then(result => {
+            if (result.status === 200) {
+                token = result.body.access_token;
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('filter-section').classList.remove('hidden');
+            } else {
+                const errorEl = document.getElementById('auth-error');
+                errorEl.textContent = 'Invalid username or password.';
+                errorEl.classList.remove('hidden');
+            }
+        });
 });
 
 document.getElementById('pw').addEventListener('keydown', function(event) {
@@ -44,9 +50,17 @@ document.getElementById('register-btn').addEventListener('click', function(){
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username: username, pw: pw})
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
+    .then(response => response.json().then(data => ({status: response.status, body: data})))
+    .then(result => {
+        const errorEl = document.getElementById('auth-error');
+        if (result.status === 409) {
+            errorEl.textContent = 'That username is already taken.';
+            errorEl.classList.remove('hidden');
+        } else {
+            errorEl.classList.add('hidden');
+            errorEl.textContent = '';
+            alert('Registered! You can log in now.');
+        }
     });
 })
 
