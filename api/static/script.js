@@ -29,6 +29,12 @@ document.getElementById('login-btn').addEventListener('click', function() {
     });
 });
 
+document.getElementById('pw').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        document.getElementById('login-btn').click();
+    }
+});
+
 document.getElementById('register-btn').addEventListener('click', function(){
     const username = document.getElementById('username').value;
     const pw = document.getElementById('pw').value;
