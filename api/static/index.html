@@ -2,22 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <title>Lumen</title>
+    <link rel="icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
+    <header>
+        <div class="brand">
+            <img src="/static/logo.svg" alt="Lumen logo" class="logo">
+        </div>
+        <p class="tagline">Movie recommendations, tuned to your taste.</p>
+    </header>
+
     <div id="auth-section">
         <input type="text" id="username" placeholder="Username">
         <input type="password" id="pw" placeholder="Password">
         <button id="login-btn">Login</button>
         <button id="register-btn">Register</button>
     </div>
-    <div id="filter-section">
-        <input type="number" id="rating-from" placeholder="From">
-        <input type="number" id="rating-to" placeholder="To">
+
+    <div id="filter-section" class="hidden">
+        <div class="rating-row">
+            <input type="number" id="rating-from" placeholder="From">
+            <input type="number" id="rating-to" placeholder="To">
+        </div>
         <div id="genre-container"></div>
         <button id="recommend-btn">Show Results</button>
     </div>
-    <div id="results-section"></div>
+
+    <div id="results-section">
+        <p class="empty-state">Your recommendations will appear here.</p>
+    </div>
+
     <script src="/static/script.js"></script>
 </body>
 </html>

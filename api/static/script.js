@@ -4,6 +4,7 @@ const container = document.getElementById('genre-container');
 
 for (const genre of genres) {
     const box = document.createElement('div');
+    box.className = 'genre-pill';
     box.addEventListener('click', function(){
         box.classList.toggle('selected');
     });
@@ -23,6 +24,8 @@ document.getElementById('login-btn').addEventListener('click', function() {
     .then(response => response.json())
     .then(data => {
         token=data.access_token;
+        document.getElementById('auth-section').classList.add('hidden');
+        document.getElementById('filter-section').classList.remove('hidden');
     });
 });
 
