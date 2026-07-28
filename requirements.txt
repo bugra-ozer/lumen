@@ -6,7 +6,6 @@ flask
 PyJWT
 bcrypt
 python-dotenv
-flask-migrate
 flask-sqlalchemy
 numpy
 psycopg2-binary
