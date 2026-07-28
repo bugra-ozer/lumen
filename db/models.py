@@ -1,4 +1,3 @@
-from flask_migrate import migrate
 from db.database import db
 from constant import constants as cons
 from datetime import datetime, timezone, timedelta
