@@ -15,6 +15,13 @@ for (const genre of genres) {
 document.getElementById('login-btn').addEventListener('click', function() {
     const username = document.getElementById('username').value;
     const pw = document.getElementById('pw').value;
+    const errorEl = document.getElementById('auth-error');
+
+    if (!username || !pw) {
+        errorEl.textContent = 'Please enter both fields to login.';
+        errorEl.classList.remove('hidden');
+        return;
+    }
 
     fetch('/login', {
         method: 'POST',
@@ -23,6 +30,7 @@ document.getElementById('login-btn').addEventListener('click', function() {
             })
         .then(response => response.json().then(data => ({status: response.status, body: data})))
         .then(result => {
+
             if (result.status === 200) {
                 token = result.body.access_token;
                 document.getElementById('auth-section').classList.add('hidden');
@@ -44,6 +52,13 @@ document.getElementById('pw').addEventListener('keydown', function(event) {
 document.getElementById('register-btn').addEventListener('click', function(){
     const username = document.getElementById('username').value;
     const pw = document.getElementById('pw').value;
+    const errorEl = document.getElementById('auth-error');
+
+    if (!username || !pw) {
+        errorEl.textContent = 'Please enter both fields to register.';
+        errorEl.classList.remove('hidden');
+        return;
+    }
 
     fetch('/register', {
         method: 'POST',
