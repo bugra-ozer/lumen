@@ -13,8 +13,8 @@ for (const genre of genres) {
 }
 
 document.getElementById('login-btn').addEventListener('click', function() {
-    const username = document.getElementById('username').value;
-    const pw = document.getElementById('pw').value;
+    const username = document.getElementById('username').value.trim();
+    const pw = document.getElementById('pw').value.trim();
     const errorEl = document.getElementById('auth-error');
 
     if (!username || !pw) {
@@ -50,8 +50,8 @@ document.getElementById('pw').addEventListener('keydown', function(event) {
 });
 
 document.getElementById('register-btn').addEventListener('click', function(){
-    const username = document.getElementById('username').value;
-    const pw = document.getElementById('pw').value;
+    const username = document.getElementById('username').value.trim();
+    const pw = document.getElementById('pw').value.trim();
     const errorEl = document.getElementById('auth-error');
 
     if (!username || !pw) {
