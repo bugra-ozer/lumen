@@ -98,5 +98,5 @@
 <line x1="549" y1="354" x2="671" y2="354" style="stroke:rgba(222, 220, 209, 0.25);stroke-width:1px"/>
 <line x1="549" y1="366" x2="645" y2="366" style="stroke:rgba(222, 220, 209, 0.25);stroke-width:1px"/>
 
-<text x="10" y="418" style="fill:rgb(194, 192, 182);stroke:none;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:start;dominant-baseline:auto">db/ — engine and ORM. SessionManager owns REFRESH_TOKEN and USERS; DataLoader owns CONTENT; StateStore owns PREVIOUS_DATA.</text>
+<text x="10" y="418" style="fill:rgb(194, 192, 182);stroke:none;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:start;dominant-baseline:auto">db/ — engine and ORM.</text>
 </svg>
