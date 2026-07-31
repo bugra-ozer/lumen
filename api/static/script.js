@@ -85,20 +85,22 @@ document.getElementById('recommend-btn').addEventListener('click', function() {
     const ratingFrom = parseFloat(document.getElementById('rating-from').value);
     const ratingTo = parseFloat(document.getElementById('rating-to').value);
 
-    const filterTools = {
-        genre: { value: selectedGenres }
-        };
-        
-        const hasFrom = !isNaN(ratingFrom);
-        const hasTo = !isNaN(ratingTo);
+    const filterTools = {};
 
-        if (hasFrom && hasTo) {
-            filterTools.rating = { value: [ratingFrom, ratingTo], operator: 'between' };
-        } else if (hasFrom) {
-            filterTools.rating = { value: [ratingFrom], operator: '>' };
-        } else if (hasTo) {
-            filterTools.rating = { value: [ratingTo], operator: '<' };
-}
+    if (selectedGenres.length > 0) {
+        filterTools.genre = { value: selectedGenres };
+    }
+
+    const hasFrom = !isNaN(ratingFrom);
+    const hasTo = !isNaN(ratingTo);
+
+    if (hasFrom && hasTo) {
+        filterTools.rating = { value: [ratingFrom, ratingTo], operator: 'between' };
+    } else if (hasFrom) {
+        filterTools.rating = { value: [ratingFrom], operator: '>' };
+    } else if (hasTo) {
+        filterTools.rating = { value: [ratingTo], operator: '<' };
+    }
 
     fetch('/recommendations', {
         method: 'POST',
@@ -112,24 +114,30 @@ document.getElementById('recommend-btn').addEventListener('click', function() {
     .then(data => {
         const resultsSection = document.getElementById('results-section');
         resultsSection.innerHTML = '';
-            data.forEach(movie => {
-                const card = document.createElement('div');
-                card.className = 'movie-card';
 
-                const img = document.createElement('img');
-                img.src = movie.poster_path;
-                img.alt = movie.primary_title;
+        if (data.length === 0) {
+            resultsSection.innerHTML = '<p class="empty-state">No movies matched your filters. Try widening your search.</p>';
+            return;
+        }
 
-                const title = document.createElement('p');
-                title.textContent = movie.primary_title;
+        data.forEach(movie => {
+            const card = document.createElement('div');
+            card.className = 'movie-card';
 
-                const meta = document.createElement('p');
-                meta.textContent = `${movie.published} · ⭐ ${movie.average_rating} · ${movie.genre}`;
+            const img = document.createElement('img');
+            img.src = movie.poster_path;
+            img.alt = movie.primary_title;
 
-                card.appendChild(img);
-                card.appendChild(title);
-                card.appendChild(meta);
-                resultsSection.appendChild(card);
+            const title = document.createElement('p');
+            title.textContent = movie.primary_title;
+
+            const meta = document.createElement('p');
+            meta.textContent = `${movie.published} · ⭐ ${movie.average_rating} · ${movie.genre}`;
+
+            card.appendChild(img);
+            card.appendChild(title);
+            card.appendChild(meta);
+            resultsSection.appendChild(card);
         });
     });
 });
