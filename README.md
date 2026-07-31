@@ -49,19 +49,6 @@ Deployed and usable at: [Lumen](https://lumen-mmjq.onrender.com/)
 
 ---
 
-## ETL Pipeline
-
-IMDB distributes its dataset as gzip-compressed TSV files. On first run, Lumen:
-
-1. **Streams** the compressed files from IMDB using `requests` — no full download into memory
-2. **Decompresses** on the fly with `gzip`
-3. **Parses and merges** multiple TSV files into a single DataFrame with `pandas`
-4. **Persists** the result in a SQL database
-
-Progress is tracked with `tqdm`. On subsequent runs, the pipeline skips straight to loading from database — significantly faster startup.
-
----
-
 ## Frontend
 
 A minimal web interface is served directly by Flask (`api/static/`) — no framework, plain HTML/CSS/JS. Register or log in, pick genres and a rating range, and browse recommendations as a poster grid.
