@@ -50,6 +50,8 @@ def login():
     text=request.get_json(force=True)
     username=text.get(cons.PAYLOAD_USERNAME)
     pw=text.get(cons.PAYLOAD_PW)
+    if not isinstance(username, str) or not isinstance(pw, str):
+        return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
     pw=pw.encode(cons.PAYLOAD_UTF8)
     user_object=session_manager.read_username(username)
     if not user_object:
@@ -125,6 +127,11 @@ def register():
     text = request.get_json(force=True)
     pw = text.get(cons.PAYLOAD_PW)
     username = text.get(cons.PAYLOAD_USERNAME)
+    if not isinstance(username, str) or not isinstance(pw, str):
+        return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
+    else:
+        if ' ' in username or ' ' in pw: #username or pw is whitespace or has whitespaces
+            return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
     pw_hash = bcrypt.hashpw(pw.encode(cons.PAYLOAD_UTF8), bcrypt.gensalt(10))
     if session_manager.write_user(username, cons.USER_DEFAULT_ROLE, pw_hash):
         return jsonify({cons.PAYLOAD_STATUS: cons.OK}), 200
@@ -161,4 +168,4 @@ def db_seed(main_app_service):
 db_setup(app, app_service)
 
 if __name__ == "__main__":
-    app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)
+    #app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)
