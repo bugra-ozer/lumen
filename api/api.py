@@ -1,6 +1,9 @@
 import secrets, bcrypt, jwt, os, logging, sqlalchemy, requests
 from os import access
 from flask import request, Flask, jsonify, g
+from flask_limiter import Limiter, RateLimitExceeded
+from flask_limiter.util import get_remote_address
+
 from main import AppService
 from pathlib import Path
 from dotenv import load_dotenv
@@ -39,12 +42,33 @@ def before_request():
             except jwt.InvalidTokenError: return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.TOKEN_INVALID}), 401
     return None
 
+@app.errorhandler(RateLimitExceeded)
+def error_handler(e):
+    logger.exception(e)
+    return jsonify({cons.PAYLOAD_STATUS: cons.ERROR_EXCEEDED_RATE}), 429
+
 @app.errorhandler(Exception)
 def error_handler(e):
     logger.exception(e)
     return jsonify({cons.PAYLOAD_STATUS: cons.SERVER_FAILED}), 500
 
+def username_bucket():
+    """ Takes a username given in request .json.
+
+    Returns:
+        username if username is string and has no whitespaces OR default username."""
+    text=request.get_json(silent=True)
+    if text is not None:
+        username=text.get(cons.PAYLOAD_USERNAME) # noqa
+    else:
+        return cons.USERNAME_BUCKET_DEFAULT
+    if isinstance(username, str) and ' ' not in username:return username
+    else:return cons.USERNAME_BUCKET_DEFAULT
+
+limiter=Limiter(get_remote_address,app=app,storage_uri=cons.ENDPOINT_MEMORY)
+
 @app.route(cons.ENDPOINT_LOGIN, methods=["POST"])
+@limiter.limit('10 per hour', key_func=username_bucket)
 def login():
     """Hashed credentials verification."""
     text=request.get_json(force=True)
@@ -66,6 +90,24 @@ def login():
             return jsonify({cons.PAYLOAD_ACCESS_TOKEN: access_token, cons.PAYLOAD_REFRESH_TOKEN: ref_token, cons.PAYLOAD_USER_ID: user_object.user_id}), 200
         else:
             return jsonify({cons.PAYLOAD_STATUS: cons.ERROR, cons.PAYLOAD_MESSAGE: cons.INVALID_CREDENTIALS}), 401
+
+@app.route(cons.ENDPOINT_REGISTER, methods=[cons.METHOD_POST])
+@limiter.limit('10 per hour', key_func=username_bucket)
+def register():
+    """Register a new user."""
+    text = request.get_json(force=True)
+    pw = text.get(cons.PAYLOAD_PW)
+    username = text.get(cons.PAYLOAD_USERNAME)
+    if not isinstance(username, str) or not isinstance(pw, str):
+        return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
+    else:
+        if ' ' in username or ' ' in pw: #username or pw is whitespace or has whitespaces
+            return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
+    pw_hash = bcrypt.hashpw(pw.encode(cons.PAYLOAD_UTF8), bcrypt.gensalt(10))
+    if session_manager.write_user(username, cons.USER_DEFAULT_ROLE, pw_hash):
+        return jsonify({cons.PAYLOAD_STATUS: cons.OK}), 200
+    else:
+        return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 409
 
 @app.route(cons.ENDPOINT_REFRESH, methods=[cons.METHOD_POST])
 def refresh():
@@ -121,23 +163,6 @@ def health():
     """Simple health check endpoint."""
     return jsonify({cons.PAYLOAD_STATUS: cons.OK})
 
-@app.route(cons.ENDPOINT_REGISTER, methods=[cons.METHOD_POST])
-def register():
-    """Register a new user."""
-    text = request.get_json(force=True)
-    pw = text.get(cons.PAYLOAD_PW)
-    username = text.get(cons.PAYLOAD_USERNAME)
-    if not isinstance(username, str) or not isinstance(pw, str):
-        return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
-    else:
-        if ' ' in username or ' ' in pw: #username or pw is whitespace or has whitespaces
-            return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
-    pw_hash = bcrypt.hashpw(pw.encode(cons.PAYLOAD_UTF8), bcrypt.gensalt(10))
-    if session_manager.write_user(username, cons.USER_DEFAULT_ROLE, pw_hash):
-        return jsonify({cons.PAYLOAD_STATUS: cons.OK}), 200
-    else:
-        return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 409
-
 @app.route(cons.ENDPOINT_LOGOUT, methods=[cons.METHOD_POST])
 def logout():
     """Delete refresh token."""
@@ -168,4 +193,5 @@ def db_seed(main_app_service):
 db_setup(app, app_service)
 
 if __name__ == "__main__":
+    """"""
     #app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)

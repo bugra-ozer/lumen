@@ -83,6 +83,7 @@ INVALID_CREDENTIALS='Invalid credentials'
 REGISTER_FAILED='Registration failed'
 LOGOUT_FAILED='Logout failed'
 SERVER_FAILED='Server error, try again'
+ERROR_EXCEEDED_RATE='Too many requests.'
 USER_DEFAULT_ROLE='BASIC'
 PAYLOAD_USER_ID='user_id'
 PAYLOAD_EXP='exp'
@@ -94,6 +95,7 @@ PAYLOAD_MESSAGE='message'
 PAYLOAD_PW='pw'
 PAYLOAD_USERNAME='username'
 PAYLOAD_UTF8='UTF-8'
+USERNAME_BUCKET_DEFAULT='lumen-user'
 METHOD_GET='GET'
 METHOD_POST='POST'
 ENDPOINT_REFRESH="/refresh"
@@ -105,6 +107,7 @@ ENDPOINT_LOGOUT="/logout"
 TMDB_BASE_URL='https://image.tmdb.org/t/p/'
 TMDB_POSTER_SIZE='w500'
 BLANK_POSTER_URL= "/static/placeholder_poster.webp"
+ENDPOINT_MEMORY='memory://'
 
 #Bayes cons
 M_POOL=25

@@ -3,6 +3,7 @@ pathlib
 requests
 tqdm
 flask
+flask-limiter
 PyJWT
 bcrypt
 python-dotenv
