@@ -68,13 +68,13 @@ document.getElementById('register-btn').addEventListener('click', function(){
     .then(response => response.json().then(data => ({status: response.status, body: data})))
     .then(result => {
         const errorEl = document.getElementById('auth-error');
-        if (result.status === 409) {
-            errorEl.textContent = 'That username is already taken.';
-            errorEl.classList.remove('hidden');
-        } else {
+        if (result.status >= 200 && result.status < 300) {
             errorEl.classList.add('hidden');
             errorEl.textContent = '';
             alert('Registered! You can log in now.');
+        } else {
+            errorEl.textContent = result.body.status || 'Registration failed. Please check your input.';
+            errorEl.classList.remove('hidden');
         }
     });
 })
