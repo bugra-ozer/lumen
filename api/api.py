@@ -62,7 +62,7 @@ def username_bucket():
         username=text.get(cons.PAYLOAD_USERNAME) # noqa
     else:
         return cons.USERNAME_BUCKET_DEFAULT
-    if isinstance(username, str) and ' ' not in username:return username
+    if isinstance(username, str):return username
     else:return cons.USERNAME_BUCKET_DEFAULT
 
 limiter=Limiter(get_remote_address,app=app,storage_uri=cons.ENDPOINT_MEMORY)
@@ -101,7 +101,7 @@ def register():
     if not isinstance(username, str) or not isinstance(pw, str):
         return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
     else:
-        if ' ' in username or ' ' in pw: #username or pw is whitespace or has whitespaces
+        if ' ' in username or ' ' in pw or username.lower()!=username: #username or pw is whitespace or has whitespaces
             return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
     pw_hash = bcrypt.hashpw(pw.encode(cons.PAYLOAD_UTF8), bcrypt.gensalt(10))
     if session_manager.write_user(username, cons.USER_DEFAULT_ROLE, pw_hash):
