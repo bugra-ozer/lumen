@@ -5,6 +5,8 @@ const container = document.getElementById('genre-container');
 for (const genre of genres) {
     const box = document.createElement('div');
     box.className = 'genre-pill';
+    box.textContent = genre;
+    box.dataset.genre = genre;
     box.addEventListener('click', function(){
         box.classList.toggle('selected');
     });
@@ -81,7 +83,7 @@ document.getElementById('register-btn').addEventListener('click', function(){
 
 /** RECOMMENDATION */
 document.getElementById('recommend-btn').addEventListener('click', function() {
-    const selectedGenres = Array.from(document.querySelectorAll('.selected')).map(box => box.textContent);
+    const selectedGenres = Array.from(document.querySelectorAll('.selected')).map(box => box.dataset.genre);
     const ratingFrom = parseFloat(document.getElementById('rating-from').value);
     const ratingTo = parseFloat(document.getElementById('rating-to').value);
 
