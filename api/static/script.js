@@ -1,4 +1,5 @@
 let token = null;
+let refreshToken = null;
 const genres = ["action", "adventure", "animation", "biography", "comedy", "crime", "documentary", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "romance", "sci-fi", "sport", "thriller", "war", "western"]
 const container = document.getElementById('genre-container');
 
@@ -35,6 +36,8 @@ document.getElementById('login-btn').addEventListener('click', function() {
 
             if (result.status === 200) {
                 token = result.body.access_token;
+                refreshToken = result.body.refresh_token;
+                localStorage.setItem('refreshToken', refreshToken);
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('filter-section').classList.remove('hidden');
             } else {
@@ -43,6 +46,46 @@ document.getElementById('login-btn').addEventListener('click', function() {
                 errorEl.classList.remove('hidden');
             }
         });
+});
+
+function authFetch(url, options) {
+    options.headers = options.headers || {};
+    options.headers['Authorization'] = 'Bearer ' + token;
+
+    return fetch(url, options).then(response => {
+        if (response.status !== 401) {
+            return response;
+        }
+        return fetch('/refresh', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({refresh_token: refreshToken})
+        })
+        .then(refreshResponse => refreshResponse.json())
+        .then(refreshData => {
+            token = refreshData.access_token;
+            options.headers['Authorization'] = 'Bearer ' + token;
+            return fetch(url, options);
+        });
+    });
+}
+
+window.addEventListener('load', function() {
+    const savedRefreshToken = localStorage.getItem('refreshToken');
+    if (!savedRefreshToken) return;
+
+    fetch('/refresh', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({refresh_token: savedRefreshToken})
+    })
+    .then(response => response.json())
+    .then(data => {
+        token = data.access_token;
+        refreshToken = savedRefreshToken;
+        document.getElementById('auth-section').classList.add('hidden');
+        document.getElementById('filter-section').classList.remove('hidden');
+    });
 });
 
 document.getElementById('pw').addEventListener('keydown', function(event) {
@@ -104,12 +147,9 @@ document.getElementById('recommend-btn').addEventListener('click', function() {
         filterTools.rating = { value: [ratingTo], operator: '<' };
     }
 
-    fetch('/recommendations', {
+    authFetch('/recommendations', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ filter_tools: filterTools })
     })
     .then(response => response.json())

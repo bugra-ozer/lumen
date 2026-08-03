@@ -68,7 +68,7 @@ def username_bucket():
 limiter=Limiter(get_remote_address,app=app,storage_uri=cons.ENDPOINT_MEMORY)
 
 @app.route(cons.ENDPOINT_LOGIN, methods=["POST"])
-@limiter.limit('10 per hour', key_func=username_bucket)
+@limiter.limit('20 per hour', key_func=username_bucket)
 def login():
     """Hashed credentials verification."""
     text=request.get_json(force=True)
