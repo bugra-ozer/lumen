@@ -58,6 +58,12 @@ header::after {
   margin-bottom: 24px;
 }
 
+.hint-text {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin: -8px 0 12px;
+}
+
 #filter-section { max-width: 560px; }
 
 .hidden { display: none; }

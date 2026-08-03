@@ -3,7 +3,6 @@ from os import access
 from flask import request, Flask, jsonify, g
 from flask_limiter import Limiter, RateLimitExceeded
 from flask_limiter.util import get_remote_address
-
 from main import AppService
 from pathlib import Path
 from dotenv import load_dotenv
@@ -194,4 +193,4 @@ db_setup(app, app_service)
 
 if __name__ == "__main__":
     """"""
-    #app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)
+    app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)

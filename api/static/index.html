@@ -21,6 +21,7 @@
 
     <div id="auth-section">
         <input type="text" id="username" placeholder="Username">
+        <p class="hint-text">Lowercase letters only</p>
         <input type="password" id="pw" placeholder="Password">
         <button id="login-btn">Login</button>
         <button id="register-btn">Register</button>
@@ -29,8 +30,8 @@
 
     <div id="filter-section" class="hidden">
         <div class="rating-row">
-            <input type="number" id="rating-from" placeholder="From">
-            <input type="number" id="rating-to" placeholder="To">
+            <input type="number" id="rating-from" placeholder="1">
+            <input type="number" id="rating-to" placeholder="10">
         </div>
         <div id="genre-container"></div>
         <button id="recommend-btn">Show Results</button>

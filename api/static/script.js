@@ -16,10 +16,37 @@ for (const genre of genres) {
     container.appendChild(box);
 }
 
+function performLogin(username, pw) {
+    return fetch('/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username: username, pw: pw})
+    })
+    .then(response => response.json().then(data => ({status: response.status, body: data})))
+    .then(result => {
+        const errorEl = document.getElementById('auth-error');
+        if (result.status === 200) {
+            token = result.body.access_token;
+            refreshToken = result.body.refresh_token;
+            localStorage.setItem('refreshToken', refreshToken);
+            localStorage.setItem('username', username);
+            currentUsername = username;
+            document.getElementById('user-bar').classList.remove('hidden');
+            document.getElementById('username-display').textContent = 'Signed in as ' + currentUsername;
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('filter-section').classList.remove('hidden');
+        } else {
+            errorEl.textContent = 'Invalid username or password.';
+            errorEl.classList.remove('hidden');
+        }
+    });
+}
+
 document.getElementById('login-btn').addEventListener('click', function() {
-    const username = document.getElementById('username').value.trim();
+    const username = document.getElementById('username').value.trim().toLowerCase();
     const pw = document.getElementById('pw').value.trim();
     const errorEl = document.getElementById('auth-error');
+    const loginBtn = document.getElementById('login-btn');
 
     if (!username || !pw) {
         errorEl.textContent = 'Please enter both fields to login.';
@@ -27,29 +54,13 @@ document.getElementById('login-btn').addEventListener('click', function() {
         return;
     }
 
-    fetch('/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({username: username, pw: pw})
-            })
-        .then(response => response.json().then(data => ({status: response.status, body: data})))
-        .then(result => {
-
-            if (result.status === 200) {
-                token = result.body.access_token;
-                localStorage.setItem('username', username);
-                refreshToken = result.body.refresh_token;
-                localStorage.setItem('refreshToken', refreshToken);
-                document.getElementById('user-bar').classList.remove('hidden');
-                currentUsername = localStorage.getItem('username');
-                document.getElementById('username-display').textContent = 'Signed in as ' + currentUsername;
-                document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('filter-section').classList.remove('hidden');
-            } else {
-                const errorEl = document.getElementById('auth-error');
-                errorEl.textContent = 'Invalid username or password.';
-                errorEl.classList.remove('hidden');
-            }
+    loginBtn.disabled = true;
+    performLogin(username, pw)
+        .then(() => { loginBtn.disabled = false; })
+        .catch(() => {
+            loginBtn.disabled = false;
+            errorEl.textContent = 'Network error. Please try again.';
+            errorEl.classList.remove('hidden');
         });
 });
 
@@ -122,15 +133,18 @@ document.getElementById('pw').addEventListener('keydown', function(event) {
 });
 
 document.getElementById('register-btn').addEventListener('click', function(){
-    const username = document.getElementById('username').value.trim();
+    const username = document.getElementById('username').value.trim().toLowerCase();
     const pw = document.getElementById('pw').value.trim();
     const errorEl = document.getElementById('auth-error');
+    const registerBtn = document.getElementById('register-btn');
 
     if (!username || !pw) {
         errorEl.textContent = 'Please enter both fields to register.';
         errorEl.classList.remove('hidden');
         return;
     }
+
+    registerBtn.disabled = true;
 
     fetch('/register', {
         method: 'POST',
@@ -139,15 +153,20 @@ document.getElementById('register-btn').addEventListener('click', function(){
     })
     .then(response => response.json().then(data => ({status: response.status, body: data})))
     .then(result => {
-        const errorEl = document.getElementById('auth-error');
         if (result.status >= 200 && result.status < 300) {
             errorEl.classList.add('hidden');
             errorEl.textContent = '';
-            alert('Registered! You can log in now.');
+            return performLogin(username, pw);
         } else {
             errorEl.textContent = result.body.status || 'Registration failed. Please check your input.';
             errorEl.classList.remove('hidden');
         }
+    })
+    .then(() => { registerBtn.disabled = false; })
+    .catch(() => {
+        registerBtn.disabled = false;
+        errorEl.textContent = 'Network error. Please try again.';
+        errorEl.classList.remove('hidden');
     });
 })
 
