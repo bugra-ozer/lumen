@@ -24,7 +24,7 @@ class RefreshToken(db.Model):
     refresh_token_id=db.Column(db.Integer,primary_key=True)
     refresh_token=db.Column(db.String(64))
     user_id=db.Column(db.Integer,db.ForeignKey(f'{cons.TABLE_NAME_USERS}.user_id'))
-    expiry_at=db.Column(db.DateTime,default=lambda:datetime.now(timezone.utc)+timedelta(days=30))
+    expiry_at=db.Column(db.DateTime(timezone=True),default=lambda:datetime.now(timezone.utc)+timedelta(days=30))
 
 class PreviousData(db.Model):
     __tablename__=cons.TABLE_NAME_PREVIOUS_DATA
