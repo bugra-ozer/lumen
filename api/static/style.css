@@ -111,6 +111,25 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   margin: 16px 0 20px;
 }
 
+.hidden {
+  display: none !important;
+}
+#user-bar {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+#user-bar button {
+  padding: 6px 14px;
+  font-size: 12px;
+}
+
 .genre-pill {
   padding: 8px 14px;
   border: 1px solid var(--border);

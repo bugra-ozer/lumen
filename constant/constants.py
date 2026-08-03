@@ -70,7 +70,7 @@ DATASET_COLUMN_MASK_KEY = 'column_mask'
 DATASET_MASK_KEY = 'mask'
 
 #API cons
-PUBLIC_PATHS='/login', '/refresh', '/register', '/health', '/'
+PUBLIC_PATHS='/login', '/refresh', '/register', '/health', '/', '/logout'
 FILTER_TOOLS_INVALID='Invalid filter_tools'
 FILTER_TOOLS_NOT_SURE='Filter tools not found or invalid'
 ERROR=('ERROR')
