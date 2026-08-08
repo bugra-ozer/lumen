@@ -1,17 +1,17 @@
 [![Lumen](asset/lumen_logo.svg)](https://lumen-mmjq.onrender.com/)
 > A movie recommendation engine with a Flask API, JWT auth, and Bayesian scoring against the IMDb dataset.
 
-[![.github/workflows/ci.yml](https://github.com/bugra-ozer/lumen/actions/workflows/ci.yml/badge.svg)](https://github.com/bugra-ozer/lumen/actions/workflows/ci.yml)
-![Python](https://img.shields.io/badge/Python-v3.10+-3776AB?style=flat&logo=python&logoColor=white)
-![HTML](https://img.shields.io/badge/HTML-v5-E34F26?style=flat&logo=html5&logoColor=white)
-![CSS](https://img.shields.io/badge/CSS-v3-1572B6?style=flat&logo=css3&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-vECMA-F7DF1E?style=flat&logo=javascript&logoColor=black)
-![Flask](https://img.shields.io/badge/v3.1%2B-3776AB?style=flat&logo=Flask&label=Flask)
-![PostgreSQL](https://img.shields.io/badge/v18.4%2B-000000?style=flat&logo=PostgreSQL&label=PostgreSQL)
-![Docker](https://img.shields.io/badge/v29.5.2%2B-000000?style=flat&logo=Docker&label=Docker)
-![Pandas](https://img.shields.io/badge/v3.0%2B-000000?style=flat&logo=Pandas&label=Pandas)
-![IMDB](https://img.shields.io/badge/Data-000000?style=flat&logo=IMDb)
-![Auth](https://img.shields.io/badge/bcrypt,_JWT,_secrets-000000?style=flat&logo=jsonwebtokens&logoColor=white&label=Auth)
+[![.github/workflows/ci.yml](https://img.shields.io/github/actions/workflow/status/bugra-ozer/lumen/ci.yml?style=flat-square&logo=github&label=Continuous%20Integration)](https://github.com/bugra-ozer/lumen/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-v3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
+![HTML](https://img.shields.io/badge/HTML-v5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS](https://img.shields.io/badge/CSS-v3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-vECMA-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![Flask](https://img.shields.io/badge/v3.1%2B-3776AB?style=flat-square&logo=Flask&label=Flask)
+![PostgreSQL](https://img.shields.io/badge/v18.4%2B-000000?style=flat-square&logo=PostgreSQL&label=PostgreSQL)
+![Docker](https://img.shields.io/badge/v29.5.2%2B-000000?style=flat-square&logo=Docker&label=Docker)
+![Pandas](https://img.shields.io/badge/v3.0%2B-000000?style=flat-square&logo=Pandas&label=Pandas)
+![IMDB](https://img.shields.io/badge/Data-000000?style=flat-square&logo=IMDb)
+![Auth](https://img.shields.io/badge/bcrypt,_JWT,_secrets-000000?style=flat-square&logo=jsonwebtokens&logoColor=white&label=Auth)
 ---
 
 ## What is it?
