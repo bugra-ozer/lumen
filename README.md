@@ -77,7 +77,7 @@ Three-layer security stack:
 
 - **bcrypt** (cost factor 12) — password hashing.
 - **JWT (HS256)** — self-verifying signed access tokens, 15-minute expiry, no DB lookup required per request
-- **secrets.token_hex** — cryptographically random refresh tokens, 30-day expiry, server-side dictionary lookup
+- **secrets.token_hex** — cryptographically random refresh tokens, 30-day expiry, DB lookup
 
 ---
 
