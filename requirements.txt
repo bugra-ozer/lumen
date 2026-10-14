@@ -10,5 +10,5 @@ python-dotenv
 flask-sqlalchemy
 numpy
 psycopg2-binary
-sqlalchemy
+sqlalchemy>=2.0.52,<2.1
 gunicorn
