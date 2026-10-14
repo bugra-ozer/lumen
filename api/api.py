@@ -13,6 +13,8 @@ from db.database import db, engine_standalone, DATABASE_URL
 from db.models import *
 from persister.session_manager import SessionManager
 from validator import validator
+import sqlalchemy
+print("SQLAlchemy-BGR:", sqlalchemy.__version__)
 
 logger = logging.getLogger(__name__)
 
