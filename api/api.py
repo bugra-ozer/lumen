@@ -1,4 +1,4 @@
-import secrets, bcrypt, jwt, os, logging, sqlalchemy, requests
+import secrets, bcrypt, jwt, os, sqlalchemy, logging, requests, re
 from os import access
 from flask import request, Flask, jsonify, g
 from flask_limiter import Limiter, RateLimitExceeded
@@ -24,6 +24,7 @@ app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app_service=AppService(engine_standalone)
 session_manager = SessionManager(db)
+USERNAME_RE = re.compile(r"^[a-z0-9_-]+$")
 
 @app.before_request
 def before_request():
@@ -99,9 +100,17 @@ def register():
     username = text.get(cons.PAYLOAD_USERNAME)
     if not isinstance(username, str) or not isinstance(pw, str):
         return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
-    else:
-        if ' ' in username or ' ' in pw or username.lower()!=username: #username or pw is whitespace or has whitespaces
-            return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
+    if (
+        not username
+        or not USERNAME_RE.fullmatch(username)
+        or username[0] in "-_"
+        or username[-1] in "_-"
+        or username in cons.RESERVED_USERNAMES
+    ):
+        return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
+    if any(c.isspace() for c in pw):
+        return jsonify({cons.PAYLOAD_STATUS: cons.REGISTER_FAILED}), 400
+
     pw_hash = bcrypt.hashpw(pw.encode(cons.PAYLOAD_UTF8), bcrypt.gensalt(10))
     if session_manager.write_user(username, cons.USER_DEFAULT_ROLE, pw_hash):
         return jsonify({cons.PAYLOAD_STATUS: cons.OK}), 200

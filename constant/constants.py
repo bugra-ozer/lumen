@@ -108,6 +108,7 @@ TMDB_BASE_URL='https://image.tmdb.org/t/p/'
 TMDB_POSTER_SIZE='w500'
 BLANK_POSTER_URL= "/static/placeholder_poster.webp"
 ENDPOINT_MEMORY='memory://'
+RESERVED_USERNAMES = frozenset({"admin", "root", "support", "api", "null", "undefined", "me", "system"})
 
 #Bayes cons
 M_POOL=25
