@@ -53,9 +53,9 @@ Deployed and usable at: [Lumen](https://lumen-mmjq.onrender.com/)
 
 A minimal web interface is served directly by Flask (`api/static/`) — no framework, plain HTML/CSS/JS. Register or log in, pick genres and a rating range, and browse recommendations as a poster grid.
 
-- Genre filters are multi-select
-- Rating filters support a minimum, a maximum, or a full range
-- Posters are fetched live per recommendation via TMDb (see below), with a fallback placeholder when no match is found
+- Genre filters are multi-select.
+- Rating filters support a minimum, a maximum, or a full range.
+- Posters are fetched live per recommendation via TMDb (see below), with a fallback placeholder when no match is found.
 
 ---
  
@@ -76,8 +76,8 @@ All protected routes require `Authorization: Bearer <token>`.
 Three-layer security stack:
 
 - **bcrypt** (cost factor 12) — password hashing.
-- **JWT (HS256)** — self-verifying signed access tokens, 15-minute expiry, no DB lookup required per request
-- **secrets.token_hex** — cryptographically random refresh tokens, 30-day expiry, DB lookup
+- **JWT (HS256)** — self-verifying signed access tokens, 15-minute expiry, no DB lookup required per request.
+- **secrets.token_hex** — cryptographically random refresh tokens, 30-day expiry, DB lookup.
 
 ---
 
