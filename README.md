@@ -112,7 +112,7 @@ This preserves the robustness of the Bayesian estimate while introducing a mild 
 Use at: [Lumen](https://lumen-mmjq.onrender.com/) OR
 ```bash
 ## Requirements
-- Python 3.10+
+- Python 3.14+
 - Docker Desktop
 
 ## Running
