@@ -36,7 +36,7 @@ Deployed and usable at: [Lumen](https://lumen-mmjq.onrender.com/)
  
 | Layer           | Technology                                                   |
 |-----------------|--------------------------------------------------------------|
-| Language        | Python 3.10+, HTML, CSS, JS                                  |
+| Language        | Python 3.14+, HTML, CSS, JS                                  |
 | API             | Flask 3.1+                                                   |
 | Database Tools  | psycopg2-binary, Flask-SQLAlchemy, SQLAlchemy                |
 | Database Deploy | PostgreSQL (Neon in production, Docker locally)              |
