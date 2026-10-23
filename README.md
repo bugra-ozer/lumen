@@ -2,7 +2,7 @@
 > A movie recommendation engine with a Flask API, JWT auth, and Bayesian scoring against the IMDb dataset.
 
 [![.github/workflows/ci.yml](https://img.shields.io/github/actions/workflow/status/bugra-ozer/lumen/ci.yml?style=flat-square&logo=github&label=Continuous%20Integration)](https://github.com/bugra-ozer/lumen/actions/workflows/ci.yml)
-![Python](https://img.shields.io/badge/Python-v3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-v3.14+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![HTML](https://img.shields.io/badge/HTML-v5-E34F26?style=flat-square&logo=html5&logoColor=white)
 ![CSS](https://img.shields.io/badge/CSS-v3-1572B6?style=flat-square&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-vECMA-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
