@@ -49,28 +49,6 @@ Deployed and usable at: [Lumen](https://lumen-mmjq.onrender.com/)
 
 ---
 
-## Frontend
-
-A minimal web interface is served directly by Flask (`api/static/`) — no framework, plain HTML/CSS/JS. Register or log in, pick genres and a rating range, and browse recommendations as a poster grid.
-
-- Genre filters are multi-select.
-- Rating filters support a minimum, a maximum, or a full range.
-- Posters are fetched live per recommendation via TMDb (see below), with a fallback placeholder when no match is found.
-
----
- 
-## API Endpoints
- 
-- `POST /login` — Returns JWT access token + refresh token.
-- `POST /register` — Returns status and inserts user to dB.
-- `POST /refresh` — Exchanges refresh token for new access token.
-- `POST /logout` — Returns status and deletes the refresh token.
-- `POST /recommendations` — Returns scored, filtered movie list *(protected)*. Accepts filter parameters genre, rating range/operators. 
-- `GET /health` — Service health check.
-All protected routes require `Authorization: Bearer <token>`.
- 
----
-
 ## Auth Design
 
 Three-layer security stack:
